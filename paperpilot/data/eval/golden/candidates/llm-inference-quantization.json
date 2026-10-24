@@ -1,0 +1,569 @@
+{
+  "version": 1,
+  "topic": "llm-inference-quantization",
+  "title": "LLM 推理与量化",
+  "provenance": "human-required",
+  "status": "unlabeled",
+  "created_at": "2026-10-22 11:55:34",
+  "target": {
+    "papers": 6,
+    "claims": 50
+  },
+  "papers_available": 6,
+  "shortfall": {
+    "papers": 0,
+    "claims": 0
+  },
+  "claims": [
+    {
+      "id": "g-llm-inference-quantization-001",
+      "paper_id": "epmc:42780825",
+      "claim": "Methods Fed-XLM-R integrates XLM-RoBERTa with lightweight bottleneck adapter layers, adapter-scoped differentially private stochastic gradient descent (DP-SGD), proximal regularization for straggler-robust aggregation (FedProx), and INT8 post-training quantization for edge deployment.",
+      "evidence_quote": "Methods Fed-XLM-R integrates XLM-RoBERTa with lightweight bottleneck adapter layers, adapter-scoped differentially private stochastic gradient descent (DP-SGD), proximal regularization for straggler-robust aggregation (FedProx), and INT8 post-training quantization for edge deployment.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-002",
+      "paper_id": "epmc:42780825",
+      "claim": "Gradient perturbation is confined exclusively to the 0.87% trainable adapter subspace rather than the full 270-million-parameter model.",
+      "evidence_quote": "Gradient perturbation is confined exclusively to the 0.87% trainable adapter subspace rather than the full 270-million-parameter model.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-003",
+      "paper_id": "epmc:42780825",
+      "claim": "The framework was evaluated in a simulated 10-client federation on a public benchmark, with intent classification trained and evaluated on English data.",
+      "evidence_quote": "The framework was evaluated in a simulated 10-client federation on a public benchmark, with intent classification trained and evaluated on English data.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-004",
+      "paper_id": "epmc:42780825",
+      "claim": "A cross-lingual diagnostic was additionally run on the XNLI benchmark across five languages (English, Spanish, Hindi, Swahili, Arabic) against an mBERT baseline, and canary phrase memorization analysis was conducted across all 50 federated rounds to assess data extraction risk.",
+      "evidence_quote": "A cross-lingual diagnostic was additionally run on the XNLI benchmark across five languages (English, Spanish, Hindi, Swahili, Arabic) against an mBERT baseline, and canary phrase memorization analysis was conducted across all 50 federated rounds to assess data extraction risk.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-005",
+      "paper_id": "epmc:42780825",
+      "claim": "Results At the clinically meaningful privacy budget of ε = 1.0 ( δ = 10 -5 , Fed-XLM-R achieves 96% accuracy retention, yielding an overall accuracy of 0.923, F1-score of 0.918, and AUC-ROC of 0.956, within 0.5% of a centralized baseline while providing formal differential privacy guarantees.",
+      "evidence_quote": "Results At the clinically meaningful privacy budget of ε = 1.0 ( δ = 10 -5 , Fed-XLM-R achieves 96% accuracy retention, yielding an overall accuracy of 0.923, F1-score of 0.918, and AUC-ROC of 0.956, within 0.5% of a centralized baseline while providing formal differential privacy guarantees.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-006",
+      "paper_id": "epmc:42780825",
+      "claim": "Adapter-only parameter transmission reduces cumulative communication cost by 40.7-fold at the 85% accuracy threshold, at a per-round volume compatible with standard mobile data networks.",
+      "evidence_quote": "Adapter-only parameter transmission reduces cumulative communication cost by 40.7-fold at the 85% accuracy threshold, at a per-round volume compatible with standard mobile data networks.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-007",
+      "paper_id": "epmc:42780825",
+      "claim": "INT8 quantization reduces inference latency from 1,974 ms to 523 ms on low-end CPU hardware, a 3.8-fold speedup.",
+      "evidence_quote": "INT8 quantization reduces inference latency from 1,974 ms to 523 ms on low-end CPU hardware, a 3.8-fold speedup.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-008",
+      "paper_id": "epmc:42780825",
+      "claim": "Introduction Mental health triage-level intent classification in linguistically diverse and resource-constrained clinical environments requires models that simultaneously meet strict patient data privacy regulations, cross-lingual generalization to low-resource languages, and real-time inference on edge hardware.",
+      "evidence_quote": "Introduction Mental health triage-level intent classification in linguistically diverse and resource-constrained clinical environments requires models that simultaneously meet strict patient data privacy regulations, cross-lingual generalization to low-resource languages, and real-time inference on edge hardware.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-009",
+      "paper_id": "epmc:42780825",
+      "claim": "No existing federated NLP system has jointly demonstrated this combination.",
+      "evidence_quote": "No existing federated NLP system has jointly demonstrated this combination.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-010",
+      "paper_id": "epmc:42780825",
+      "claim": "This work proposes Fed-XLM-R, a unified federated learning framework designed to close that gap.",
+      "evidence_quote": "This work proposes Fed-XLM-R, a unified federated learning framework designed to close that gap.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-011",
+      "paper_id": "epmc:42740149",
+      "claim": "Using a fixed state-of-the-art spatial-spectral transformer backbone, a common mixed-precision strategy, and identical training and inference protocols, we evaluate FP32, FP16, BF16, FP8, and NVFP4 across predictive performance, model compression, training efficiency, and inference efficiency.",
+      "evidence_quote": "Using a fixed state-of-the-art spatial-spectral transformer backbone, a common mixed-precision strategy, and identical training and inference protocols, we evaluate FP32, FP16, BF16, FP8, and NVFP4 across predictive performance, model compression, training efficiency, and inference efficiency.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-012",
+      "paper_id": "epmc:42740149",
+      "claim": "The results show that mixed-precision FQT remains highly robust across the tested precision spectrum, with all reduced-precision configurations staying within 0.63 percentage points of the FP32 baseline in overall accuracy while consistently outperforming PTQ at matched precisions.",
+      "evidence_quote": "The results show that mixed-precision FQT remains highly robust across the tested precision spectrum, with all reduced-precision configurations staying within 0.63 percentage points of the FP32 baseline in overall accuracy while consistently outperforming PTQ at matched precisions.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-013",
+      "paper_id": "epmc:42740149",
+      "claim": "Across the evaluated formats, BF16 provides the closest accuracy to FP32, whereas FP8 offers a particularly favorable balance between accuracy preservation and reduced precision, while model compression increases progressively to 3.69× under NVFP4.",
+      "evidence_quote": "Across the evaluated formats, BF16 provides the closest accuracy to FP32, whereas FP8 offers a particularly favorable balance between accuracy preservation and reduced precision, while model compression increases progressively to 3.69× under NVFP4.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-014",
+      "paper_id": "epmc:42740149",
+      "claim": "Native FP8/FP4 hardware support does not automatically improve training throughput for this compact model at moderate workloads, and the larger training batches required to better utilize low-precision hardware can degrade predictive performance.",
+      "evidence_quote": "Native FP8/FP4 hardware support does not automatically improve training throughput for this compact model at moderate workloads, and the larger training batches required to better utilize low-precision hardware can degrade predictive performance.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-015",
+      "paper_id": "epmc:42740149",
+      "claim": "In contrast, large-batch inference can effectively exploit FP8 and NVFP4 without affecting predictive accuracy.",
+      "evidence_quote": "In contrast, large-batch inference can effectively exploit FP8 and NVFP4 without affecting predictive accuracy.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-016",
+      "paper_id": "epmc:42740149",
+      "claim": "An ablation study further shows that selective retention of numerically sensitive modules in FP32 is essential for stable ultra-low-precision operation.",
+      "evidence_quote": "An ablation study further shows that selective retention of numerically sensitive modules in FP32 is essential for stable ultra-low-precision operation.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-017",
+      "paper_id": "epmc:42740149",
+      "claim": "Overall, the findings demonstrate that low precision is a viable but workload-dependent design choice for compact HSI transformers, with FQT providing greater accuracy robustness than PTQ and FP8, offering a favorable overall accuracy-efficiency trade-off.",
+      "evidence_quote": "Overall, the findings demonstrate that low precision is a viable but workload-dependent design choice for compact HSI transformers, with FQT providing greater accuracy robustness than PTQ and FP8, offering a favorable overall accuracy-efficiency trade-off.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-018",
+      "paper_id": "epmc:42740149",
+      "claim": "Low-precision floating-point computation has become central to efficient artificial intelligence, yet its behavior for compact transformer-based hyperspectral imaging (HSI) models remains underexplored.",
+      "evidence_quote": "Low-precision floating-point computation has become central to efficient artificial intelligence, yet its behavior for compact transformer-based hyperspectral imaging (HSI) models remains underexplored.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-019",
+      "paper_id": "epmc:42740149",
+      "claim": "In this work, we present a controlled comparative study of fully quantized training (FQT) and post-training quantization (PTQ) for pixel-wise foreign plastic object (FPO) classification in poultry hyperspectral data.",
+      "evidence_quote": "In this work, we present a controlled comparative study of fully quantized training (FQT) and post-training quantization (PTQ) for pixel-wise foreign plastic object (FPO) classification in poultry hyperspectral data.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-020",
+      "paper_id": "epmc:42740149",
+      "claim": "The computational benefits, however, are strongly workload dependent.",
+      "evidence_quote": "The computational benefits, however, are strongly workload dependent.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-021",
+      "paper_id": "epmc:PPR1298757",
+      "claim": "We present an empirical case study of FP8 post-training quantization applied to GenomeOcean, a computationally efficient genomic foundation model with strong reported performance across diverse genomics tasks [Zhou et al., 2025].",
+      "evidence_quote": "We present an empirical case study of FP8 post-training quantization applied to GenomeOcean, a computationally efficient genomic foundation model with strong reported performance across diverse genomics tasks [Zhou et al., 2025].",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-022",
+      "paper_id": "epmc:PPR1298757",
+      "claim": "Its range of model scales, from 100M to 4B parameters, provides a useful setting for examining how quantization effects vary with model size.",
+      "evidence_quote": "Its range of model scales, from 100M to 4B parameters, provides a useful setting for examining how quantization effects vary with model size.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-023",
+      "paper_id": "epmc:PPR1298757",
+      "claim": "We evaluate FP8 across two primary GFM inference regimes—embedding extraction and autoregressive generation—and assess its impact along two dimensions: biological fidelity relative to BF16 baselines and system-level efficiency in terms of throughput, memory usage, and energy efficiency.",
+      "evidence_quote": "We evaluate FP8 across two primary GFM inference regimes—embedding extraction and autoregressive generation—and assess its impact along two dimensions: biological fidelity relative to BF16 baselines and system-level efficiency in terms of throughput, memory usage, and energy efficiency.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-024",
+      "paper_id": "epmc:PPR1298757",
+      "claim": "We find that FP8 largely preserves biological fidelity across the evaluated scales and inference regimes, while reducing GPU memory footprint at 4B scale and improving energy efficiency during autoregressive generation.",
+      "evidence_quote": "We find that FP8 largely preserves biological fidelity across the evaluated scales and inference regimes, while reducing GPU memory footprint at 4B scale and improving energy efficiency during autoregressive generation.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-025",
+      "paper_id": "epmc:PPR1298757",
+      "claim": "However, realized throughput gains remain substantially below FP8’s theoretical 2× hardware ceiling, with a best-case improvement of 19.3% in autoregressive generation and benefits varying strongly by model scale and workload.",
+      "evidence_quote": "However, realized throughput gains remain substantially below FP8’s theoretical 2× hardware ceiling, with a best-case improvement of 19.3% in autoregressive generation and benefits varying strongly by model scale and workload.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-026",
+      "paper_id": "epmc:PPR1298757",
+      "claim": "Genomic Foundation Models (GFMs) are increasingly used for large-scale sequence analysis and generation.",
+      "evidence_quote": "Genomic Foundation Models (GFMs) are increasingly used for large-scale sequence analysis and generation.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-027",
+      "paper_id": "epmc:PPR1298757",
+      "claim": "Compared with frontier language models, GFMs are typically smaller and frequently operate on long genomic sequences, with evaluation often requiring preservation of biologically meaningful structure and sequence-level relationships.",
+      "evidence_quote": "Compared with frontier language models, GFMs are typically smaller and frequently operate on long genomic sequences, with evaluation often requiring preservation of biologically meaningful structure and sequence-level relationships.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-028",
+      "paper_id": "epmc:PPR1298757",
+      "claim": "Although low-precision post-training quantization (PTQ) has shown substantial memory and throughput benefits for general-purpose language models, it remains unclear whether these benefits transfer to GFMs given their distinct model scales, sequence characteristics, and evaluation requirements.",
+      "evidence_quote": "Although low-precision post-training quantization (PTQ) has shown substantial memory and throughput benefits for general-purpose language models, it remains unclear whether these benefits transfer to GFMs given their distinct model scales, sequence characteristics, and evaluation requirements.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-029",
+      "paper_id": "epmc:PPR1298757",
+      "claim": "Autoregressive generation shows the clearest gains, driven largely by KV-cache compression, whereas embedding extraction provides limited or negative throughput benefits at smaller model scales.",
+      "evidence_quote": "Autoregressive generation shows the clearest gains, driven largely by KV-cache compression, whereas embedding extraction provides limited or negative throughput benefits at smaller model scales.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-030",
+      "paper_id": "epmc:PPR1298757",
+      "claim": "We attribute this theory–practice gap to the interaction of model-scale effects, memory-system bottlenecks, and software-stack limitations.",
+      "evidence_quote": "We attribute this theory–practice gap to the interaction of model-scale effects, memory-system bottlenecks, and software-stack limitations.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-031",
+      "paper_id": "cr:10.2139/ssrn.6384738",
+      "claim": "We present ADAPT (Adaptive Decomposition and Parallel Task Execution), a novel execution framework that enables efficient LLM inference on devices with as little as 4GB VRAM by intelligently decomposing queries into parallelizable micro-tasks and dynamically selecting among three distinct execution modes based on query complexity and system state.",
+      "evidence_quote": "We present ADAPT (Adaptive Decomposition and Parallel Task Execution), a novel execution framework that enables efficient LLM inference on devices with as little as 4GB VRAM by intelligently decomposing queries into parallelizable micro-tasks and dynamically selecting among three distinct execution modes based on query complexity and system state.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-032",
+      "paper_id": "cr:10.2139/ssrn.6384738",
+      "claim": "The core innovation of ADAPT is its tri-series execution strategy: Series 1 performs parallel GPU core allocation for complex queries, Series 2 implements fast CPU-GPU exchange for simple queries, and Series 3 adaptively switches between modes based on runtime metrics.",
+      "evidence_quote": "The core innovation of ADAPT is its tri-series execution strategy: Series 1 performs parallel GPU core allocation for complex queries, Series 2 implements fast CPU-GPU exchange for simple queries, and Series 3 adaptively switches between modes based on runtime metrics.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-033",
+      "paper_id": "cr:10.2139/ssrn.6384738",
+      "claim": "Through query decomposition analysis, GPU core group allocation, and intelligent compilation of distributed results, ADAPT achieves 6x memory efficiency compared to baseline approaches while maintaining inference quality.",
+      "evidence_quote": "Through query decomposition analysis, GPU core group allocation, and intelligent compilation of distributed results, ADAPT achieves 6x memory efficiency compared to baseline approaches while maintaining inference quality.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-034",
+      "paper_id": "cr:10.2139/ssrn.6384738",
+      "claim": "We demonstrate that models with 30B parameters can execute effectively on consumer-grade hardware through selective module activation and INT4 quantization.",
+      "evidence_quote": "We demonstrate that models with 30B parameters can execute effectively on consumer-grade hardware through selective module activation and INT4 quantization.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-035",
+      "paper_id": "cr:10.2139/ssrn.6384738",
+      "claim": "Our evaluation shows Series 1 execution provides a 3.3x speedup for complex queries through parallelization, while Series 2 achieves sub-second latency for simple queries through lightweight CPU-GPU communication.",
+      "evidence_quote": "Our evaluation shows Series 1 execution provides a 3.3x speedup for complex queries through parallelization, while Series 2 achieves sub-second latency for simple queries through lightweight CPU-GPU communication.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-036",
+      "paper_id": "cr:10.2139/ssrn.6384738",
+      "claim": "The deployment of large language models (LLMs) on memory-constrained devices remains a significant challenge in bringing advanced AI to consumer hardware.",
+      "evidence_quote": "The deployment of large language models (LLMs) on memory-constrained devices remains a significant challenge in bringing advanced AI to consumer hardware.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-037",
+      "paper_id": "cr:10.2139/ssrn.6384738",
+      "claim": "Existing approaches either accept severe quality degradation through model compression or require impractical hardware specifications.",
+      "evidence_quote": "Existing approaches either accept severe quality degradation through model compression or require impractical hardware specifications.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-038",
+      "paper_id": "cr:10.2139/ssrn.6384738",
+      "claim": "ADAPT represents a paradigm shift from parameter-centric scaling to execution-centric optimization, making advanced AI practical for local deployment while maintaining safety and interpretability.",
+      "evidence_quote": "ADAPT represents a paradigm shift from parameter-centric scaling to execution-centric optimization, making advanced AI practical for local deployment while maintaining safety and interpretability.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-039",
+      "paper_id": "cr:10.2139/ssrn.6217819",
+      "claim": "Evaluative Coherence Regulation (ECR) operates as a post-processing selection layer, evaluating multiple candidate response trajectories using five explicitly defined, bounded, and auditable coherence indicators designed for governance rather than optimization-evaluative variance, contradiction rate, trajectory smoothness, expectation stability, and policy divergence-each normalized to [0,1], and selecting responses that remain internally stable under uncertainty.",
+      "evidence_quote": "Evaluative Coherence Regulation (ECR) operates as a post-processing selection layer, evaluating multiple candidate response trajectories using five explicitly defined, bounded, and auditable coherence indicators designed for governance rather than optimization-evaluative variance, contradiction rate, trajectory smoothness, expectation stability, and policy divergence-each normalized to [0,1], and selecting responses that remain internally stable under uncertainty.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-040",
+      "paper_id": "cr:10.2139/ssrn.6217819",
+      "claim": "Type-1 regulation suppresses inadmissible commitment within single inference episodes; Type-2 regulation monitors interaction-level drift including sycophancy, value drift, and authority laundering.",
+      "evidence_quote": "Type-1 regulation suppresses inadmissible commitment within single inference episodes; Type-2 regulation monitors interaction-level drift including sycophancy, value drift, and authority laundering.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-041",
+      "paper_id": "cr:10.2139/ssrn.6217819",
+      "claim": "The three mechanisms compose via an invariant canonical control order: ECR → Control Probe Type-1 → IFCS → [output] → Control Probe Type-2.",
+      "evidence_quote": "The three mechanisms compose via an invariant canonical control order: ECR → Control Probe Type-1 → IFCS → [output] → Control Probe Type-2.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-042",
+      "paper_id": "cr:10.2139/ssrn.6217819",
+      "claim": "We provide formal definitions, a proposed taxonomy of 36 quiet failure modes with responsibility boundaries, and a framework coverage analysis demonstrating internally consistent jurisdictional assignment across the proposed taxonomy: each documented failure mode is assigned a clear primary governance locus, no two mechanisms overlap in jurisdiction, and each failure mode within the taxonomy is addressed.",
+      "evidence_quote": "We provide formal definitions, a proposed taxonomy of 36 quiet failure modes with responsibility boundaries, and a framework coverage analysis demonstrating internally consistent jurisdictional assignment across the proposed taxonomy: each documented failure mode is assigned a clear primary governance locus, no two mechanisms overlap in jurisdiction, and each failure mode within the taxonomy is addressed.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-043",
+      "paper_id": "cr:10.2139/ssrn.6217819",
+      "claim": "Large language model (LLM) systems frequently fail quietly-producing responses that are fluent, plausible, and well-formed yet subtly unreliable through internal inconsistency, premature commitment, overstated certainty, inflated scope, or unwarranted authority.",
+      "evidence_quote": "Large language model (LLM) systems frequently fail quietly-producing responses that are fluent, plausible, and well-formed yet subtly unreliable through internal inconsistency, premature commitment, overstated certainty, inflated scope, or unwarranted authority.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-044",
+      "paper_id": "cr:10.2139/ssrn.6217819",
+      "claim": "These quiet failures evade standard quality metrics and pose significant risks in enterprise deployments where fluent but unsupported outputs are costly.",
+      "evidence_quote": "These quiet failures evade standard quality metrics and pose significant risks in enterprise deployments where fluent but unsupported outputs are costly.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-045",
+      "paper_id": "cr:10.2139/ssrn.6217819",
+      "claim": "This paper presents a unified inference-time governance architecture comprising three orthogonal, nonredundant mechanisms that together address the broad spectrum of documented quiet failure modes.",
+      "evidence_quote": "This paper presents a unified inference-time governance architecture comprising three orthogonal, nonredundant mechanisms that together address the broad spectrum of documented quiet failure modes.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-046",
+      "paper_id": "cr:10.2139/ssrn.6217819",
+      "claim": "Control Probe introduces commitment admissibility as a governed control variable, enforcing a non-bypassable ordering between evaluation, inhibition, and expression.",
+      "evidence_quote": "Control Probe introduces commitment admissibility as a governed control variable, enforcing a non-bypassable ordering between evaluation, inhibition, and expression.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-047",
+      "paper_id": "cr:10.2139/ssrn.6217819",
+      "claim": "Inference-Time Commitment Shaping (IFCS) regulates how confidently admissible content is expressed without modifying semantic claims, operating through a commitment-risk functional R(z*) measuring evidential sufficiency, scope inflation, and authority cues, with domaincalibrated thresholds triggering shaping transformations.",
+      "evidence_quote": "Inference-Time Commitment Shaping (IFCS) regulates how confidently admissible content is expressed without modifying semantic claims, operating through a commitment-risk functional R(z*) measuring evidential sufficiency, scope inflation, and authority cues, with domaincalibrated thresholds triggering shaping transformations.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-048",
+      "paper_id": "cr:10.2139/ssrn.6217819",
+      "claim": "Each mechanism addresses a distinct governance question-which continuation (ECR), whether to commit (Control Probe), how strongly to commit (IFCS)-ensuring non-redundant coverage without gaps or overreach.",
+      "evidence_quote": "Each mechanism addresses a distinct governance question-which continuation (ECR), whether to commit (Control Probe), how strongly to commit (IFCS)-ensuring non-redundant coverage without gaps or overreach.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-049",
+      "paper_id": "cr:10.2139/ssrn.7314931",
+      "claim": "We exercise it on 15 completed provider-by-dataset cells with 3,394 paired examples; Fireworks × GPQA-Diamond is one protocol-blocked cell.",
+      "evidence_quote": "We exercise it on 15 completed provider-by-dataset cells with 3,394 paired examples; Fireworks × GPQA-Diamond is one protocol-blocked cell.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-050",
+      "paper_id": "cr:10.2139/ssrn.7314931",
+      "claim": "On the shared four-generator pool, identical-pool plurality (Pooled-4) exceeds the failure-trace gated selector (FTA), 66.53% versus 65.00% (McNemar p = 0.00027).",
+      "evidence_quote": "On the shared four-generator pool, identical-pool plurality (Pooled-4) exceeds the failure-trace gated selector (FTA), 66.53% versus 65.00% (McNemar p = 0.00027).",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-051",
+      "paper_id": "cr:10.2139/ssrn.7314931",
+      "claim": "FTA’s dominant gate transfers poorly in Azure mathematics cells (2/18 and 7/31 rescue/regression patterns).",
+      "evidence_quote": "FTA’s dominant gate transfers poorly in Azure mathematics cells (2/18 and 7/31 rescue/regression patterns).",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-052",
+      "paper_id": "cr:10.2139/ssrn.7314931",
+      "claim": "Resource reconstruction changes efficiency interpretation: Frontier successful completions rise from 2.78 to 5.38 of nominal budget B = 6, while token and dollar fields remain lower bounds.",
+      "evidence_quote": "Resource reconstruction changes efficiency interpretation: Frontier successful completions rise from 2.78 to 5.38 of nominal budget B = 6, while token and dollar fields remain lower bounds.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-053",
+      "paper_id": "cr:10.2139/ssrn.7314931",
+      "claim": "Closed-API large language model (LLM) evaluations often match systems by nominal inference budget, but equal nominal budgets need not imply equal realized resources or fair attribution between answer discovery and final-answer selection.",
+      "evidence_quote": "Closed-API large language model (LLM) evaluations often match systems by nominal inference budget, but equal nominal budgets need not imply equal realized resources or fair attribution between answer discovery and final-answer selection.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-054",
+      "paper_id": "cr:10.2139/ssrn.7314931",
+      "claim": "We present a unified protocol for closed-API, budgeted inference that records componentwise resources, evaluates identical-pool selector controls, labels provider transfer for failure-mined rules, preserves protocol-blocked outcomes, and discloses incomplete telemetry.",
+      "evidence_quote": "We present a unified protocol for closed-API, budgeted inference that records componentwise resources, evaluates identical-pool selector controls, labels provider transfer for failure-mined rules, preserves protocol-blocked outcomes, and discloses incomplete telemetry.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-llm-inference-quantization-055",
+      "paper_id": "cr:10.2139/ssrn.7314931",
+      "claim": "Nominal budget alone is therefore insufficient for defensible closed-API inference-performance conclusions.",
+      "evidence_quote": "Nominal budget alone is therefore insufficient for defensible closed-API inference-performance conclusions.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    }
+  ]
+}

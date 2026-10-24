@@ -1,0 +1,517 @@
+{
+  "version": 1,
+  "topic": "adversarial-same-domain",
+  "provenance": "constructed-seed",
+  "status": "labeled",
+  "created_at": "2026-10-22 11:21:01",
+  "caveat": "Structural hard negatives; measures the rule, not human judgment.",
+  "counts": {
+    "supported": 5,
+    "unsupported": 32
+  },
+  "claims": [
+    {
+      "id": "h-001",
+      "paper_id": "2605.30814v1",
+      "evidence_paper_id": "2605.30814v1",
+      "claim": "To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output.",
+      "evidence_quote": "To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output.",
+      "locator": "Abstract",
+      "label": "supported",
+      "annotator": "constructed-seed",
+      "note": "verbatim anchor"
+    },
+    {
+      "id": "h-006",
+      "paper_id": "2606.08947v1",
+      "evidence_paper_id": "2606.08947v1",
+      "claim": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS.",
+      "evidence_quote": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS.",
+      "locator": "Abstract",
+      "label": "supported",
+      "annotator": "constructed-seed",
+      "note": "verbatim anchor"
+    },
+    {
+      "id": "h-012",
+      "paper_id": "2608.11116v1",
+      "evidence_paper_id": "2608.11116v1",
+      "claim": "With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "evidence_quote": "With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "supported",
+      "annotator": "constructed-seed",
+      "note": "verbatim anchor"
+    },
+    {
+      "id": "h-023",
+      "paper_id": "2609.07059v3",
+      "evidence_paper_id": "2609.07059v3",
+      "claim": "In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting.",
+      "evidence_quote": "In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting.",
+      "locator": "Abstract",
+      "label": "supported",
+      "annotator": "constructed-seed",
+      "note": "verbatim anchor"
+    },
+    {
+      "id": "h-031",
+      "paper_id": "2609.24288v1",
+      "evidence_paper_id": "2609.24288v1",
+      "claim": "The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model.",
+      "evidence_quote": "The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model.",
+      "locator": "Abstract",
+      "label": "supported",
+      "annotator": "constructed-seed",
+      "note": "verbatim anchor"
+    },
+    {
+      "id": "h-002",
+      "paper_id": "2606.08947v1",
+      "evidence_paper_id": "2605.30814v1",
+      "claim": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS.",
+      "evidence_quote": "SRAM-based analog computing-in-memory demonstrates outstanding efficiency. However, it faces three critical challenges: significant ADC overhead, high latency for multi-bit inputs, and limited read bitline voltage. To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output. Three key innovations are introduced: 1) The IMADC occupies only 3% area overhead, achieving a 9x improvement compared to previous IMADC; 2) The BSCHA reduces latency by 1.9x and 6.6x compared to traditional pulse-width modulation (PWM) and bit-slicing modes, respectively; 3) A dual-8T bitcell enabling ternary weight storage through a decoupled read path, integrated with a read wordline under-driven cascode technique, improves linearity of unit discharge current by 7x and increases the usable read bitline voltage by 3.5x.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.2
+      }
+    },
+    {
+      "id": "h-003",
+      "paper_id": "2606.08947v1",
+      "evidence_paper_id": "2605.30814v1",
+      "claim": "The macro supports two specialized modes: 1) Nonlinear Dendrite (NLD) mode, which utilizes reconfigurable IMA to emulate biological dendritic functions, achieving measured accuracies of 97.2% on N-MNIST and 95.5% on DVS Gesture; and 2) Top-K Winner (KWN) mode, featuring an early-stopping mechanism that reduces IMA conversion latency by 30% and digital LIF latency by 10×.",
+      "evidence_quote": "SRAM-based analog computing-in-memory demonstrates outstanding efficiency. However, it faces three critical challenges: significant ADC overhead, high latency for multi-bit inputs, and limited read bitline voltage. To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output. Three key innovations are introduced: 1) The IMADC occupies only 3% area overhead, achieving a 9x improvement compared to previous IMADC; 2) The BSCHA reduces latency by 1.9x and 6.6x compared to traditional pulse-width modulation (PWM) and bit-slicing modes, respectively; 3) A dual-8T bitcell enabling ternary weight storage through a decoupled read path, integrated with a read wordline under-driven cascode technique, improves linearity of unit discharge current by 7x and increases the usable read bitline voltage by 3.5x.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.2174
+      }
+    },
+    {
+      "id": "h-004",
+      "paper_id": "2608.11116v1",
+      "evidence_paper_id": "2605.30814v1",
+      "claim": "With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "evidence_quote": "SRAM-based analog computing-in-memory demonstrates outstanding efficiency. However, it faces three critical challenges: significant ADC overhead, high latency for multi-bit inputs, and limited read bitline voltage. To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output. Three key innovations are introduced: 1) The IMADC occupies only 3% area overhead, achieving a 9x improvement compared to previous IMADC; 2) The BSCHA reduces latency by 1.9x and 6.6x compared to traditional pulse-width modulation (PWM) and bit-slicing modes, respectively; 3) A dual-8T bitcell enabling ternary weight storage through a decoupled read path, integrated with a read wordline under-driven cascode technique, improves linearity of unit discharge current by 7x and increases the usable read bitline voltage by 3.5x.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.2381
+      }
+    },
+    {
+      "id": "h-005",
+      "paper_id": "2609.07059v3",
+      "evidence_paper_id": "2605.30814v1",
+      "claim": "In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting.",
+      "evidence_quote": "SRAM-based analog computing-in-memory demonstrates outstanding efficiency. However, it faces three critical challenges: significant ADC overhead, high latency for multi-bit inputs, and limited read bitline voltage. To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output. Three key innovations are introduced: 1) The IMADC occupies only 3% area overhead, achieving a 9x improvement compared to previous IMADC; 2) The BSCHA reduces latency by 1.9x and 6.6x compared to traditional pulse-width modulation (PWM) and bit-slicing modes, respectively; 3) A dual-8T bitcell enabling ternary weight storage through a decoupled read path, integrated with a read wordline under-driven cascode technique, improves linearity of unit discharge current by 7x and increases the usable read bitline voltage by 3.5x.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.3214
+      }
+    },
+    {
+      "id": "h-007",
+      "paper_id": "2605.30814v1",
+      "evidence_paper_id": "2606.08947v1",
+      "claim": "To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output.",
+      "evidence_quote": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS. The design introduces a custom twin 9T bit-cell for ternary inputs/weights and a reconfigurable non-linear In-Memory ADC (IMA). The macro supports two specialized modes: 1) Nonlinear Dendrite (NLD) mode, which utilizes reconfigurable IMA to emulate biological dendritic functions, achieving measured accuracies of 97.2% on N-MNIST and 95.5% on DVS Gesture; and 2) Top-K Winner (KWN) mode, featuring an early-stopping mechanism that reduces IMA conversion latency by 30% and digital LIF latency by 10×. Benefiting from the sparse update in KWN mode, NeuDW-CIM achieves a measured energy efficiency (EE) of 0.8 pJ/SOP (1.6× improvement).",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.35
+      }
+    },
+    {
+      "id": "h-008",
+      "paper_id": "2608.11116v1",
+      "evidence_paper_id": "2606.08947v1",
+      "claim": "With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "evidence_quote": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS. The design introduces a custom twin 9T bit-cell for ternary inputs/weights and a reconfigurable non-linear In-Memory ADC (IMA). The macro supports two specialized modes: 1) Nonlinear Dendrite (NLD) mode, which utilizes reconfigurable IMA to emulate biological dendritic functions, achieving measured accuracies of 97.2% on N-MNIST and 95.5% on DVS Gesture; and 2) Top-K Winner (KWN) mode, featuring an early-stopping mechanism that reduces IMA conversion latency by 30% and digital LIF latency by 10×. Benefiting from the sparse update in KWN mode, NeuDW-CIM achieves a measured energy efficiency (EE) of 0.8 pJ/SOP (1.6× improvement).",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.3095
+      }
+    },
+    {
+      "id": "h-009",
+      "paper_id": "2609.07059v3",
+      "evidence_paper_id": "2606.08947v1",
+      "claim": "In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting.",
+      "evidence_quote": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS. The design introduces a custom twin 9T bit-cell for ternary inputs/weights and a reconfigurable non-linear In-Memory ADC (IMA). The macro supports two specialized modes: 1) Nonlinear Dendrite (NLD) mode, which utilizes reconfigurable IMA to emulate biological dendritic functions, achieving measured accuracies of 97.2% on N-MNIST and 95.5% on DVS Gesture; and 2) Top-K Winner (KWN) mode, featuring an early-stopping mechanism that reduces IMA conversion latency by 30% and digital LIF latency by 10×. Benefiting from the sparse update in KWN mode, NeuDW-CIM achieves a measured energy efficiency (EE) of 0.8 pJ/SOP (1.6× improvement).",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.25
+      }
+    },
+    {
+      "id": "h-010",
+      "paper_id": "2609.24288v1",
+      "evidence_paper_id": "2606.08947v1",
+      "claim": "The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model.",
+      "evidence_quote": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS. The design introduces a custom twin 9T bit-cell for ternary inputs/weights and a reconfigurable non-linear In-Memory ADC (IMA). The macro supports two specialized modes: 1) Nonlinear Dendrite (NLD) mode, which utilizes reconfigurable IMA to emulate biological dendritic functions, achieving measured accuracies of 97.2% on N-MNIST and 95.5% on DVS Gesture; and 2) Top-K Winner (KWN) mode, featuring an early-stopping mechanism that reduces IMA conversion latency by 30% and digital LIF latency by 10×. Benefiting from the sparse update in KWN mode, NeuDW-CIM achieves a measured energy efficiency (EE) of 0.8 pJ/SOP (1.6× improvement).",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.25
+      }
+    },
+    {
+      "id": "h-011",
+      "paper_id": "2609.24288v1",
+      "evidence_paper_id": "2606.08947v1",
+      "claim": "Energy-budget analysis estimates a 27.18% reduction in reference ADC energy after detector overhead, leaving 0.52 pJ per conversion to accommodate additional control and peripheral costs.",
+      "evidence_quote": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS. The design introduces a custom twin 9T bit-cell for ternary inputs/weights and a reconfigurable non-linear In-Memory ADC (IMA). The macro supports two specialized modes: 1) Nonlinear Dendrite (NLD) mode, which utilizes reconfigurable IMA to emulate biological dendritic functions, achieving measured accuracies of 97.2% on N-MNIST and 95.5% on DVS Gesture; and 2) Top-K Winner (KWN) mode, featuring an early-stopping mechanism that reduces IMA conversion latency by 30% and digital LIF latency by 10×. Benefiting from the sparse update in KWN mode, NeuDW-CIM achieves a measured energy efficiency (EE) of 0.8 pJ/SOP (1.6× improvement).",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.2917
+      }
+    },
+    {
+      "id": "h-013",
+      "paper_id": "2605.30814v1",
+      "evidence_paper_id": "2608.11116v1",
+      "claim": "To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output.",
+      "evidence_quote": "Analog Computing-in-Memory (ACiM) accelerates deep neural networks by keeping weights inside memory arrays and executing dot products in the analog domain. However, modern ACiM accelerators are often limited by the \"ADC wall\": analog-to-digital converters consume a large fraction of energy and area, while bit-sliced execution repeatedly invokes these converters. Existing designs reduce this cost with low-resolution readout or time multiplexing, but they either lose output fidelity or introduce serialization overhead. Charge-CIM addresses this bottleneck by using switched-capacitor charge redistribution as a unified computing and conversion substrate. The same capacitor fabric performs input conversion, analog MAC, weighted shift-and-add, and readout quantization, reducing both standalone converter overhead and intermediate ADC invocations. A differential readout path further combines paired partial sums during ADC quantization, providing a highly compact and energy-efficient solution for array integration. With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.4
+      }
+    },
+    {
+      "id": "h-014",
+      "paper_id": "2605.30814v1",
+      "evidence_paper_id": "2608.11116v1",
+      "claim": "Three key innovations are introduced: 1) The IMADC occupies only 3% area overhead, achieving a 9x improvement compared to previous IMADC; 2) The BSCHA reduces latency by 1.9x and 6.6x compared to traditional pulse-width modulation (PWM) and bit-slicing modes, respectively; 3) A dual-8T bitcell enabling ternary weight storage through a decoupled read path, integrated with a read wordline under-driven cascode technique, improves linearity of unit discharge current by 7x and increases the usable read bitline voltage by 3.5x.",
+      "evidence_quote": "Analog Computing-in-Memory (ACiM) accelerates deep neural networks by keeping weights inside memory arrays and executing dot products in the analog domain. However, modern ACiM accelerators are often limited by the \"ADC wall\": analog-to-digital converters consume a large fraction of energy and area, while bit-sliced execution repeatedly invokes these converters. Existing designs reduce this cost with low-resolution readout or time multiplexing, but they either lose output fidelity or introduce serialization overhead. Charge-CIM addresses this bottleneck by using switched-capacitor charge redistribution as a unified computing and conversion substrate. The same capacitor fabric performs input conversion, analog MAC, weighted shift-and-add, and readout quantization, reducing both standalone converter overhead and intermediate ADC invocations. A differential readout path further combines paired partial sums during ADC quantization, providing a highly compact and energy-efficient solution for array integration. With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.2241
+      }
+    },
+    {
+      "id": "h-015",
+      "paper_id": "2606.08947v1",
+      "evidence_paper_id": "2608.11116v1",
+      "claim": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS.",
+      "evidence_quote": "Analog Computing-in-Memory (ACiM) accelerates deep neural networks by keeping weights inside memory arrays and executing dot products in the analog domain. However, modern ACiM accelerators are often limited by the \"ADC wall\": analog-to-digital converters consume a large fraction of energy and area, while bit-sliced execution repeatedly invokes these converters. Existing designs reduce this cost with low-resolution readout or time multiplexing, but they either lose output fidelity or introduce serialization overhead. Charge-CIM addresses this bottleneck by using switched-capacitor charge redistribution as a unified computing and conversion substrate. The same capacitor fabric performs input conversion, analog MAC, weighted shift-and-add, and readout quantization, reducing both standalone converter overhead and intermediate ADC invocations. A differential readout path further combines paired partial sums during ADC quantization, providing a highly compact and energy-efficient solution for array integration. With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.35
+      }
+    },
+    {
+      "id": "h-016",
+      "paper_id": "2606.08947v1",
+      "evidence_paper_id": "2608.11116v1",
+      "claim": "The design introduces a custom twin 9T bit-cell for ternary inputs/weights and a reconfigurable non-linear In-Memory ADC (IMA).",
+      "evidence_quote": "Analog Computing-in-Memory (ACiM) accelerates deep neural networks by keeping weights inside memory arrays and executing dot products in the analog domain. However, modern ACiM accelerators are often limited by the \"ADC wall\": analog-to-digital converters consume a large fraction of energy and area, while bit-sliced execution repeatedly invokes these converters. Existing designs reduce this cost with low-resolution readout or time multiplexing, but they either lose output fidelity or introduce serialization overhead. Charge-CIM addresses this bottleneck by using switched-capacitor charge redistribution as a unified computing and conversion substrate. The same capacitor fabric performs input conversion, analog MAC, weighted shift-and-add, and readout quantization, reducing both standalone converter overhead and intermediate ADC invocations. A differential readout path further combines paired partial sums during ADC quantization, providing a highly compact and energy-efficient solution for array integration. With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.3125
+      }
+    },
+    {
+      "id": "h-017",
+      "paper_id": "2606.08947v1",
+      "evidence_paper_id": "2608.11116v1",
+      "claim": "Benefiting from the sparse update in KWN mode, NeuDW-CIM achieves a measured energy efficiency (EE) of 0.8 pJ/SOP (1.6× improvement).",
+      "evidence_quote": "Analog Computing-in-Memory (ACiM) accelerates deep neural networks by keeping weights inside memory arrays and executing dot products in the analog domain. However, modern ACiM accelerators are often limited by the \"ADC wall\": analog-to-digital converters consume a large fraction of energy and area, while bit-sliced execution repeatedly invokes these converters. Existing designs reduce this cost with low-resolution readout or time multiplexing, but they either lose output fidelity or introduce serialization overhead. Charge-CIM addresses this bottleneck by using switched-capacitor charge redistribution as a unified computing and conversion substrate. The same capacitor fabric performs input conversion, analog MAC, weighted shift-and-add, and readout quantization, reducing both standalone converter overhead and intermediate ADC invocations. A differential readout path further combines paired partial sums during ADC quantization, providing a highly compact and energy-efficient solution for array integration. With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.3
+      }
+    },
+    {
+      "id": "h-018",
+      "paper_id": "2609.07059v3",
+      "evidence_paper_id": "2608.11116v1",
+      "claim": "In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting.",
+      "evidence_quote": "Analog Computing-in-Memory (ACiM) accelerates deep neural networks by keeping weights inside memory arrays and executing dot products in the analog domain. However, modern ACiM accelerators are often limited by the \"ADC wall\": analog-to-digital converters consume a large fraction of energy and area, while bit-sliced execution repeatedly invokes these converters. Existing designs reduce this cost with low-resolution readout or time multiplexing, but they either lose output fidelity or introduce serialization overhead. Charge-CIM addresses this bottleneck by using switched-capacitor charge redistribution as a unified computing and conversion substrate. The same capacitor fabric performs input conversion, analog MAC, weighted shift-and-add, and readout quantization, reducing both standalone converter overhead and intermediate ADC invocations. A differential readout path further combines paired partial sums during ADC quantization, providing a highly compact and energy-efficient solution for array integration. With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.4286
+      }
+    },
+    {
+      "id": "h-019",
+      "paper_id": "2609.07059v3",
+      "evidence_paper_id": "2608.11116v1",
+      "claim": "MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-1 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted.",
+      "evidence_quote": "Analog Computing-in-Memory (ACiM) accelerates deep neural networks by keeping weights inside memory arrays and executing dot products in the analog domain. However, modern ACiM accelerators are often limited by the \"ADC wall\": analog-to-digital converters consume a large fraction of energy and area, while bit-sliced execution repeatedly invokes these converters. Existing designs reduce this cost with low-resolution readout or time multiplexing, but they either lose output fidelity or introduce serialization overhead. Charge-CIM addresses this bottleneck by using switched-capacitor charge redistribution as a unified computing and conversion substrate. The same capacitor fabric performs input conversion, analog MAC, weighted shift-and-add, and readout quantization, reducing both standalone converter overhead and intermediate ADC invocations. A differential readout path further combines paired partial sums during ADC quantization, providing a highly compact and energy-efficient solution for array integration. With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.2
+      }
+    },
+    {
+      "id": "h-020",
+      "paper_id": "2609.24288v1",
+      "evidence_paper_id": "2608.11116v1",
+      "claim": "The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model.",
+      "evidence_quote": "Analog Computing-in-Memory (ACiM) accelerates deep neural networks by keeping weights inside memory arrays and executing dot products in the analog domain. However, modern ACiM accelerators are often limited by the \"ADC wall\": analog-to-digital converters consume a large fraction of energy and area, while bit-sliced execution repeatedly invokes these converters. Existing designs reduce this cost with low-resolution readout or time multiplexing, but they either lose output fidelity or introduce serialization overhead. Charge-CIM addresses this bottleneck by using switched-capacitor charge redistribution as a unified computing and conversion substrate. The same capacitor fabric performs input conversion, analog MAC, weighted shift-and-add, and readout quantization, reducing both standalone converter overhead and intermediate ADC invocations. A differential readout path further combines paired partial sums during ADC quantization, providing a highly compact and energy-efficient solution for array integration. With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.2917
+      }
+    },
+    {
+      "id": "h-021",
+      "paper_id": "2609.24288v1",
+      "evidence_paper_id": "2608.11116v1",
+      "claim": "On WRN-28-10, the proposed approach achieves 77.3% Top-1 accuracy (W4A4 baseline: 78.4%) while reducing SAR comparisons by 48.19% across the evaluated layers.",
+      "evidence_quote": "Analog Computing-in-Memory (ACiM) accelerates deep neural networks by keeping weights inside memory arrays and executing dot products in the analog domain. However, modern ACiM accelerators are often limited by the \"ADC wall\": analog-to-digital converters consume a large fraction of energy and area, while bit-sliced execution repeatedly invokes these converters. Existing designs reduce this cost with low-resolution readout or time multiplexing, but they either lose output fidelity or introduce serialization overhead. Charge-CIM addresses this bottleneck by using switched-capacitor charge redistribution as a unified computing and conversion substrate. The same capacitor fabric performs input conversion, analog MAC, weighted shift-and-add, and readout quantization, reducing both standalone converter overhead and intermediate ADC invocations. A differential readout path further combines paired partial sums during ADC quantization, providing a highly compact and energy-efficient solution for array integration. With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.2857
+      }
+    },
+    {
+      "id": "h-022",
+      "paper_id": "2609.24288v1",
+      "evidence_paper_id": "2608.11116v1",
+      "claim": "Energy-budget analysis estimates a 27.18% reduction in reference ADC energy after detector overhead, leaving 0.52 pJ per conversion to accommodate additional control and peripheral costs.",
+      "evidence_quote": "Analog Computing-in-Memory (ACiM) accelerates deep neural networks by keeping weights inside memory arrays and executing dot products in the analog domain. However, modern ACiM accelerators are often limited by the \"ADC wall\": analog-to-digital converters consume a large fraction of energy and area, while bit-sliced execution repeatedly invokes these converters. Existing designs reduce this cost with low-resolution readout or time multiplexing, but they either lose output fidelity or introduce serialization overhead. Charge-CIM addresses this bottleneck by using switched-capacitor charge redistribution as a unified computing and conversion substrate. The same capacitor fabric performs input conversion, analog MAC, weighted shift-and-add, and readout quantization, reducing both standalone converter overhead and intermediate ADC invocations. A differential readout path further combines paired partial sums during ADC quantization, providing a highly compact and energy-efficient solution for array integration. With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.2917
+      }
+    },
+    {
+      "id": "h-024",
+      "paper_id": "2605.30814v1",
+      "evidence_paper_id": "2609.07059v3",
+      "claim": "To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output.",
+      "evidence_quote": "Analog compute-in-memory (CIM) enables energy-efficient model acceleration, but its reliance on ADC-based readout, which directly quantizes noisy column currents, makes inference accuracy highly sensitive to analog read noise, active-row scaling, and ADC precision. In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting. By converting column currents into comparison probabilities, this probability-domain readout averages zero-mean dynamic read noise over stochastic samples while reducing dependence on high-resolution ADCs. We provide a unified robustness analysis showing that dynamic read noise is suppressed through temporal averaging and that spatial input-bitstream correlation increases instantaneous current variance rather than introducing first-order MAC bias. MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-1 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.25
+      }
+    },
+    {
+      "id": "h-025",
+      "paper_id": "2606.08947v1",
+      "evidence_paper_id": "2609.07059v3",
+      "claim": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS.",
+      "evidence_quote": "Analog compute-in-memory (CIM) enables energy-efficient model acceleration, but its reliance on ADC-based readout, which directly quantizes noisy column currents, makes inference accuracy highly sensitive to analog read noise, active-row scaling, and ADC precision. In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting. By converting column currents into comparison probabilities, this probability-domain readout averages zero-mean dynamic read noise over stochastic samples while reducing dependence on high-resolution ADCs. We provide a unified robustness analysis showing that dynamic read noise is suppressed through temporal averaging and that spatial input-bitstream correlation increases instantaneous current variance rather than introducing first-order MAC bias. MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-1 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.3
+      }
+    },
+    {
+      "id": "h-026",
+      "paper_id": "2606.08947v1",
+      "evidence_paper_id": "2609.07059v3",
+      "claim": "The design introduces a custom twin 9T bit-cell for ternary inputs/weights and a reconfigurable non-linear In-Memory ADC (IMA).",
+      "evidence_quote": "Analog compute-in-memory (CIM) enables energy-efficient model acceleration, but its reliance on ADC-based readout, which directly quantizes noisy column currents, makes inference accuracy highly sensitive to analog read noise, active-row scaling, and ADC precision. In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting. By converting column currents into comparison probabilities, this probability-domain readout averages zero-mean dynamic read noise over stochastic samples while reducing dependence on high-resolution ADCs. We provide a unified robustness analysis showing that dynamic read noise is suppressed through temporal averaging and that spatial input-bitstream correlation increases instantaneous current variance rather than introducing first-order MAC bias. MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-1 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.25
+      }
+    },
+    {
+      "id": "h-027",
+      "paper_id": "2608.11116v1",
+      "evidence_paper_id": "2609.07059v3",
+      "claim": "With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "evidence_quote": "Analog compute-in-memory (CIM) enables energy-efficient model acceleration, but its reliance on ADC-based readout, which directly quantizes noisy column currents, makes inference accuracy highly sensitive to analog read noise, active-row scaling, and ADC precision. In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting. By converting column currents into comparison probabilities, this probability-domain readout averages zero-mean dynamic read noise over stochastic samples while reducing dependence on high-resolution ADCs. We provide a unified robustness analysis showing that dynamic read noise is suppressed through temporal averaging and that spatial input-bitstream correlation increases instantaneous current variance rather than introducing first-order MAC bias. MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-1 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.3095
+      }
+    },
+    {
+      "id": "h-028",
+      "paper_id": "2609.24288v1",
+      "evidence_paper_id": "2609.07059v3",
+      "claim": "The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model.",
+      "evidence_quote": "Analog compute-in-memory (CIM) enables energy-efficient model acceleration, but its reliance on ADC-based readout, which directly quantizes noisy column currents, makes inference accuracy highly sensitive to analog read noise, active-row scaling, and ADC precision. In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting. By converting column currents into comparison probabilities, this probability-domain readout averages zero-mean dynamic read noise over stochastic samples while reducing dependence on high-resolution ADCs. We provide a unified robustness analysis showing that dynamic read noise is suppressed through temporal averaging and that spatial input-bitstream correlation increases instantaneous current variance rather than introducing first-order MAC bias. MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-1 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.3333
+      }
+    },
+    {
+      "id": "h-029",
+      "paper_id": "2609.24288v1",
+      "evidence_paper_id": "2609.07059v3",
+      "claim": "On WRN-28-10, the proposed approach achieves 77.3% Top-1 accuracy (W4A4 baseline: 78.4%) while reducing SAR comparisons by 48.19% across the evaluated layers.",
+      "evidence_quote": "Analog compute-in-memory (CIM) enables energy-efficient model acceleration, but its reliance on ADC-based readout, which directly quantizes noisy column currents, makes inference accuracy highly sensitive to analog read noise, active-row scaling, and ADC precision. In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting. By converting column currents into comparison probabilities, this probability-domain readout averages zero-mean dynamic read noise over stochastic samples while reducing dependence on high-resolution ADCs. We provide a unified robustness analysis showing that dynamic read noise is suppressed through temporal averaging and that spatial input-bitstream correlation increases instantaneous current variance rather than introducing first-order MAC bias. MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-1 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.381
+      }
+    },
+    {
+      "id": "h-030",
+      "paper_id": "2609.24288v1",
+      "evidence_paper_id": "2609.07059v3",
+      "claim": "Energy-budget analysis estimates a 27.18% reduction in reference ADC energy after detector overhead, leaving 0.52 pJ per conversion to accommodate additional control and peripheral costs.",
+      "evidence_quote": "Analog compute-in-memory (CIM) enables energy-efficient model acceleration, but its reliance on ADC-based readout, which directly quantizes noisy column currents, makes inference accuracy highly sensitive to analog read noise, active-row scaling, and ADC precision. In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting. By converting column currents into comparison probabilities, this probability-domain readout averages zero-mean dynamic read noise over stochastic samples while reducing dependence on high-resolution ADCs. We provide a unified robustness analysis showing that dynamic read noise is suppressed through temporal averaging and that spatial input-bitstream correlation increases instantaneous current variance rather than introducing first-order MAC bias. MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-1 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.2083
+      }
+    },
+    {
+      "id": "h-032",
+      "paper_id": "2605.30814v1",
+      "evidence_paper_id": "2609.24288v1",
+      "claim": "To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output.",
+      "evidence_quote": "This work presents a circuit–architecture–training co-design framework that exploits sense-amplifier (SA) regeneration to detect analog-output similarity and reduce SAR comparisons in compute-in-memory (CIM) systems. Hardware-aware training incorporates circuit-characterized SA disturbance and encoding errors caused by prefix reuse, enabling aggressive comparison skipping. The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model. On WRN-28-10, the proposed approach achieves 77.3% Top-1 accuracy (W4A4 baseline: 78.4%) while reducing SAR comparisons by 48.19% across the evaluated layers. Energy-budget analysis estimates a 27.18% reduction in reference ADC energy after detector overhead, leaving 0.52 pJ per conversion to accommodate additional control and peripheral costs.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.2
+      }
+    },
+    {
+      "id": "h-033",
+      "paper_id": "2606.08947v1",
+      "evidence_paper_id": "2609.24288v1",
+      "claim": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS.",
+      "evidence_quote": "This work presents a circuit–architecture–training co-design framework that exploits sense-amplifier (SA) regeneration to detect analog-output similarity and reduce SAR comparisons in compute-in-memory (CIM) systems. Hardware-aware training incorporates circuit-characterized SA disturbance and encoding errors caused by prefix reuse, enabling aggressive comparison skipping. The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model. On WRN-28-10, the proposed approach achieves 77.3% Top-1 accuracy (W4A4 baseline: 78.4%) while reducing SAR comparisons by 48.19% across the evaluated layers. Energy-budget analysis estimates a 27.18% reduction in reference ADC energy after detector overhead, leaving 0.52 pJ per conversion to accommodate additional control and peripheral costs.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.35
+      }
+    },
+    {
+      "id": "h-034",
+      "paper_id": "2606.08947v1",
+      "evidence_paper_id": "2609.24288v1",
+      "claim": "Benefiting from the sparse update in KWN mode, NeuDW-CIM achieves a measured energy efficiency (EE) of 0.8 pJ/SOP (1.6× improvement).",
+      "evidence_quote": "This work presents a circuit–architecture–training co-design framework that exploits sense-amplifier (SA) regeneration to detect analog-output similarity and reduce SAR comparisons in compute-in-memory (CIM) systems. Hardware-aware training incorporates circuit-characterized SA disturbance and encoding errors caused by prefix reuse, enabling aggressive comparison skipping. The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model. On WRN-28-10, the proposed approach achieves 77.3% Top-1 accuracy (W4A4 baseline: 78.4%) while reducing SAR comparisons by 48.19% across the evaluated layers. Energy-budget analysis estimates a 27.18% reduction in reference ADC energy after detector overhead, leaving 0.52 pJ per conversion to accommodate additional control and peripheral costs.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.25
+      }
+    },
+    {
+      "id": "h-035",
+      "paper_id": "2608.11116v1",
+      "evidence_paper_id": "2609.24288v1",
+      "claim": "With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "evidence_quote": "This work presents a circuit–architecture–training co-design framework that exploits sense-amplifier (SA) regeneration to detect analog-output similarity and reduce SAR comparisons in compute-in-memory (CIM) systems. Hardware-aware training incorporates circuit-characterized SA disturbance and encoding errors caused by prefix reuse, enabling aggressive comparison skipping. The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model. On WRN-28-10, the proposed approach achieves 77.3% Top-1 accuracy (W4A4 baseline: 78.4%) while reducing SAR comparisons by 48.19% across the evaluated layers. Energy-budget analysis estimates a 27.18% reduction in reference ADC energy after detector overhead, leaving 0.52 pJ per conversion to accommodate additional control and peripheral costs.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.3095
+      }
+    },
+    {
+      "id": "h-036",
+      "paper_id": "2609.07059v3",
+      "evidence_paper_id": "2609.24288v1",
+      "claim": "In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting.",
+      "evidence_quote": "This work presents a circuit–architecture–training co-design framework that exploits sense-amplifier (SA) regeneration to detect analog-output similarity and reduce SAR comparisons in compute-in-memory (CIM) systems. Hardware-aware training incorporates circuit-characterized SA disturbance and encoding errors caused by prefix reuse, enabling aggressive comparison skipping. The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model. On WRN-28-10, the proposed approach achieves 77.3% Top-1 accuracy (W4A4 baseline: 78.4%) while reducing SAR comparisons by 48.19% across the evaluated layers. Energy-budget analysis estimates a 27.18% reduction in reference ADC energy after detector overhead, leaving 0.52 pJ per conversion to accommodate additional control and peripheral costs.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.2857
+      }
+    },
+    {
+      "id": "h-037",
+      "paper_id": "2609.07059v3",
+      "evidence_paper_id": "2609.24288v1",
+      "claim": "MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-1 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted.",
+      "evidence_quote": "This work presents a circuit–architecture–training co-design framework that exploits sense-amplifier (SA) regeneration to detect analog-output similarity and reduce SAR comparisons in compute-in-memory (CIM) systems. Hardware-aware training incorporates circuit-characterized SA disturbance and encoding errors caused by prefix reuse, enabling aggressive comparison skipping. The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model. On WRN-28-10, the proposed approach achieves 77.3% Top-1 accuracy (W4A4 baseline: 78.4%) while reducing SAR comparisons by 48.19% across the evaluated layers. Energy-budget analysis estimates a 27.18% reduction in reference ADC energy after detector overhead, leaving 0.52 pJ per conversion to accommodate additional control and peripheral costs.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "same-domain sentence from another paper",
+      "signals": {
+        "overlap": 0.25
+      }
+    }
+  ]
+}

@@ -1,0 +1,599 @@
+{
+  "version": 1,
+  "topic": "rag-pipelines",
+  "title": "RAG 流水线",
+  "provenance": "human-required",
+  "status": "unlabeled",
+  "created_at": "2026-10-22 11:55:34",
+  "target": {
+    "papers": 6,
+    "claims": 50
+  },
+  "papers_available": 6,
+  "shortfall": {
+    "papers": 0,
+    "claims": 0
+  },
+  "claims": [
+    {
+      "id": "g-rag-pipelines-001",
+      "paper_id": "epmc:42871107",
+      "claim": "Four open-source LLMs are compared against a supervised DeBERTa+CNN baseline on GutBrainIE, and four further corpora (ChemProt, BioRED, its BioCreative VIII release BC8, and DDI-2013) are used to test whether the findings generalize.",
+      "evidence_quote": "Four open-source LLMs are compared against a supervised DeBERTa+CNN baseline on GutBrainIE, and four further corpora (ChemProt, BioRED, its BioCreative VIII release BC8, and DDI-2013) are used to test whether the findings generalize.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-002",
+      "paper_id": "epmc:42871107",
+      "claim": "We report macro- and micro-averaged precision, recall and F1-score, and the rate of predictions that fall outside the defined relation set.",
+      "evidence_quote": "We report macro- and micro-averaged precision, recall and F1-score, and the rate of predictions that fall outside the defined relation set.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-003",
+      "paper_id": "epmc:42871107",
+      "claim": "On GutBrainIE, Qwen3:14B with 25 retrieved examples reaches 0.877 macro and 0.866 micro F1, against 0.440 and 0.562 for the supervised baseline, while the smaller Llama-3.1-8B and Gemma3:12B models do not exceed the baseline on macro F1.",
+      "evidence_quote": "On GutBrainIE, Qwen3:14B with 25 retrieved examples reaches 0.877 macro and 0.866 micro F1, against 0.440 and 0.562 for the supervised baseline, while the smaller Llama-3.1-8B and Gemma3:12B models do not exceed the baseline on macro F1.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-004",
+      "paper_id": "epmc:42871107",
+      "claim": "Macro F1 rises from 0.105 without demonstrations to 0.877 with 25, with the steepest gains over the first ten retrieved examples and subsequent variation smaller than the run-to-run standard deviation.",
+      "evidence_quote": "Macro F1 rises from 0.105 without demonstrations to 0.877 with 25, with the steepest gains over the first ten retrieved examples and subsequent variation smaller than the run-to-run standard deviation.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-005",
+      "paper_id": "epmc:42871107",
+      "claim": "Predictions falling outside the defined relation set drop from 39 at zero shots to at most one between 20 and 35, so retrieval improves output validity as well as accuracy.",
+      "evidence_quote": "Predictions falling outside the defined relation set drop from 39 at zero shots to at most one between 20 and 35, so retrieval improves output validity as well as accuracy.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-006",
+      "paper_id": "epmc:42871107",
+      "claim": "Across the four further corpora these gains do not generalize uniformly: the best configuration exceeds the supervised baseline on ChemProt, improves macro but not micro F1 on BioRED and BC8, and falls below it on both measures on DDI-2013.",
+      "evidence_quote": "Across the four further corpora these gains do not generalize uniformly: the best configuration exceeds the supervised baseline on ChemProt, improves macro but not micro F1 on BioRED and BC8, and falls below it on both measures on DDI-2013.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-007",
+      "paper_id": "epmc:42871107",
+      "claim": "Since DDI-2013 is the most balanced corpus in the set and, like ChemProt, is annotated within single sentences, that reversal is not explained by class imbalance or annotation scope, but is consistent with what the relation labels encode: whether they name relationships recoverable from biomedical knowledge, or boundaries set by an annotation guideline.",
+      "evidence_quote": "Since DDI-2013 is the most balanced corpus in the set and, like ChemProt, is annotated within single sentences, that reversal is not explained by class imbalance or annotation scope, but is consistent with what the relation labels encode: whether they name relationships recoverable from biomedical knowledge, or boundaries set by an annotation guideline.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-008",
+      "paper_id": "epmc:42871107",
+      "claim": "The rapid expansion of biomedical literature requires automated methods for accurate and efficient information extraction.",
+      "evidence_quote": "The rapid expansion of biomedical literature requires automated methods for accurate and efficient information extraction.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-009",
+      "paper_id": "epmc:42871107",
+      "claim": "This study addresses relation classification: given a pair of annotated biomedical entities in a research article title and abstract, assigning the relation that holds between them from a pre-defined set.",
+      "evidence_quote": "This study addresses relation classification: given a pair of annotated biomedical entities in a research article title and abstract, assigning the relation that holds between them from a pre-defined set.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-010",
+      "paper_id": "epmc:42871107",
+      "claim": "We evaluate a retrieval-augmented generation (RAG) framework in which semantically similar annotated examples are retrieved from a training pool and supplied to a large language model as in-context demonstrations.",
+      "evidence_quote": "We evaluate a retrieval-augmented generation (RAG) framework in which semantically similar annotated examples are retrieved from a training pool and supplied to a large language model as in-context demonstrations.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-011",
+      "paper_id": "epmc:42546813",
+      "claim": "Methods A knowledge base of 250 curated text units (\"chunks\") from five authoritative sources (IADT 2020, ESE 2021, Krastl 2021, AAE 2013, Cochrane) was built and deployed with Gemini 2.5 Flash as base model.",
+      "evidence_quote": "Methods A knowledge base of 250 curated text units (\"chunks\") from five authoritative sources (IADT 2020, ESE 2021, Krastl 2021, AAE 2013, Cochrane) was built and deployed with Gemini 2.5 Flash as base model.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-012",
+      "paper_id": "epmc:42546813",
+      "claim": "In Study 1, 99 binary clinical questions were submitted in three runs to DT-RAG and eight LLMs; modal accuracy was compared by McNemar exact tests with Holm correction.",
+      "evidence_quote": "In Study 1, 99 binary clinical questions were submitted in three runs to DT-RAG and eight LLMs; modal accuracy was compared by McNemar exact tests with Holm correction.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-013",
+      "paper_id": "epmc:42546813",
+      "claim": "In Study 2, seven blinded specialists scored DT-RAG against three frontier LLMs on ten clinical scenarios using a 92-point rubric; differences were estimated by linear mixed-effects regression.",
+      "evidence_quote": "In Study 2, seven blinded specialists scored DT-RAG against three frontier LLMs on ten clinical scenarios using a 92-point rubric; differences were estimated by linear mixed-effects regression.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-014",
+      "paper_id": "epmc:42546813",
+      "claim": "Results DT-RAG achieved 96.0% modal accuracy (95% CI 90.1-98.4), significantly exceeding every commercial LLM (best comparator GPT-5.5 87.9%; paired difference +8.1 pp, 95% CI +2.9 to +14.9; p_Holm = 0.013).",
+      "evidence_quote": "Results DT-RAG achieved 96.0% modal accuracy (95% CI 90.1-98.4), significantly exceeding every commercial LLM (best comparator GPT-5.5 87.9%; paired difference +8.1 pp, 95% CI +2.9 to +14.9; p_Holm = 0.013).",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-015",
+      "paper_id": "epmc:42546813",
+      "claim": "The curated knowledge base elevated the base model from 49.5% to 98.0% valid rationale rate, eliminating confabulations in this evaluation (0 vs 21).",
+      "evidence_quote": "The curated knowledge base elevated the base model from 49.5% to 98.0% valid rationale rate, eliminating confabulations in this evaluation (0 vs 21).",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-016",
+      "paper_id": "epmc:42546813",
+      "claim": "In Study 2, DT-RAG achieved the highest mean score (82.1/92; 89.3%), significantly exceeding Claude Opus 4.5 (72.6; paired difference +9.6 points, exact Wilcoxon p = 0.016), Gemini 2.5 Pro (60.3) and GPT-4.1 (50.4); all seven evaluators ranked DT-RAG first (Kendall's W = 0.97).",
+      "evidence_quote": "In Study 2, DT-RAG achieved the highest mean score (82.1/92; 89.3%), significantly exceeding Claude Opus 4.5 (72.6; paired difference +9.6 points, exact Wilcoxon p = 0.016), Gemini 2.5 Pro (60.3) and GPT-4.1 (50.4); all seven evaluators ranked DT-RAG first (Kendall's W = 0.97).",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-017",
+      "paper_id": "epmc:42546813",
+      "claim": "Objectives To validate DT-RAG, a curated retrieval-augmented generation system for dental traumatology decision support, against eight commercial large language models.",
+      "evidence_quote": "Objectives To validate DT-RAG, a curated retrieval-augmented generation system for dental traumatology decision support, against eight commercial large language models.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-018",
+      "paper_id": "epmc:42546813",
+      "claim": "Conclusions DT-RAG, a curated retrieval-augmented configuration, outperformed frontier-tier general-purpose LLMs on this dental traumatology benchmark, with no confabulated rationales observed among the responses assessed.",
+      "evidence_quote": "Conclusions DT-RAG, a curated retrieval-augmented configuration, outperformed frontier-tier general-purpose LLMs on this dental traumatology benchmark, with no confabulated rationales observed among the responses assessed.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-019",
+      "paper_id": "epmc:42546813",
+      "claim": "This approach may be applicable to other well-defined clinical domains with authoritative guidelines.",
+      "evidence_quote": "This approach may be applicable to other well-defined clinical domains with authoritative guidelines.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-020",
+      "paper_id": "epmc:42546813",
+      "claim": "Clinical significance Curated retrieval augmentation produced accurate, source-traceable and reproducible responses in dental traumatology under benchmark and simulated-scenario conditions, making every error auditable against its source.",
+      "evidence_quote": "Clinical significance Curated retrieval augmentation produced accurate, source-traceable and reproducible responses in dental traumatology under benchmark and simulated-scenario conditions, making every error auditable against its source.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-021",
+      "paper_id": "cr:10.2139/ssrn.7168638",
+      "claim": "Methods: Searches followed PRISMA 2020 reporting guidelines.20 PubMed was searched on 4 July 2026 (56 records).",
+      "evidence_quote": "Methods: Searches followed PRISMA 2020 reporting guidelines.20 PubMed was searched on 4 July 2026 (56 records).",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-022",
+      "paper_id": "cr:10.2139/ssrn.7168638",
+      "claim": "Results: Fifteen studies met inclusion criteria (2022-2026).",
+      "evidence_quote": "Results: Fifteen studies met inclusion criteria (2022-2026).",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-023",
+      "paper_id": "cr:10.2139/ssrn.7168638",
+      "claim": "Naïve RAG was reported in 5 studies, advanced RAG in 7, and modular RAG in 3.",
+      "evidence_quote": "Naïve RAG was reported in 5 studies, advanced RAG in 7, and modular RAG in 3.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-024",
+      "paper_id": "cr:10.2139/ssrn.7168638",
+      "claim": "Crisis-management documentation appeared in 2 studies.",
+      "evidence_quote": "Crisis-management documentation appeared in 2 studies.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-025",
+      "paper_id": "cr:10.2139/ssrn.7168638",
+      "claim": "Based on the literature identified through our systematic search, we did not identify a review that explicitly applied RAG-specific inclusion criteria to synthesize primary mental health studies under PRISMA 2020.",
+      "evidence_quote": "Based on the literature identified through our systematic search, we did not identify a review that explicitly applied RAG-specific inclusion criteria to synthesize primary mental health studies under PRISMA 2020.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-026",
+      "paper_id": "cr:10.2139/ssrn.7168638",
+      "claim": "Background: Retrieval-augmented generation (RAG) grounds large language model outputs in external knowledge.",
+      "evidence_quote": "Background: Retrieval-augmented generation (RAG) grounds large language model outputs in external knowledge.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-027",
+      "paper_id": "cr:10.2139/ssrn.7168638",
+      "claim": "Systematic reviews have examined RAG in healthcare and generative AI in mental health as separate topics.",
+      "evidence_quote": "Systematic reviews have examined RAG in healthcare and generative AI in mental health as separate topics.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-028",
+      "paper_id": "cr:10.2139/ssrn.7168638",
+      "claim": "Objective: To systematically identify and synthesize empirical studies applying RAG to mental health, stress, anxiety, depression, psychological assessment, and digital therapeutics.",
+      "evidence_quote": "Objective: To systematically identify and synthesize empirical studies applying RAG to mental health, stress, anxiety, depression, psychological assessment, and digital therapeutics.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-029",
+      "paper_id": "cr:10.2139/ssrn.7168638",
+      "claim": "Additional records were identified through IEEE Xplore, ACM Digital Library, Scopus, Web of Science, and forward/backward citation tracking.",
+      "evidence_quote": "Additional records were identified through IEEE Xplore, ACM Digital Library, Scopus, Web of Science, and forward/backward citation tracking.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-030",
+      "paper_id": "cr:10.2139/ssrn.7168638",
+      "claim": "One reviewer (E.F.) screened records, extracted data, and assessed study quality using a structured LLM-RAG framework adapted from prior reviews, with verification steps described in Methods.",
+      "evidence_quote": "One reviewer (E.F.) screened records, extracted data, and assessed study quality using a structured LLM-RAG framework adapted from prior reviews, with verification steps described in Methods.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-031",
+      "paper_id": "cr:10.36227/techrxiv.174060240.09460752/v1",
+      "claim": "Search methods which utilize key word based functions, such as BM25, rely on lexical matching but often fail to capture semantic relationships.",
+      "evidence_quote": "Search methods which utilize key word based functions, such as BM25, rely on lexical matching but often fail to capture semantic relationships.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-032",
+      "paper_id": "cr:10.36227/techrxiv.174060240.09460752/v1",
+      "claim": "An experiment on a single document corpus and a cryptography-related query evaluates BM25, SLM embeddings, and SLM + RAG for document retrieval.",
+      "evidence_quote": "An experiment on a single document corpus and a cryptography-related query evaluates BM25, SLM embeddings, and SLM + RAG for document retrieval.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-033",
+      "paper_id": "cr:10.36227/techrxiv.174060240.09460752/v1",
+      "claim": "Based on experimental results, BM25 achieves a moderate relevance score of 0.500, retrieving documents based on exact matches but lacking contextual understanding.",
+      "evidence_quote": "Based on experimental results, BM25 achieves a moderate relevance score of 0.500, retrieving documents based on exact matches but lacking contextual understanding.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-034",
+      "paper_id": "cr:10.36227/techrxiv.174060240.09460752/v1",
+      "claim": "As SLM embeddings identify semantically similar concepts, they increase recall for queries with conceptual variations and a relevance score 0.7668.",
+      "evidence_quote": "As SLM embeddings identify semantically similar concepts, they increase recall for queries with conceptual variations and a relevance score 0.7668.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-035",
+      "paper_id": "cr:10.36227/techrxiv.174060240.09460752/v1",
+      "claim": "SLM + RAG outperforms both approaches' relevance score 0.9202, retrieving the most relevant document with accuracy and contextually enriched responses.",
+      "evidence_quote": "SLM + RAG outperforms both approaches' relevance score 0.9202, retrieving the most relevant document with accuracy and contextually enriched responses.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-036",
+      "paper_id": "cr:10.36227/techrxiv.174060240.09460752/v1",
+      "claim": "Digital content has grown exponentially, requiring efficient and context-aware information retrieval systems.",
+      "evidence_quote": "Digital content has grown exponentially, requiring efficient and context-aware information retrieval systems.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-037",
+      "paper_id": "cr:10.36227/techrxiv.174060240.09460752/v1",
+      "claim": "Using dense vector embeddings models, Small Language Models (SLMs) can improve retrieval accuracy, however Retrieval-Augmented Generation (RAG) incorporates the concept of contextual ranking through generative artificial intelligence to further enhance search relevance.",
+      "evidence_quote": "Using dense vector embeddings models, Small Language Models (SLMs) can improve retrieval accuracy, however Retrieval-Augmented Generation (RAG) incorporates the concept of contextual ranking through generative artificial intelligence to further enhance search relevance.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-038",
+      "paper_id": "cr:10.36227/techrxiv.174060240.09460752/v1",
+      "claim": "A hybrid retrieval model that combines dense embeddings and generative ranking improves search quality substantially.",
+      "evidence_quote": "A hybrid retrieval model that combines dense embeddings and generative ranking improves search quality substantially.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-039",
+      "paper_id": "cr:10.36227/techrxiv.174060240.09460752/v1",
+      "claim": "This exploratory study has multiple implications for information retrieval and including the need for scalable multi-document retrieval, FAISS/DPR integration for efficient vector searches, and domain-specific fine-tuning of SLMs.",
+      "evidence_quote": "This exploratory study has multiple implications for information retrieval and including the need for scalable multi-document retrieval, FAISS/DPR integration for efficient vector searches, and domain-specific fine-tuning of SLMs.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-040",
+      "paper_id": "cr:10.36227/techrxiv.174060240.09460752/v1",
+      "claim": "Using this approach, enterprises can achieve faster, more accurate, and contextually aware document retrieval by combining SLMs and RAG methods.",
+      "evidence_quote": "Using this approach, enterprises can achieve faster, more accurate, and contextually aware document retrieval by combining SLMs and RAG methods.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-041",
+      "paper_id": "epmc:PPR1322952",
+      "claim": "The system combines dense retrieval and BM25 through Reciprocal Rank Fusion, applies Pseudo-Relevance Feedback, preserves source provenance, and restricts final evidence to indexed corpus passages.",
+      "evidence_quote": "The system combines dense retrieval and BM25 through Reciprocal Rank Fusion, applies Pseudo-Relevance Feedback, preserves source provenance, and restricts final evidence to indexed corpus passages.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-042",
+      "paper_id": "epmc:PPR1322952",
+      "claim": "We evaluate AURORA-RAG using 1,440 personas across four national environments and three geopolitical topics.",
+      "evidence_quote": "We evaluate AURORA-RAG using 1,440 personas across four national environments and three geopolitical topics.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-043",
+      "paper_id": "epmc:PPR1322952",
+      "claim": "Full hierarchical retrieval produces greater downstream conditioning than persona-only retrieval, with mean displacement from no-RAG increasing from .103 to .210.",
+      "evidence_quote": "Full hierarchical retrieval produces greater downstream conditioning than persona-only retrieval, with mean displacement from no-RAG increasing from .103 to .210.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-044",
+      "paper_id": "epmc:PPR1322952",
+      "claim": "Corpus-supported claims increase from 68% under no-RAG to 82% under single-stage RAG and 91% under full AURORA-RAG, while hallucination frequency decreases from 24% to 13% and 7%.",
+      "evidence_quote": "Corpus-supported claims increase from 68% under no-RAG to 82% under single-stage RAG and 91% under full AURORA-RAG, while hallucination frequency decreases from 24% to 13% and 7%.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-045",
+      "paper_id": "epmc:PPR1322952",
+      "claim": "Evidence faithfulness rises from 79% to 90%, attribution accuracy from 82% to 92%, and citation correctness from 85% to 94%.",
+      "evidence_quote": "Evidence faithfulness rises from 79% to 90%, attribution accuracy from 82% to 92%, and citation correctness from 85% to 94%.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-046",
+      "paper_id": "epmc:PPR1322952",
+      "claim": "Large language models can generate detailed synthetic personas, but unconstrained generation can produce unsupported or contextually inconsistent outputs.",
+      "evidence_quote": "Large language models can generate detailed synthetic personas, but unconstrained generation can produce unsupported or contextually inconsistent outputs.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-047",
+      "paper_id": "epmc:PPR1322952",
+      "claim": "We introduce AURORA-RAG, a hierarchical Retrieval-Augmented Generation framework that incorporates documentary evidence at country–topic, community, community–topic, and persona stages.",
+      "evidence_quote": "We introduce AURORA-RAG, a hierarchical Retrieval-Augmented Generation framework that incorporates documentary evidence at country–topic, community, community–topic, and persona stages.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-048",
+      "paper_id": "epmc:PPR1322952",
+      "claim": "Hybrid RRF achieves the highest observed value on five of six retrieval metrics.",
+      "evidence_quote": "Hybrid RRF achieves the highest observed value on five of six retrieval metrics.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-049",
+      "paper_id": "epmc:PPR1322952",
+      "claim": "These results support hierarchical retrieval as a trustworthy RAG design for improving documentary grounding, reducing unsupported generation, and increasing the auditability of LLM-based synthetic systems.",
+      "evidence_quote": "These results support hierarchical retrieval as a trustworthy RAG design for improving documentary grounding, reducing unsupported generation, and increasing the auditability of LLM-based synthetic systems.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-050",
+      "paper_id": "cr:10.2139/ssrn.7357178",
+      "claim": "AI capabilities of knowledge-intensive systems like question answering, scientific research, decision support, education and enterprise information systems have greatly benefited from the rapid development of large language models (LLMs).",
+      "evidence_quote": "AI capabilities of knowledge-intensive systems like question answering, scientific research, decision support, education and enterprise information systems have greatly benefited from the rapid development of large language models (LLMs).",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-051",
+      "paper_id": "cr:10.2139/ssrn.7357178",
+      "claim": "However, traditional parametric language models have several drawbacks, such as a lack of up-to-date information, completeness, verifiability and the ability to generate hallucinations.",
+      "evidence_quote": "However, traditional parametric language models have several drawbacks, such as a lack of up-to-date information, completeness, verifiability and the ability to generate hallucinations.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-052",
+      "paper_id": "cr:10.2139/ssrn.7357178",
+      "claim": "To overcome these drawbacks, we introduced a novel approach combining information retrieval with generative language models called Retrieval-Augmented Generation (RAG).To overcome these drawbacks, we proposed a novel approach that combines information retrieval with generative language models, which we term Retrieval-Augmented Generation (RAG).",
+      "evidence_quote": "To overcome these drawbacks, we introduced a novel approach combining information retrieval with generative language models called Retrieval-Augmented Generation (RAG).To overcome these drawbacks, we proposed a novel approach that combines information retrieval with generative language models, which we term Retrieval-Augmented Generation (RAG).",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-053",
+      "paper_id": "cr:10.2139/ssrn.7357178",
+      "claim": "This study covers the development and the new architectures of knowledge grounded LLMs, such as dense retrieval, passage retrieval, external knowledge integration, adaptive retrieval techniques, self-reflection, corrective retrieval, evaluation techniques, and trustworthy RAG systems.",
+      "evidence_quote": "This study covers the development and the new architectures of knowledge grounded LLMs, such as dense retrieval, passage retrieval, external knowledge integration, adaptive retrieval techniques, self-reflection, corrective retrieval, evaluation techniques, and trustworthy RAG systems.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-054",
+      "paper_id": "cr:10.2139/ssrn.7357178",
+      "claim": "The study follows a structured literature review based approach, combining basic and recent studies on retrieval augmented language modeling as well as knowledge grounded generation.",
+      "evidence_quote": "The study follows a structured literature review based approach, combining basic and recent studies on retrieval augmented language modeling as well as knowledge grounded generation.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-055",
+      "paper_id": "cr:10.2139/ssrn.7357178",
+      "claim": "Previous studies show that with a well-coordinated retrieval and generation process, RAG can significantly enhance factuality, contextual relevance, knowledge accessibility, and transparency of generated responses.",
+      "evidence_quote": "Previous studies show that with a well-coordinated retrieval and generation process, RAG can significantly enhance factuality, contextual relevance, knowledge accessibility, and transparency of generated responses.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-056",
+      "paper_id": "cr:10.2139/ssrn.7357178",
+      "claim": "The results reveal, however, that the three key factors of retrieval quality, knowledge-source reliability, retrieval relevance, generation faithfulness and comprehensive evaluation still play an important role in achieving good performance in RAG.",
+      "evidence_quote": "The results reveal, however, that the three key factors of retrieval quality, knowledge-source reliability, retrieval relevance, generation faithfulness and comprehensive evaluation still play an important role in achieving good performance in RAG.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-057",
+      "paper_id": "cr:10.2139/ssrn.7357178",
+      "claim": "Retrieval-based architectures have been evolving over the years with fundamental works by Lewis et al.",
+      "evidence_quote": "Retrieval-based architectures have been evolving over the years with fundamental works by Lewis et al.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    },
+    {
+      "id": "g-rag-pipelines-058",
+      "paper_id": "cr:10.2139/ssrn.7357178",
+      "claim": "The study suggests that future knowledge grounded LLM should go beyond the static retrieval pipelines and be adaptive, self-correcting, secure, and trustworthy to dynamically assess and enhance their knowledge grounding process.",
+      "evidence_quote": "The study suggests that future knowledge grounded LLM should go beyond the static retrieval pipelines and be adaptive, self-correcting, secure, and trustworthy to dynamically assess and enhance their knowledge grounding process.",
+      "locator": "Abstract",
+      "label": "",
+      "annotator": "",
+      "note": ""
+    }
+  ]
+}

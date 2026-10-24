@@ -1,0 +1,28 @@
+/* Subscription tracking drawer (v5.1) */
+.tk-form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+
+.tk-item {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--line, rgba(137, 181, 230, 0.16));
+}
+.tk-item:last-child { border-bottom: 0; }
+.tk-item-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+.tk-item-head b { font-size: 13.5px; }
+.tk-item-body { min-height: 18px; }
+
+.tk-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.tk-pill {
+  border: 1px solid var(--line, rgba(137, 181, 230, 0.22));
+  border-radius: 999px;
+  padding: 1px 9px;
+  font-size: 11.5px;
+}
+.tk-conflict { color: #ff9c9c; border-color: rgba(255, 120, 120, 0.45); }
+.tk-error { color: #ff9c9c; overflow-wrap: anywhere; }
+
+.tk-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+@media (max-width: 640px) {
+  .tk-item-head { flex-direction: column; gap: 2px; }
+}

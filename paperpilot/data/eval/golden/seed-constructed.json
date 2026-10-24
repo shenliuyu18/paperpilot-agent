@@ -1,0 +1,432 @@
+{
+  "version": 1,
+  "topic": "constructed-seed",
+  "provenance": "constructed-seed",
+  "generated_from": "demo corpus (real arXiv metadata/abstracts)",
+  "papers": [
+    {
+      "id": "2605.30814v1",
+      "title": "A Reconfigurable Computing In-Memory Macro with Charge-sharing-based Weighted Accumulator"
+    },
+    {
+      "id": "2606.08947v1",
+      "title": "NeuDW-CIM: a 65-nm 0.8-pJ/Sop Reconfigurable Neuromorphic Compute-in-Memory Macro with Nonlinear Dendrites and K-Winners"
+    },
+    {
+      "id": "2608.11116v1",
+      "title": "You Only Charge Once 2.0: An End-to-End Analog Computing-in-Memory Architecture with Reconfigurable Switched Capacitors"
+    },
+    {
+      "id": "2609.07059v3",
+      "title": "NOVA-CIM: Noise- and Correlation-Tolerant Stochastic Interfaces for Analog Compute-in-Memory"
+    },
+    {
+      "id": "2609.24288v1",
+      "title": "Circuit-Architecture-Training Co-Design with Regenerative-SA Similarity Sensing for Aggressive SAR Skipping in Analog Compute-in-Memory"
+    }
+  ],
+  "claims": [
+    {
+      "id": "g-001",
+      "paper_id": "2605.30814v1",
+      "claim": "To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output.",
+      "evidence_quote": "To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output.",
+      "locator": "Abstract",
+      "label": "supported",
+      "annotator": "constructed-seed",
+      "note": "verbatim sentence"
+    },
+    {
+      "id": "g-002",
+      "paper_id": "2605.30814v1",
+      "claim": "To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output. 该方法还适用于其他任务与硬件平台，并已在工业部署中验证。",
+      "evidence_quote": "To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output.",
+      "locator": "Abstract",
+      "label": "partial",
+      "annotator": "constructed-seed",
+      "note": "claim adds a clause absent from the quote"
+    },
+    {
+      "id": "g-003",
+      "paper_id": "2605.30814v1",
+      "claim": "To address these issues, this work proposes a multi-bit highly reconfigurable 769x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output.",
+      "evidence_quote": "To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output.",
+      "locator": "Abstract",
+      "label": "partial",
+      "probe": "missing_number",
+      "annotator": "constructed-seed",
+      "note": "one number changed"
+    },
+    {
+      "id": "g-004",
+      "paper_id": "2605.30814v1",
+      "claim": "Three key innovations are introduced: 1) The IMADC occupies only 3% area overhead, achieving a 9x improvement compared to previous IMADC; 2) The BSCHA reduces latency by 1.9x and 6.6x compared to traditional pulse-width modulation (PWM) and bit-slicing modes, respectively; 3) A dual-8T bitcell enabling ternary weight storage through a decoupled read path, integrated with a read wordline under-driven cascode technique, improves linearity of unit discharge current by 7x and increases the usable read bitline voltage by 3.5x.",
+      "evidence_quote": "Three key innovations are introduced: 1) The IMADC occupies only 3% area overhead, achieving a 9x improvement compared to previous IMADC; 2) The BSCHA reduces latency by 1.9x and 6.6x compared to traditional pulse-width modulation (PWM) and bit-slicing modes, respectively; 3) A dual-8T bitcell enabling ternary weight storage through a decoupled read path, integrated with a read wordline under-driven cascode technique, improves linearity of unit discharge current by 7x and increases the usable read bitline voltage by 3.5x.",
+      "locator": "Abstract",
+      "label": "supported",
+      "annotator": "constructed-seed",
+      "note": "verbatim sentence"
+    },
+    {
+      "id": "g-005",
+      "paper_id": "2605.30814v1",
+      "claim": "Three key innovations are introduced: 1) The IMADC occupies only 3% area overhead, achieving a 9x improvement compared to previous IMADC; 2) The BSCHA reduces latency by 1.9x and 6.6x compared to traditional pulse-width modulation (PWM) and bit-slicing modes, respectively; 3) A dual-8T bitcell enabling ternary weight storage through a decoupled read path, integrated with a read wordline under-driven cascode technique, improves linearity of unit discharge current by 7x and increases the usable read bitline voltage by 3.5x. 该方法还适用于其他任务与硬件平台，并已在工业部署中验证。",
+      "evidence_quote": "Three key innovations are introduced: 1) The IMADC occupies only 3% area overhead, achieving a 9x improvement compared to previous IMADC; 2) The BSCHA reduces latency by 1.9x and 6.6x compared to traditional pulse-width modulation (PWM) and bit-slicing modes, respectively; 3) A dual-8T bitcell enabling ternary weight storage through a decoupled read path, integrated with a read wordline under-driven cascode technique, improves linearity of unit discharge current by 7x and increases the usable read bitline voltage by 3.5x.",
+      "locator": "Abstract",
+      "label": "partial",
+      "annotator": "constructed-seed",
+      "note": "claim adds a clause absent from the quote"
+    },
+    {
+      "id": "g-006",
+      "paper_id": "2605.30814v1",
+      "claim": "Three key innovations are introduced: 4) The IMADC occupies only 3% area overhead, achieving a 9x improvement compared to previous IMADC; 2) The BSCHA reduces latency by 1.9x and 6.6x compared to traditional pulse-width modulation (PWM) and bit-slicing modes, respectively; 3) A dual-8T bitcell enabling ternary weight storage through a decoupled read path, integrated with a read wordline under-driven cascode technique, improves linearity of unit discharge current by 7x and increases the usable read bitline voltage by 3.5x.",
+      "evidence_quote": "Three key innovations are introduced: 1) The IMADC occupies only 3% area overhead, achieving a 9x improvement compared to previous IMADC; 2) The BSCHA reduces latency by 1.9x and 6.6x compared to traditional pulse-width modulation (PWM) and bit-slicing modes, respectively; 3) A dual-8T bitcell enabling ternary weight storage through a decoupled read path, integrated with a read wordline under-driven cascode technique, improves linearity of unit discharge current by 7x and increases the usable read bitline voltage by 3.5x.",
+      "locator": "Abstract",
+      "label": "partial",
+      "probe": "missing_number",
+      "annotator": "constructed-seed",
+      "note": "one number changed"
+    },
+    {
+      "id": "g-007",
+      "paper_id": "2605.30814v1",
+      "claim": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS.",
+      "evidence_quote": "To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "claim quoted from a different paper"
+    },
+    {
+      "id": "g-008",
+      "paper_id": "2606.08947v1",
+      "claim": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS.",
+      "evidence_quote": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS.",
+      "locator": "Abstract",
+      "label": "supported",
+      "annotator": "constructed-seed",
+      "note": "verbatim sentence"
+    },
+    {
+      "id": "g-009",
+      "paper_id": "2606.08947v1",
+      "claim": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS. 该方法还适用于其他任务与硬件平台，并已在工业部署中验证。",
+      "evidence_quote": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS.",
+      "locator": "Abstract",
+      "label": "partial",
+      "annotator": "constructed-seed",
+      "note": "claim adds a clause absent from the quote"
+    },
+    {
+      "id": "g-010",
+      "paper_id": "2606.08947v1",
+      "claim": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 196 nm CMOS.",
+      "evidence_quote": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS.",
+      "locator": "Abstract",
+      "label": "partial",
+      "probe": "missing_number",
+      "annotator": "constructed-seed",
+      "note": "one number changed"
+    },
+    {
+      "id": "g-011",
+      "paper_id": "2606.08947v1",
+      "claim": "The design introduces a custom twin 9T bit-cell for ternary inputs/weights and a reconfigurable non-linear In-Memory ADC (IMA).",
+      "evidence_quote": "The design introduces a custom twin 9T bit-cell for ternary inputs/weights and a reconfigurable non-linear In-Memory ADC (IMA).",
+      "locator": "Abstract",
+      "label": "supported",
+      "annotator": "constructed-seed",
+      "note": "verbatim sentence"
+    },
+    {
+      "id": "g-012",
+      "paper_id": "2606.08947v1",
+      "claim": "The design introduces a custom twin 9T bit-cell for ternary inputs/weights and a reconfigurable non-linear In-Memory ADC (IMA). 该方法还适用于其他任务与硬件平台，并已在工业部署中验证。",
+      "evidence_quote": "The design introduces a custom twin 9T bit-cell for ternary inputs/weights and a reconfigurable non-linear In-Memory ADC (IMA).",
+      "locator": "Abstract",
+      "label": "partial",
+      "annotator": "constructed-seed",
+      "note": "claim adds a clause absent from the quote"
+    },
+    {
+      "id": "g-013",
+      "paper_id": "2606.08947v1",
+      "claim": "The design introduces a custom twin 28T bit-cell for ternary inputs/weights and a reconfigurable non-linear In-Memory ADC (IMA).",
+      "evidence_quote": "The design introduces a custom twin 9T bit-cell for ternary inputs/weights and a reconfigurable non-linear In-Memory ADC (IMA).",
+      "locator": "Abstract",
+      "label": "partial",
+      "probe": "missing_number",
+      "annotator": "constructed-seed",
+      "note": "one number changed"
+    },
+    {
+      "id": "g-014",
+      "paper_id": "2606.08947v1",
+      "claim": "With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "evidence_quote": "This work presents NeuDW-CIM, a highly efficient neuromorphic Compute-in-Memory (CIM) macro for Spiking Neural Networks (SNNs) implemented in 65 nm CMOS.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "claim quoted from a different paper"
+    },
+    {
+      "id": "g-015",
+      "paper_id": "2608.11116v1",
+      "claim": "With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "evidence_quote": "With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "supported",
+      "annotator": "constructed-seed",
+      "note": "verbatim sentence"
+    },
+    {
+      "id": "g-016",
+      "paper_id": "2608.11116v1",
+      "claim": "With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator. 该方法还适用于其他任务与硬件平台，并已在工业部署中验证。",
+      "evidence_quote": "With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "partial",
+      "annotator": "constructed-seed",
+      "note": "claim adds a clause absent from the quote"
+    },
+    {
+      "id": "g-017",
+      "paper_id": "2608.11116v1",
+      "claim": "With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 276.1% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "evidence_quote": "With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "partial",
+      "probe": "missing_number",
+      "annotator": "constructed-seed",
+      "note": "one number changed"
+    },
+    {
+      "id": "g-018",
+      "paper_id": "2608.11116v1",
+      "claim": "In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting.",
+      "evidence_quote": "With dataflow architecture support, we evaluated Charge-CIM on a suite of DNN benchmarks, from CNNs to Transformer models, and experimental results show that Charge-CIM reduces ADC energy by 91.7% under our evaluation setup and improves energy efficiency by 2.7x and throughput by 2.0x compared to the state-of-the-art charge-domain CIM accelerator.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "claim quoted from a different paper"
+    },
+    {
+      "id": "g-019",
+      "paper_id": "2609.07059v3",
+      "claim": "In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting.",
+      "evidence_quote": "In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting.",
+      "locator": "Abstract",
+      "label": "supported",
+      "annotator": "constructed-seed",
+      "note": "verbatim sentence"
+    },
+    {
+      "id": "g-020",
+      "paper_id": "2609.07059v3",
+      "claim": "In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting. 该方法还适用于其他任务与硬件平台，并已在工业部署中验证。",
+      "evidence_quote": "In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting.",
+      "locator": "Abstract",
+      "label": "partial",
+      "annotator": "constructed-seed",
+      "note": "claim adds a clause absent from the quote"
+    },
+    {
+      "id": "g-021",
+      "paper_id": "2609.07059v3",
+      "claim": "In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 4-bit sensing and reconstructing results through lightweight counting.",
+      "evidence_quote": "In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting.",
+      "locator": "Abstract",
+      "label": "partial",
+      "probe": "missing_number",
+      "annotator": "constructed-seed",
+      "note": "one number changed"
+    },
+    {
+      "id": "g-022",
+      "paper_id": "2609.07059v3",
+      "claim": "MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-1 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted.",
+      "evidence_quote": "MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-1 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted.",
+      "locator": "Abstract",
+      "label": "supported",
+      "annotator": "constructed-seed",
+      "note": "verbatim sentence"
+    },
+    {
+      "id": "g-023",
+      "paper_id": "2609.07059v3",
+      "claim": "MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-1 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted. 该方法还适用于其他任务与硬件平台，并已在工业部署中验证。",
+      "evidence_quote": "MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-1 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted.",
+      "locator": "Abstract",
+      "label": "partial",
+      "annotator": "constructed-seed",
+      "note": "claim adds a clause absent from the quote"
+    },
+    {
+      "id": "g-024",
+      "paper_id": "2609.07059v3",
+      "claim": "MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-4 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted.",
+      "evidence_quote": "MAC-level experiments and end-to-end evaluation on ViT-Base validate the analysis: under read noise, Top-1 accuracy remains 84.48% near the 84.51% bfloat16 (BF16) baseline; under stochastic number generator (SNG) reuse, MAC bias stays near zero while root-mean-square error (RMSE) and stochastic cross-correlation (SCC) grow as predicted.",
+      "locator": "Abstract",
+      "label": "partial",
+      "probe": "missing_number",
+      "annotator": "constructed-seed",
+      "note": "one number changed"
+    },
+    {
+      "id": "g-025",
+      "paper_id": "2609.07059v3",
+      "claim": "The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model.",
+      "evidence_quote": "In this paper, we present NOVA-CIM, a noise- and correlation-tolerant stochastic interface for analog CIM by replacing multi-bit ADC readout with random-reference 1-bit sensing and reconstructing results through lightweight counting.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "claim quoted from a different paper"
+    },
+    {
+      "id": "g-026",
+      "paper_id": "2609.24288v1",
+      "claim": "The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model.",
+      "evidence_quote": "The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model.",
+      "locator": "Abstract",
+      "label": "supported",
+      "annotator": "constructed-seed",
+      "note": "verbatim sentence"
+    },
+    {
+      "id": "g-027",
+      "paper_id": "2609.24288v1",
+      "claim": "The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model. 该方法还适用于其他任务与硬件平台，并已在工业部署中验证。",
+      "evidence_quote": "The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model.",
+      "locator": "Abstract",
+      "label": "partial",
+      "annotator": "constructed-seed",
+      "note": "claim adds a clause absent from the quote"
+    },
+    {
+      "id": "g-028",
+      "paper_id": "2609.24288v1",
+      "claim": "The detector is characterized through 166-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model.",
+      "evidence_quote": "The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model.",
+      "locator": "Abstract",
+      "label": "partial",
+      "probe": "missing_number",
+      "annotator": "constructed-seed",
+      "note": "one number changed"
+    },
+    {
+      "id": "g-029",
+      "paper_id": "2609.24288v1",
+      "claim": "On WRN-28-10, the proposed approach achieves 77.3% Top-1 accuracy (W4A4 baseline: 78.4%) while reducing SAR comparisons by 48.19% across the evaluated layers.",
+      "evidence_quote": "On WRN-28-10, the proposed approach achieves 77.3% Top-1 accuracy (W4A4 baseline: 78.4%) while reducing SAR comparisons by 48.19% across the evaluated layers.",
+      "locator": "Abstract",
+      "label": "supported",
+      "annotator": "constructed-seed",
+      "note": "verbatim sentence"
+    },
+    {
+      "id": "g-030",
+      "paper_id": "2609.24288v1",
+      "claim": "On WRN-28-10, the proposed approach achieves 77.3% Top-1 accuracy (W4A4 baseline: 78.4%) while reducing SAR comparisons by 48.19% across the evaluated layers. 该方法还适用于其他任务与硬件平台，并已在工业部署中验证。",
+      "evidence_quote": "On WRN-28-10, the proposed approach achieves 77.3% Top-1 accuracy (W4A4 baseline: 78.4%) while reducing SAR comparisons by 48.19% across the evaluated layers.",
+      "locator": "Abstract",
+      "label": "partial",
+      "annotator": "constructed-seed",
+      "note": "claim adds a clause absent from the quote"
+    },
+    {
+      "id": "g-031",
+      "paper_id": "2609.24288v1",
+      "claim": "On WRN-85-10, the proposed approach achieves 77.3% Top-1 accuracy (W4A4 baseline: 78.4%) while reducing SAR comparisons by 48.19% across the evaluated layers.",
+      "evidence_quote": "On WRN-28-10, the proposed approach achieves 77.3% Top-1 accuracy (W4A4 baseline: 78.4%) while reducing SAR comparisons by 48.19% across the evaluated layers.",
+      "locator": "Abstract",
+      "label": "partial",
+      "probe": "missing_number",
+      "annotator": "constructed-seed",
+      "note": "one number changed"
+    },
+    {
+      "id": "g-032",
+      "paper_id": "2609.24288v1",
+      "claim": "To address these issues, this work proposes a multi-bit highly reconfigurable 256x128 in-memory computing array supporting 1-7b input, 2-4b weight, and 1-7b output.",
+      "evidence_quote": "The detector is characterized through 55-nm CMOS schematic simulations, with system-level evaluation on WRN-28-10, ResNet20, and DeiT using an ISAAC-based W4A4 CIM model.",
+      "locator": "Abstract",
+      "label": "unsupported",
+      "annotator": "constructed-seed",
+      "note": "claim quoted from a different paper"
+    }
+  ],
+  "contradiction_pairs": [
+    {
+      "id": "cp-001",
+      "expected": true,
+      "paper_a": {
+        "id": "X1",
+        "title": "Paper X1",
+        "year": "2026",
+        "venue": "arXiv preprint",
+        "metrics": {
+          "ADC 能耗": "降低 27.1%"
+        },
+        "results": []
+      },
+      "paper_b": {
+        "id": "X2",
+        "title": "Paper X2",
+        "year": "2026",
+        "venue": "arXiv preprint",
+        "metrics": {
+          "ADC 能耗": "提升 12.5%"
+        },
+        "results": []
+      }
+    },
+    {
+      "id": "cp-002",
+      "expected": false,
+      "paper_a": {
+        "id": "Y1",
+        "title": "Paper Y1",
+        "year": "2026",
+        "venue": "arXiv preprint",
+        "metrics": {
+          "ADC 能耗": "降低 27.1%"
+        },
+        "results": []
+      },
+      "paper_b": {
+        "id": "Y2",
+        "title": "Paper Y2",
+        "year": "2026",
+        "venue": "arXiv preprint",
+        "metrics": {
+          "ADC 能耗": "降低 91.7%"
+        },
+        "results": []
+      }
+    },
+    {
+      "id": "cp-003",
+      "expected": false,
+      "paper_a": {
+        "id": "Z1",
+        "title": "Paper Z1",
+        "year": "2026",
+        "venue": "arXiv preprint",
+        "metrics": {
+          "ADC 能耗": "降低 27.1%"
+        },
+        "results": []
+      },
+      "paper_b": {
+        "id": "Z2",
+        "title": "Paper Z2",
+        "metrics": {
+          "吞吐": "提升 2.0×"
+        },
+        "results": []
+      }
+    }
+  ],
+  "disagreements": []
+}

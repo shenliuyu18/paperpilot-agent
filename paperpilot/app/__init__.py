@@ -1,0 +1,1 @@
+"""PaperPilot application package."""

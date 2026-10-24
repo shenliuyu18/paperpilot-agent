@@ -1,0 +1,338 @@
+/* PaperPilot 3.0 — project Copilot styles. */
+
+.assistant-shell {
+  min-width: 0;
+  padding: 18px;
+}
+
+.assistant-panel {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.assistant-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.assistant-head h3 {
+  margin: 4px 0 4px;
+  font-size: 19px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.assistant-head p {
+  margin: 0;
+  max-width: 640px;
+  overflow-wrap: anywhere;
+}
+
+.assistant-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.assistant-stream {
+  display: grid;
+  gap: 12px;
+  max-height: 540px;
+  overflow-y: auto;
+  padding: 4px 2px 8px;
+  min-width: 0;
+}
+
+.assistant-empty {
+  padding: 18px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: rgba(76, 227, 247, 0.03);
+}
+
+.assistant-empty h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.assistant-samples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 10px;
+}
+
+.assistant-samples .link-btn {
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.assistant-msg {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+}
+
+.assistant-msg.user {
+  border-color: rgba(76, 227, 247, 0.24);
+  background: rgba(76, 227, 247, 0.06);
+}
+
+.assistant-msg-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.assistant-role {
+  font-weight: 650;
+  font-size: 13px;
+}
+
+.assistant-text {
+  font-size: 13.5px;
+  line-height: 1.72;
+  color: var(--text);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.assistant-citations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  min-width: 0;
+}
+
+.assistant-cite {
+  display: grid;
+  gap: 2px;
+  max-width: 100%;
+  min-width: 0;
+  text-align: left;
+  padding: 7px 10px;
+  border-radius: 9px;
+  border: 1px solid rgba(137, 181, 230, 0.22);
+  background: rgba(137, 181, 230, 0.08);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+
+.assistant-cite:hover {
+  border-color: var(--cyan);
+  background: rgba(76, 227, 247, 0.12);
+}
+
+.assistant-cite span,
+.assistant-cite small {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.assistant-cite small {
+  color: var(--muted);
+}
+
+.assistant-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  min-width: 0;
+}
+
+.assistant-action {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  padding: 9px 11px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 202, 107, 0.24);
+  background: rgba(255, 202, 107, 0.06);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+
+.assistant-action:hover {
+  border-color: var(--amber);
+  background: rgba(255, 202, 107, 0.12);
+}
+
+.assistant-action strong {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.assistant-action span {
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.assistant-action em {
+  justify-self: start;
+  font-style: normal;
+  font-size: 10.5px;
+  color: var(--amber);
+}
+
+.assistant-form {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.assistant-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 72px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--panel-solid);
+  color: var(--text);
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.assistant-form textarea:focus {
+  outline: none;
+  border-color: var(--cyan);
+}
+
+.assistant-form-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.draft-semantic-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+
+.draft-semantic-head h4 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.draft-semantic-summary {
+  margin: 6px 0 8px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.draft-semantic-item {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  margin-bottom: 7px;
+  padding: 8px 9px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.draft-semantic-item.high {
+  border-color: rgba(255, 123, 123, 0.35);
+  background: rgba(255, 123, 123, 0.07);
+}
+
+.draft-semantic-item.medium {
+  border-color: rgba(255, 202, 107, 0.3);
+  background: rgba(255, 202, 107, 0.06);
+}
+
+.draft-semantic-item:hover {
+  border-color: var(--line-strong);
+}
+
+.draft-semantic-verdict {
+  font-size: 11px;
+  color: var(--amber);
+  font-weight: 650;
+}
+
+.draft-semantic-text {
+  font-size: 12px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.draft-semantic-item small {
+  color: var(--muted);
+  font-size: 10.5px;
+  overflow-wrap: anywhere;
+}
+
+.focus-flash {
+  animation: focus-pulse 1.8s ease;
+  border-color: var(--cyan) !important;
+}
+
+@keyframes focus-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(76, 227, 247, 0.55); }
+  35% { box-shadow: 0 0 0 5px rgba(76, 227, 247, 0.18); }
+  100% { box-shadow: 0 0 0 0 rgba(76, 227, 247, 0); }
+}
+
+@media (max-width: 640px) {
+  .assistant-shell {
+    padding: 14px;
+  }
+
+  .assistant-head {
+    flex-direction: column;
+  }
+
+  .assistant-head-actions {
+    width: 100%;
+  }
+
+  .assistant-stream {
+    max-height: 460px;
+  }
+
+  .assistant-msg {
+    padding: 11px 12px;
+  }
+
+  .assistant-cite,
+  .assistant-action {
+    width: 100%;
+  }
+}

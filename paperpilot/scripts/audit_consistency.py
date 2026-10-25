@@ -23,6 +23,7 @@ Usage::
 from __future__ import annotations
 
 import argparse
+import ast
 import io
 import json
 import os
@@ -52,10 +53,10 @@ from app.main import app  # noqa: E402
 
 client = TestClient(app)
 RESULTS: list[dict] = []
-# Any of these outside llm_gateway.py means the call skips audit, budget,
-# timeout and degrade handling — the defect v8.1.3 closed.
-GATEWAY_BYPASS_TOKENS = ("llm.chat(", "llm.chat_json(", "import chat
-", "import chat_json", "import chat,")
+# Anything else in app/ that imports or calls the raw completion helpers has
+# bypassed audit, budget, timeout and degrade handling — the defect v8.1.3 closed.
+GATEWAY_BYPASS_TOKENS = ("llm.chat(", "llm.chat_json(")
+GATEWAY_BYPASS_NAMES = {"chat", "chat_json"}
 
 
 def check(name: str, ok: bool, detail: str = "") -> bool:
@@ -559,6 +560,14 @@ def main() -> int:
             continue
         text = path.read_text(encoding="utf-8")
         hits = [token for token in GATEWAY_BYPASS_TOKENS if token in text]
+        imported = sorted(GATEWAY_BYPASS_NAMES & {
+            alias.name
+            for node in ast.parse(text, filename=str(path)).body
+            if isinstance(node, ast.ImportFrom) and (node.module or "").endswith("llm")
+            for alias in node.names
+        })
+        if imported:
+            hits.append(f"from ...llm import {', '.join(imported)}")
         if hits:
             bypass.append(f"{path.relative_to(ROOT)}: {hits}")
     check("F1 模型调用只从统一网关出去（否则审计/预算/超时/降级都不生效）",

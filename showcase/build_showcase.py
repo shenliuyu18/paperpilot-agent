@@ -534,7 +534,7 @@ docker compose up --build</pre>
 
 <footer>
   <div class="wrap" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;width:100%">
-    <span>PaperPilot 8.3.1 · 证据优先 · 离线可跑 · 自配模型 · 可交付稿</span>
+    <span>PaperPilot 8.3.2 · 证据优先 · 离线可跑 · 自配模型 · 可交付稿</span>
     <span><a href="{{GITHUB}}" target="_blank" rel="noopener">GitHub 源码</a> · 静态展示页</span>
   </div>
 </footer>

@@ -6,7 +6,7 @@
 **在线入口**
 
 - **真实 Agent（ModelScope 创空间）**：https://modelscope.cn/studios/shenliuyu/paperpilot
-- **展示页（含演示视频）**：https://paperpilot-showcase.pages.dev/
+- **展示页（含 32 秒实录视频）**：https://paperpilot-showcase.pages.dev/
 - **GitHub Pages**：https://shenliuyu18.github.io/paperpilot-agent/
 - **GitHub 仓库**：https://github.com/shenliuyu18/paperpilot-agent
 

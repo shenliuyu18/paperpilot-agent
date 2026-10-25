@@ -495,12 +495,13 @@ Orchestrator（意图识别 / 任务规划 / 人工确认）
         <div class="shot"><img src="{{DEMO_EVIDENCE}}" alt="证据在原文页高亮" loading="lazy"><div class="cap"><b>证据回原文</b><span>已定位证据 · 3 处 · 句级高亮</span></div></div>
       </div>
       <div class="video-card">
-        <video controls preload="metadata" poster="cover.jpg">
-          <source src="paperpilot_demo.mp4" type="video/mp4" />
-          你的浏览器不支持 HTML5 视频。演示视频文件为 <code>paperpilot_demo.mp4</code>。
+        <video controls preload="metadata" poster="demo831_poster.jpg">
+          <source src="paperpilot_demo_831.mp4" type="video/mp4" />
+          你的浏览器不支持 HTML5 视频。演示视频文件为 <code>paperpilot_demo_831.mp4</code>。
         </video>
-        <div class="video-note"><span>演示视频：1600×900 · 中文旁白与字幕（早期版本基线）</span><span>静态展示页不运行 FastAPI API；完整 Agent 请按下方运行。</span></div>
+        <div class="video-note"><span>32 秒实录：一键演示 → 带证据的草稿 → 原文页高亮（无旁白，说明在画面内）</span><span>静态展示页不运行 FastAPI API；完整 Agent 请按下方运行。</span></div>
       </div>
+      <div class="note">早期版本的 3 分 8 秒完整流程（v0.8 基线，保留作对照）：<a href="paperpilot_demo.mp4">paperpilot_demo.mp4</a>。</div>
     </div>
   </section>
 

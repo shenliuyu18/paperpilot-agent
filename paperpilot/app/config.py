@@ -51,6 +51,9 @@ LLM_BASE_URL = (
 ).strip()
 LLM_MODEL = (os.getenv("PAPERPILOT_LLM_MODEL") or "gpt-4o-mini").strip()
 LLM_TIMEOUT = float(os.getenv("PAPERPILOT_LLM_TIMEOUT", "60"))
+# Long completions (Agent 简报、全文精读) regularly need more than the default
+# socket timeout; a premature ReadTimeout silently degrades them to offline text.
+LLM_LONG_TIMEOUT = float(os.getenv("PAPERPILOT_LLM_LONG_TIMEOUT", "180"))
 LLM_RETRIES = max(0, min(int(os.getenv("PAPERPILOT_LLM_RETRIES", "1")), 3))
 EMBEDDING_MODEL = (os.getenv("PAPERPILOT_EMBEDDING_MODEL") or "text-embedding-3-small").strip()
 EMBEDDING_ENABLED = bool(
@@ -71,7 +74,7 @@ def _parse_routes(raw: str) -> dict[str, str]:
 
 
 LLM_ROUTES = _parse_routes(os.getenv("PAPERPILOT_LLM_ROUTES", ""))
-APP_VERSION = "8.1.1"
+APP_VERSION = "8.1.2"
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 ASSISTANT_MAX_MESSAGES = 60
 ASSISTANT_LLM_MAX_CALLS = 2

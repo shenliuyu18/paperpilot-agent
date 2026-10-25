@@ -971,4 +971,7 @@ def execute_action(run: dict, plan: dict, action_id: str = "") -> dict:
     tool = str(plan.get("tool") or "")
     if tool not in _ACTIONS:
         raise ValueError(f"未知动作：{tool}")
-    return _ACTIONS[tool](run, plan.get("input") or {}, action_id)
+    # Nested read/compare/topic/draft model calls reach the gateway through
+    # helpers that cannot carry the run, so bind it for the whole action.
+    with llm_gateway.agent_run_context(run):
+        return _ACTIONS[tool](run, plan.get("input") or {}, action_id)

@@ -144,16 +144,29 @@ def main() -> int:
         run = payload(session.post(base + "/api/agent/runs", json={
             "goal": "比较两篇本地论文的 ADC 读出能耗与数字校准开销，找出可做的课程论文选题",
             "source": "upload", "mode": "auto", "project_id": pid,
-            "max_actions": 8, "max_seconds": 600, "max_llm_calls": 4, "max_papers": 2,
+            "max_actions": 8, "max_seconds": 600, "max_llm_calls": 6, "max_papers": 2,
         }, timeout=120), "create agent run")["run"]
         last = wait_run(session, base, run["id"])
+        budget_used = last.get("budget_used") or {}
         summary["agent"] = {
             "status": last.get("status"), "paper_ids": last.get("paper_ids"),
             "report": last.get("report"), "steps": len(last.get("steps") or []),
-            "error": last.get("error"),
+            "error": last.get("error"), "budget_used": budget_used,
         }
         check(last.get("status") == "completed",
               f"agent run ended as {last.get('status')}: {last.get('error')}")
+        # The nested 精读 model calls belong to this run, so every real call
+        # recorded for it must show up exactly once in its budget; cached replies
+        # reuse an answer instead of a call. A run that read papers with 0 calls
+        # means the accounting is bypassed somewhere.
+        audit_calls = payload(session.get(base + "/api/llm/audit?limit=200", timeout=60),
+                              "read llm audit").get("calls") or []
+        run_calls = [call for call in audit_calls if call.get("run_id") == last.get("id")]
+        charged = sum(1 for call in run_calls if call.get("ok") and not call.get("cached"))
+        nested = [call for call in run_calls if call.get("purpose") in ("read", "translation")]
+        check(charged == int(budget_used.get("llm_calls") or 0) and bool(nested),
+              f"run budget does not match its model calls: {budget_used} "
+              f"charged={charged} nested={len(nested)}")
         report_path = Path(str((last.get("report") or {}).get("path") or ""))
         report = report_path.read_text(encoding="utf-8") if report_path.is_file() else ""
         check(len(report) >= 500, f"agent report is too short: {len(report)} chars")

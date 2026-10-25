@@ -9,7 +9,6 @@ from collections import OrderedDict
 
 from .. import config
 from ..demo_data import GAPS
-from ..llm import chat_json
 from . import glossary_store, llm_gateway
 
 PROMPT_DIR = config.ROOT / "prompts"
@@ -51,10 +50,13 @@ def _llm_read_cache_key(paper: dict) -> str:
 
 
 def clear_read_cache() -> None:
+    """Drop every in-process side cache for model-derived results."""
     with _READ_LOCK:
         _READ_CACHE.clear()
     with _LLM_READ_LOCK:
         _LLM_READ_CACHE.clear()
+    with _COMPARE_LOCK:
+        _COMPARE_CACHE.clear()
 
 
 _COMPARE_CACHE: OrderedDict[str, dict] = OrderedDict()
@@ -336,7 +338,7 @@ def _llm_read(paper: dict) -> dict | None:
         temperature=0.2, max_tokens=16384, use_cache=True,
     )
     normalized = _normalize_read_fields(data)
-    if not any(normalized[key] for key in ("tldr", "problem", "method")):
+    if not any(normalized.get(key) for key in ("tldr", "problem", "method")):
         return None
     with _LLM_READ_LOCK:
         _LLM_READ_CACHE[cache_key] = copy.deepcopy(normalized)
@@ -1116,10 +1118,7 @@ def _llm_compare(papers: list[dict], rows: list[dict], columns: list[dict]) -> d
         + "\n\n对比表：\n" + json.dumps(rows, ensure_ascii=False, default=str)[:9000]
         + "\n\n列定义：\n" + json.dumps(columns, ensure_ascii=False, default=str)
     )
-    try:
-        data = chat_json(COMPARE_PROMPT, user)
-    except Exception:
-        return None
+    data, _ = llm_gateway.audited_chat_json(COMPARE_PROMPT, user, purpose="compare")
     if not isinstance(data, dict):
         return None
 
@@ -1424,25 +1423,23 @@ def transform(paper: dict, outputs: list[str] | None = None) -> dict:
     source = "builtin"
 
     if not paper.get("curated") and config.LLM_ENABLED:
-        try:
-            data = chat_json(
-                BUILDER_PROMPT,
-                "根据以下论文信息，生成 JSON：\n"
-                '{"repro":{"environment":[],"steps":[],"minimal_experiment":"","risks":[],"deliverables":[]},'
-                '"code_scaffold":"Python 骨架，标注 TODO 和不可确定项",'
-                '"slides":["..."],"quiz":[{"q":"...","a":"..."}],'
-                '"course_case":"如何映射到课程案例"}\n\n'
-                + _text_for_llm(paper, 9000),
-            )
-            if isinstance(data, dict):
-                repo_plan = data.get("repro") or repo_plan
-                code = data.get("code_scaffold") or code
-                slides = data.get("slides") or slides
-                quiz = data.get("quiz") or quiz
-                course = data.get("course_case") or course
-                source = "llm"
-        except Exception:
-            pass
+        data, _ = llm_gateway.audited_chat_json(
+            BUILDER_PROMPT,
+            "根据以下论文信息，生成 JSON：\n"
+            '{"repro":{"environment":[],"steps":[],"minimal_experiment":"","risks":[],"deliverables":[]},'
+            '"code_scaffold":"Python 骨架，标注 TODO 和不可确定项",'
+            '"slides":["..."],"quiz":[{"q":"...","a":"..."}],'
+            '"course_case":"如何映射到课程案例"}\n\n'
+            + _text_for_llm(paper, 9000),
+            purpose="transform",
+        )
+        if isinstance(data, dict):
+            repo_plan = data.get("repro") or repo_plan
+            code = data.get("code_scaffold") or code
+            slides = data.get("slides") or slides
+            quiz = data.get("quiz") or quiz
+            course = data.get("course_case") or course
+            source = "llm"
 
     if not paper.get("curated"):
         fallback = _heuristic_transform(paper)

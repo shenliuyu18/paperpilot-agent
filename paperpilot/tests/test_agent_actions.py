@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from app import config
-from app.services import agent_actions, agent_state
+from app.services import agent_actions, agent_state, analysis, llm_gateway
 
 
 def _paper(pid: str, title: str = "Paper") -> dict:
@@ -38,6 +38,7 @@ class AgentActionTests(unittest.TestCase):
         self.env = patch.dict(
             os.environ,
             {
+                "PAPERPILOT_DATA_DIR": str(self.root / "data"),
                 "PAPERPILOT_AGENT_FILE": str(self.root / "runs.json"),
                 "PAPERPILOT_AGENT_DIR": str(self.root / "runs"),
             },
@@ -314,6 +315,84 @@ class AgentActionTests(unittest.TestCase):
         self.assertNotIn("错误论文", markdown)
         self.assertIn("- [P1] Alice Alpha. Paper One.", markdown)
         self.assertIn("- [P2] Alice Alpha. Paper Two.", markdown)
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat")
+    def test_nested_llm_read_spends_agent_budget(self, chat) -> None:
+        llm_gateway.reset_cache()
+        analysis.clear_read_cache()
+        chat.return_value = (
+            '{"tldr":"模型摘要","problem":"模型问题","method":"模型方法",'
+            '"novelty":[],"limitations":[],"reviewer_questions":[]}'
+        )
+        self.run["budget"]["max_llm_calls"] = 1
+        agent_actions.save_papers(self.run, [_paper("P1", "Paper One"), _paper("P2", "Paper Two")])
+        first = agent_actions.execute_action(
+            self.run, {"tool": "read", "input": {"paper_id": "P1"}}, action_id="act-read-1"
+        )
+        self.assertEqual(first["extraction_mode"], "llm")
+        self.assertEqual(self.run["budget_used"]["llm_calls"], 1)
+        self.assertEqual(chat.call_count, 1)
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat")
+    def test_exhausted_agent_budget_degrades_nested_llm_read(self, chat) -> None:
+        llm_gateway.reset_cache()
+        analysis.clear_read_cache()
+        chat.return_value = (
+            '{"tldr":"模型摘要","problem":"模型问题","method":"模型方法",'
+            '"novelty":[],"limitations":[],"reviewer_questions":[]}'
+        )
+        self.run["budget"]["max_llm_calls"] = 1
+        agent_actions.save_papers(self.run, [_paper("P1", "Paper One"), _paper("P2", "Paper Two")])
+        agent_actions.execute_action(
+            self.run, {"tool": "read", "input": {"paper_id": "P1"}}, action_id="act-read-1"
+        )
+        second = agent_actions.execute_action(
+            self.run, {"tool": "read", "input": {"paper_id": "P2"}}, action_id="act-read-2"
+        )
+        self.assertEqual(second["extraction_mode"], "heuristic")
+        self.assertEqual(self.run["budget_used"]["llm_calls"], 1)
+        self.assertEqual(chat.call_count, 1)
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat")
+    def test_nested_llm_compare_spends_agent_budget(self, chat) -> None:
+        llm_gateway.reset_cache()
+        analysis.clear_read_cache()
+        chat.return_value = (
+            '{"comparability":[],"consensus":["均为 28nm 工艺"],"divergence":[],'
+            '"cautions":[],"gaps":[]}'
+        )
+        self.run["budget"]["max_llm_calls"] = 2
+        agent_actions.save_papers(self.run, [_paper("P1", "Paper One"), _paper("P2", "Paper Two")])
+        artifact = agent_actions.execute_action(
+            self.run, {"tool": "compare", "input": {}}, action_id="act-cmp-1"
+        )
+        self.assertEqual(int(self.run["budget_used"]["llm_calls"]), 1)
+        self.assertEqual(chat.call_count, 1)
+        self.assertEqual(len(artifact["rows"]), 2)
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat")
+    def test_exhausted_agent_budget_still_answers_compare(self, chat) -> None:
+        llm_gateway.reset_cache()
+        analysis.clear_read_cache()
+        chat.return_value = (
+            '{"tldr":"模型摘要","problem":"模型问题","method":"模型方法",'
+            '"novelty":[],"limitations":[],"reviewer_questions":[]}'
+        )
+        self.run["budget"]["max_llm_calls"] = 1
+        agent_actions.save_papers(self.run, [_paper("P1", "Paper One"), _paper("P2", "Paper Two")])
+        agent_actions.execute_action(
+            self.run, {"tool": "read", "input": {"paper_id": "P1"}}, action_id="act-read-1"
+        )
+        artifact = agent_actions.execute_action(
+            self.run, {"tool": "compare", "input": {}}, action_id="act-cmp-1"
+        )
+        self.assertEqual(self.run["budget_used"]["llm_calls"], 1)
+        self.assertEqual(chat.call_count, 1)
+        self.assertEqual(len(artifact["rows"]), 2)
 
     @patch.object(config, "LLM_ENABLED", True)
     @patch.object(agent_actions.llm_gateway, "audited_chat")

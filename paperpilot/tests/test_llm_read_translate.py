@@ -72,6 +72,16 @@ class OnlineReadTranslateTests(unittest.TestCase):
 
     @patch.object(config, "LLM_ENABLED", True)
     @patch.object(llm_gateway, "audited_chat_json")
+    def test_read_degrades_when_gateway_returns_no_payload(self, audited) -> None:
+        for status in ("budget", "fallback"):
+            with self.subTest(status=status):
+                analysis.clear_read_cache()
+                audited.return_value = (None, {"status": status})
+                result = analysis.read_paper(dict(PAPER), "5min")
+                self.assertEqual(result["extraction_mode"], "heuristic")
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch.object(llm_gateway, "audited_chat_json")
     def test_read_coerces_structured_fields_to_plain_text(self, audited) -> None:
         audited.return_value = ({
             "tldr": {"text": "模型摘要", "confidence": "high"},

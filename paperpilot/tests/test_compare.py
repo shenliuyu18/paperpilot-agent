@@ -107,13 +107,16 @@ class CompareTests(unittest.TestCase):
             ),
         ]
         with patch.object(config, "LLM_ENABLED", True), patch.object(
-            analysis,
-            "chat_json",
-            return_value={
-                "consensus": ["五篇工作都把 ADC 的能耗/面积视为核心瓶颈。"],
-                "divergence": ["P1 走 SAR 跳比较。"],
-                "cautions": ["不同工艺不可直接比较。"],
-            },
+            analysis.llm_gateway,
+            "audited_chat_json",
+            return_value=(
+                {
+                    "consensus": ["五篇工作都把 ADC 的能耗/面积视为核心瓶颈。"],
+                    "divergence": ["P1 走 SAR 跳比较。"],
+                    "cautions": ["不同工艺不可直接比较。"],
+                },
+                {"status": "ok"},
+            ),
         ):
             result = analysis.compare(papers)
         self.assertNotIn("ADC", " ".join(result["consensus"] + result["divergence"]))
@@ -235,7 +238,7 @@ class CompareTests(unittest.TestCase):
             "gaps": [{"question": "能否在跨站点条件下复测成功率和延迟？", "why_gap": "当前材料未覆盖"}],
         }
         with patch.object(config, "LLM_ENABLED", True), patch.object(
-            analysis, "chat_json", return_value=payload
+            analysis.llm_gateway, "audited_chat_json", return_value=(payload, {"status": "ok"})
         ):
             result = analysis.compare(papers)
         pairs = {tuple(item["paper_ids"]): item for item in result["comparability"]}

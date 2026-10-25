@@ -141,9 +141,11 @@ def main() -> int:
         artifacts["project_id"] = pid
 
         started = time.time()
+        # Nested reads, topic and draft calls are charged to this run, so the
+        # budget needs headroom for three papers plus the report itself.
         run = session.post(f"{base}/api/agent/runs", json={
             "goal": GOAL, "source": "demo", "mode": "auto", "project_id": pid,
-            "max_papers": 3, "max_actions": 8, "max_llm_calls": 6, "max_seconds": 600,
+            "max_papers": 3, "max_actions": 8, "max_llm_calls": 10, "max_seconds": 600,
         }, timeout=120).json()["run"]
         run = _wait_run(session, base, run["id"])
         elapsed = round(time.time() - started, 1)
@@ -247,7 +249,7 @@ def main() -> int:
         artifacts["contradictions"] = {"scan_code": scan.status_code, "count": len(entries),
                                        "review": review}
 
-        llm = session.get(f"{base}/api/llm/audit?limit=50", timeout=60).json()
+        llm = session.get(f"{base}/api/llm/audit?limit=200", timeout=60).json()
         summary = llm.get("summary") or {}
         calls = llm.get("calls") or []
         purposes = summary.get("by_purpose") or {}
@@ -258,6 +260,21 @@ def main() -> int:
         check("Agent/Copilot/核查三类用途都真的调用了模型",
               {"agent_report", "assistant", "semantic_audit"} <= set(purposes),
               f"purposes={sorted(purposes)}")
+        # Every real model call inside the run — including the nested read and
+        # translation paths, which reach the gateway without an explicit run —
+        # must show up exactly once in the run budget. Cached replies reuse an
+        # answer instead of a call, so they are audited but never charged.
+        # Demo papers ship curated 精读, so nested calls may legitimately be 0
+        # here; the upload-source journey asserts that they are charged.
+        run_calls = [call for call in calls if call.get("run_id") == run["id"]]
+        charged = sum(1 for call in run_calls if call.get("ok") and not call.get("cached"))
+        nested = [call for call in run_calls if call.get("purpose") in ("read", "translation")]
+        used = int(budget.get("llm_calls") or 0)
+        check("运行预算与审计逐条一致",
+              charged == used,
+              f"budget_used={used} charged={charged} nested={len(nested)} "
+              f"cached={sum(1 for call in run_calls if call.get('cached'))} "
+              f"purposes={sorted({call.get('purpose') for call in run_calls})}")
         artifacts["llm_audit"] = {"summary": summary, "models": models,
                                   "calls": [{k: call.get(k) for k in
                                              ("at", "purpose", "model", "latency_ms", "ok",

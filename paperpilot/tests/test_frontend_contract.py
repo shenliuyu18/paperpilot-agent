@@ -28,10 +28,10 @@ class FrontendContractTests(unittest.TestCase):
     def test_index_loads_v3_assets_and_project_tab(self) -> None:
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
         self.assertIn('data-tab="projects"', html)
-        self.assertIn("/static/assistant.js?v=8.1.1", html)
-        self.assertIn("/static/assistant.css?v=8.1.1", html)
-        self.assertIn("/static/projects.js?v=8.1.1", html)
-        self.assertIn("/static/agent-live.js?v=8.1.1", html)
+        self.assertIn("/static/assistant.js?v=8.1.2", html)
+        self.assertIn("/static/assistant.css?v=8.1.2", html)
+        self.assertIn("/static/projects.js?v=8.1.2", html)
+        self.assertIn("/static/agent-live.js?v=8.1.2", html)
         self.assertIn(f"PaperPilot {config.APP_VERSION}", html)
 
     def test_new_frontend_modules_expose_namespaces(self) -> None:
@@ -59,10 +59,10 @@ class FrontendContractTests(unittest.TestCase):
         self.assertIn("data-draft-cite", content)
         self.assertIn("data-draft-restore", content)
         index = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("draft.js?v=8.1.1", index)
+        self.assertIn("draft.js?v=8.1.2", index)
         self.assertLess(
-            index.index("draft.js?v=8.1.1"),
-            index.index("agent-live.js?v=8.1.1"),
+            index.index("draft.js?v=8.1.2"),
+            index.index("agent-live.js?v=8.1.2"),
         )
 
     def test_draft_module_wires_revision_conflict_and_draft_api(self) -> None:
@@ -212,10 +212,10 @@ class FrontendContractTests(unittest.TestCase):
 
     def test_index_loads_manuscript_panel(self) -> None:
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("/static/manuscript.js?v=8.1.1", html)
-        self.assertIn("/static/submission.js?v=8.1.1", html)
-        self.assertIn("/static/submission.css?v=8.1.1", html)
-        self.assertIn("/static/manuscript.css?v=8.1.1", html)
+        self.assertIn("/static/manuscript.js?v=8.1.2", html)
+        self.assertIn("/static/submission.js?v=8.1.2", html)
+        self.assertIn("/static/submission.css?v=8.1.2", html)
+        self.assertIn("/static/manuscript.css?v=8.1.2", html)
 
     def test_manuscript_module_exposes_drawer_contract(self) -> None:
         js = (ROOT / "static" / "manuscript.js").read_text(encoding="utf-8")
@@ -249,8 +249,8 @@ class FrontendContractTests(unittest.TestCase):
 
     def test_model_drawer_is_mounted_in_the_topbar(self) -> None:
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("/static/model.js?v=8.1.1", html)
-        self.assertIn("/static/model.css?v=8.1.1", html)
+        self.assertIn("/static/model.js?v=8.1.2", html)
+        self.assertIn("/static/model.css?v=8.1.2", html)
         self.assertIn('id="modelBtn"', html)
         self.assertIn('id="modelCallout"', html)
         self.assertLess(

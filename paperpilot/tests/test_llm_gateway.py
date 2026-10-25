@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from app import config
+from app import config, llm
 from app.services import agent_state, llm_gateway
 
 
@@ -146,6 +146,58 @@ class LLMGatewayTests(unittest.TestCase):
         self.assertEqual(second, "cached")
         self.assertTrue(meta["cached"])
         self.assertEqual(chat.call_count, 1)
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", side_effect=["", "答复"])
+    def test_long_completion_gets_a_longer_timeout(self, chat) -> None:
+        llm_gateway.audited_chat(
+            [{"role": "user", "content": "写简报"}], purpose="agent_report", max_tokens=2600
+        )
+        self.assertGreater(chat.call_args_list[0].kwargs["timeout"], config.LLM_TIMEOUT)
+        llm_gateway.audited_chat(
+            [{"role": "user", "content": "短答案"}], purpose="assistant", max_tokens=1600
+        )
+        self.assertEqual(chat.call_args_list[1].kwargs["timeout"], config.LLM_TIMEOUT)
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", side_effect=[llm.LLMBadResponse("空回复", reasoning_exhausted=True),
+                                        "答复"])
+    def test_reasoning_retry_keeps_the_longer_timeout(self, chat) -> None:
+        text, meta = llm_gateway.audited_chat(
+            [{"role": "user", "content": "精读"}], purpose="read", max_tokens=4000
+        )
+        self.assertEqual(text, "答复")
+        self.assertEqual(meta["status"], "ok")
+        tokens = [call.kwargs["max_tokens"] for call in chat.call_args_list]
+        timeouts = [call.kwargs["timeout"] for call in chat.call_args_list]
+        self.assertGreater(tokens[1], tokens[0])
+        self.assertGreater(timeouts[0], config.LLM_TIMEOUT)
+        self.assertGreaterEqual(timeouts[1], timeouts[0])
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", return_value="答复")
+    def test_ambient_run_context_is_charged(self, chat) -> None:
+        run = agent_state.create_run_state("目标", "demo", "auto", {"max_llm_calls": 2})
+        with llm_gateway.agent_run_context(run):
+            llm_gateway.audited_chat([{"role": "user", "content": "x"}], purpose="read")
+        self.assertEqual(run["budget_used"]["llm_calls"], 1)
+        self.assertEqual(llm_gateway.audit_log()[-1]["run_id"], run["id"])
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", return_value="答复")
+    def test_cached_reply_is_audited_but_not_charged(self, chat) -> None:
+        run = agent_state.create_run_state("目标", "demo", "auto", {"max_llm_calls": 2})
+        messages = [{"role": "user", "content": "同一问题"}]
+        with llm_gateway.agent_run_context(run):
+            first = llm_gateway.audited_chat(messages, purpose="read", use_cache=True)
+            second = llm_gateway.audited_chat(messages, purpose="read", use_cache=True)
+        self.assertFalse(first[1]["cached"])
+        self.assertTrue(second[1]["cached"])
+        chat.assert_called_once()
+        self.assertEqual(run["budget_used"]["llm_calls"], 1)
+        entries = llm_gateway.audit_log()
+        self.assertTrue(entries[-1]["cached"])
+        self.assertEqual(entries[-1]["run_id"], run["id"])
 
     @patch.object(config, "LLM_ENABLED", True)
     @patch("app.llm.chat", side_effect=["not json", '{"answer": "ok", "used_indices": [1]}'])

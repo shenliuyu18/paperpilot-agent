@@ -18,6 +18,8 @@ import os
 import threading
 import time
 from collections import OrderedDict
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -25,6 +27,9 @@ from typing import Any
 from .. import config
 from .. import llm
 from . import agent_state
+
+
+_ACTIVE_AGENT_RUN: ContextVar[dict | None] = ContextVar("paperpilot_agent_run", default=None)
 
 
 class LLMBudgetExceeded(RuntimeError):
@@ -46,6 +51,16 @@ class CallBudget:
     def spend(self) -> int:
         self.used += 1
         return self.used
+
+
+@contextmanager
+def agent_run_context(run: dict | None):
+    """Attach an Agent run to nested gateway calls that cannot pass it directly."""
+    token = _ACTIVE_AGENT_RUN.set(run)
+    try:
+        yield
+    finally:
+        _ACTIVE_AGENT_RUN.reset(token)
 
 
 _CACHE: OrderedDict[str, str] = OrderedDict()
@@ -225,6 +240,15 @@ def _check_run_budget(run: dict | None) -> None:
 
 EMPTY_RETRY_DELAY = 0.6
 REASONING_RETRY_TOKENS = 32768
+LONG_COMPLETION_TOKENS = 2000
+
+
+def _timeout_for(max_tokens: int) -> float:
+    """Request timeout for one completion, widened for long answers."""
+    base = float(config.LLM_TIMEOUT)
+    if int(max_tokens) < LONG_COMPLETION_TOKENS:
+        return base
+    return max(base, float(config.LLM_LONG_TIMEOUT))
 
 
 def _call_with_empty_retry(messages: list[dict[str, str]], temperature: float,
@@ -239,14 +263,14 @@ def _call_with_empty_retry(messages: list[dict[str, str]], temperature: float,
     """
     try:
         return llm.chat(messages, temperature=temperature, max_tokens=max_tokens,
-                        model=model or None)
+                        model=model or None, timeout=_timeout_for(max_tokens))
     except llm.LLMBadResponse as exc:
         time.sleep(EMPTY_RETRY_DELAY)
         retry_tokens = max_tokens
         if getattr(exc, "reasoning_exhausted", False):
             retry_tokens = max(max_tokens, REASONING_RETRY_TOKENS)
         return llm.chat(messages, temperature=temperature, max_tokens=retry_tokens,
-                        model=model or None)
+                        model=model or None, timeout=_timeout_for(retry_tokens))
 
 
 def audited_chat(
@@ -262,11 +286,17 @@ def audited_chat(
     """Call the model and return ``(text, meta)``.
 
     Raises ``LLMBudgetExceeded`` before calling when a budget is exhausted and
-    re-raises transport errors after recording an audit entry.
+    re-raises transport errors after recording an audit entry. A cached reply is
+    a reuse rather than a model call, so it is audited but never charged. The
+    run is the explicit argument or, for nested helpers that cannot carry it,
+    the run bound by ``agent_run_context``.
     """
     if budget is not None:
         budget.check()
-    _check_run_budget(run)
+    # Nested actions (read/compare/topic/draft) cannot thread the run through
+    # every helper signature, so fall back to the action-scoped run.
+    effective_run = run if run is not None else _ACTIVE_AGENT_RUN.get()
+    _check_run_budget(effective_run)
 
     prompt_chars = sum(len(str(item.get("content") or "")) for item in messages)
     model = _model_for(purpose)
@@ -285,7 +315,7 @@ def audited_chat(
                     "response_chars": len(cached),
                     "ok": True,
                     "error": "",
-                    "run_id": str((run or {}).get("id") or ""),
+                    "run_id": str((effective_run or {}).get("id") or ""),
                     "cached": True,
                 }
             )
@@ -314,7 +344,7 @@ def audited_chat(
                 "error": _error_label(exc),
                 "detail": _error_detail(exc),
                 "degrade_reason": _degrade_reason(exc),
-                "run_id": str((run or {}).get("id") or ""),
+                "run_id": str((effective_run or {}).get("id") or ""),
                 "cached": False,
             }
         )
@@ -323,8 +353,8 @@ def audited_chat(
     latency_ms = int((time.perf_counter() - started) * 1000)
     if budget is not None:
         budget.spend()
-    if run is not None:
-        agent_state.spend_llm(run, 1)
+    if effective_run is not None:
+        agent_state.spend_llm(effective_run, 1)
     if cache_key and not defer_cache:
         _cache_put(cache_key, text)
     _record(
@@ -337,7 +367,7 @@ def audited_chat(
             "response_chars": len(text),
             "ok": True,
             "error": "",
-            "run_id": str((run or {}).get("id") or ""),
+            "run_id": str((effective_run or {}).get("id") or ""),
             "cached": False,
         }
     )

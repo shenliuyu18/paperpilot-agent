@@ -310,6 +310,9 @@ class DossierTests(unittest.TestCase):
         out = Path(self.tmp.name) / "cli.paperpilot.zip"
         env = dict(os.environ)
         env["PYTHONUTF8"] = "1"
+        # A Chinese Windows console exports PYTHONIOENCODING=gbk, which wins over PYTHONUTF8. The archive CLI
+        # writes a JSON document with real Chinese titles to stdout, so a pipe consumer must still get UTF-8.
+        env["PYTHONIOENCODING"] = "gbk"
         root = Path(__file__).resolve().parent.parent
         exported = subprocess.run(
             [sys.executable, "scripts/dossier.py", "export", "--project-id", self.pid, "--out", str(out)],

@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from _console import make_console_safe, make_json_stdout
+
+make_console_safe()
+
 import json
 import os
 import sys
@@ -73,6 +77,7 @@ def main() -> None:
         },
         "temp_dir": TEMP,
     }
+    make_json_stdout()
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
     assert auto["status"] == "completed", result

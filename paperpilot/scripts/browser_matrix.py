@@ -7,6 +7,10 @@ and never touches the shipped project data.
 
 from __future__ import annotations
 
+from _console import make_console_safe, make_json_stdout
+
+make_console_safe()
+
 import json
 import os
 import shutil
@@ -151,6 +155,7 @@ def main() -> int:
 
     passed = [item for item in results if item["status"] == "passed"]
     failed = [item for item in results if item["status"] == "failed"]
+    make_json_stdout()
     print(json.dumps(results, ensure_ascii=False, indent=2), flush=True)
     if failed or not passed:
         return 1

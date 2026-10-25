@@ -6,6 +6,10 @@ credentials are included.
 """
 from __future__ import annotations
 
+from _console import make_console_safe, make_json_stdout
+
+make_console_safe()
+
 import argparse
 import json
 import os
@@ -56,6 +60,7 @@ def main() -> int:
         if args.command == "verify":
             summary = dossier.verify_archive(blob)
             if args.json:
+                make_json_stdout()
                 print(json.dumps(summary, ensure_ascii=False, indent=2))
             else:
                 project = summary["project"]
@@ -68,6 +73,7 @@ def main() -> int:
             return 0
         result = dossier.import_archive(blob)
         if args.json:
+            make_json_stdout()
             print(json.dumps(result, ensure_ascii=False, indent=2))
         else:
             print(f"imported {result['project']['id']} · {result['project']['title']}")

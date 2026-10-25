@@ -2,6 +2,34 @@
 
 本文件记录 PaperPilot 的功能、性能与仓库维护变化。日期均为本地时间。
 
+## 8.1.4 — 2026-10-25
+
+自查中发现交付物本身的验证工具在中文 Windows 控制台上不可靠：门禁脚本会把运行时文本直接打印到按系统区域编码打开的流，遇到该编码无法表示的字符就在半路抛异常。本版修掉这一类崩溃，并把“脚本必须能安全打印”变成审计项。
+
+### 修复
+
+- **门禁脚本不再因控制台编码中断**：`scripts/acceptance.py` 在中文 Windows（区域编码 GBK）下跑到第 82 条时因运行时文本里的 `•`（U+2022，GBK 无此字符）抛出 `UnicodeEncodeError` 退出，返回码 1——一次全部通过的构建看起来像失败。新增 `scripts/_console.py`，所有会打印运行时文本的脚本（28 个）以第一条语句调用 `make_console_safe()`：只把写失败的字符替换成 `?`，保留控制台原有编码（强行改 UTF-8 会让中文在该控制台变成乱码），落盘的 JSON/报告仍是完整 UTF-8。
+- **`--json` 输出不再跟着控制台区域编码走**：档案 CLI 的 `verify/import --json` 把带真实中文标题的 JSON 文档直接写到标准输出，而 `PYTHONIOENCODING` 的优先级高于 `PYTHONUTF8`——在中文 Windows 控制台下重定向出来的是一份 GBK 字节流，管道另一侧按 UTF-8 解析当场失败（`json.loads` 拿到 `None` 或被截断的字节）。现在 14 处 `ensure_ascii=False` 的 JSON 输出前都调用 `_console.make_json_stdout()` 显式切到 UTF-8；给人看的输出仍保持控制台原编码，只有机器可读的数据强制 UTF-8。
+- **全量测试不再有资源泄漏**：订阅并发的跨进程用例只 `wait()` 子进程、没有关闭它的 stdout/stderr 管道，每轮全量测试都会刷出 `ResourceWarning: unclosed file`。现在用例结束时显式关闭，整套测试在 `-W error::ResourceWarning` 下也是全绿。
+
+### 新增
+
+- **第 44 项一致性检查 `G1`**：凡含 `print` 的 `scripts/*.py` 都必须在**第一次打印之前**声明控制台安全输出——只 import 不调用、或者调用点晚于第一次 `print`，同样判失败。防止以后新增脚本再次引入同类半路崩溃。
+- **第 45 项一致性检查 `H1`**：任何写到标准输出的 `json.dumps(..., ensure_ascii=False)` 都必须紧跟在 `make_json_stdout()` 之后，违例报出文件名与行号。
+
+### 验证
+
+- **677/677** 测试（`-W error::ResourceWarning` 下同样 677/677）、94/94 验收、**45/45** 一致性、24/24 离线 PDF、10/10 档案、6/6 OCR、41/41 回归、13/13 助手评测、`eval_content --strict` 0；浏览器矩阵 0 console error、0 横向溢出。
+- **区域编码实测**：在强制 GBK 的控制台下 `acceptance.py` 由“第 82 条崩溃、rc=1”变为 **94/94、rc=0**，`audit_consistency.py` **45/45、rc=0**；两项检查的违规路径用一个只打印不声明的探针脚本验证过（该项 FAIL，探针删除后恢复 PASS）。
+- **数据出口回归**：`tests/test_dossier.py::test_cli_export_verify_import` 现在固定以 `PYTHONIOENCODING=gbk` 的子进程环境跑真实档案 CLI，导出的 `--json` 仍能被按 UTF-8 解析（补丁前该用例因 GBK 字节流而报错）。
+- **真实模型回归**：同样被改过的 `live_pdf_check.py` 在真实端点复跑 **14/14**（14 次调用 0 失败、2 次缓存命中、平均 43.0 秒），`purpose=ask` 与 `purpose=translation_full` 仍逐条出现在模型审计中——本版没有改变模型链路的任何判定。
+
+### 边界
+
+- 应用本体不受此问题影响：已在 GBK 控制台实测 `import app.main` 与 `/api/meta` 正常，服务日志经 logging 的错误兜底，不会因为字符编码打断请求。
+- 本版不改动任何 API、界面与研究流程行为；`errors="replace"` 只影响控制台显示，不参与任何落盘内容或判定逻辑。
+- 人工金标集与人工质量评分仍未完成；真实模型回答质量不能由这些指标代表。
+
 ## 8.1.3 — 2026-10-25
 
 8.1.2 的复审发现治理没有覆盖到全部出口：在线问答与整段翻译仍在直连模型，降级结果会被缓存复用，预算拦截在部分路径上不留痕迹。本版把这些缺口补齐，并修正长补全超时的适用范围。

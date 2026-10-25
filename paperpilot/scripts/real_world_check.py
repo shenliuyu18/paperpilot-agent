@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from _console import make_console_safe
+
+make_console_safe()
+
 import argparse
 import json
 import os

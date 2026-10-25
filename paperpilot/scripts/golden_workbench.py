@@ -22,6 +22,10 @@ Usage::
 """
 from __future__ import annotations
 
+from _console import make_console_safe, make_json_stdout
+
+make_console_safe()
+
 import argparse
 import json
 import os
@@ -388,18 +392,22 @@ def main() -> int:
     args = parser.parse_args()
     if args.command == "build":
         summary = build(args.out, args.source, args.papers, args.corpus_dir)
+        make_json_stdout()
         print(json.dumps(summary, ensure_ascii=False, indent=2))
         return 0
     if args.command == "check":
         report = check(args.file, args.source, args.strict, args.papers, args.corpus_dir)
+        make_json_stdout()
         print(json.dumps(report, ensure_ascii=False, indent=2))
         return 1 if report.get("strict_failed") else 0
     if args.command == "merge":
         result = merge(args.left, args.right, args.out, args.annotator_a, args.annotator_b)
+        make_json_stdout()
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
     rows = stats(args.dir)
     if args.json:
+        make_json_stdout()
         print(json.dumps(rows, ensure_ascii=False, indent=2))
     else:
         for row in rows:

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """Capture the v2.0 research-workspace screenshots against a seeded local server.
 
 The script owns its data directory (``out/screens-v20/data``) so the shipped
@@ -7,6 +5,12 @@ library, uploads, agent runs and project memory are never touched, seeds one
 project with two runs plus a draft, then drives the real UI with Playwright.
 Screenshots are written losslessly into ``docs/``.
 """
+
+from __future__ import annotations
+
+from _console import make_console_safe
+
+make_console_safe()
 
 import os
 import shutil

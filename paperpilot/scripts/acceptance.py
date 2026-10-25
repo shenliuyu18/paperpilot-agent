@@ -5,6 +5,10 @@ data directory, so it neither needs nor touches any local research library.
 """
 from __future__ import annotations
 
+from _console import make_console_safe
+
+make_console_safe()
+
 import io, json, os, sys, tempfile, time, zipfile
 from pathlib import Path
 

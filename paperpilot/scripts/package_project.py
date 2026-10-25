@@ -1,11 +1,15 @@
-from __future__ import annotations
-
 """Build PaperPilot_Project.zip: an allowlisted, credential-free delivery package.
 
 Track 1 only — the SVD/track-2 directories at the workspace root are never
 included, and runtime data (library, uploads, agent runs, projects, caches,
 glossaries, search history, secrets) is excluded apart from the two demo papers.
 """
+
+from __future__ import annotations
+
+from _console import make_console_safe
+
+make_console_safe()
 
 import hashlib
 import zipfile

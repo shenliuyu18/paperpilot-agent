@@ -10,6 +10,10 @@ claim; labels are human work (see docs/金标集标注指南.md).
 """
 from __future__ import annotations
 
+from _console import make_console_safe, make_json_stdout
+
+make_console_safe()
+
 import html
 import json
 import re
@@ -158,6 +162,7 @@ def main() -> int:
     (OUT / "all.json").write_text(json.dumps(
         {"version": 1, "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
          "papers": all_papers}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    make_json_stdout()
     print(json.dumps(summary, ensure_ascii=False))
     return 0 if all(count >= PAPERS_PER_TOPIC for count in summary.values()) else 1
 

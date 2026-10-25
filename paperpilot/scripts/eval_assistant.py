@@ -7,6 +7,10 @@ suggestion confirmation, semantic audit immutability and budget fallback.
 
 from __future__ import annotations
 
+from _console import make_console_safe
+
+make_console_safe()
+
 import json
 import os
 import sys

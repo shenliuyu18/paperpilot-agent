@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from _console import make_console_safe, make_json_stdout
+
+make_console_safe()
+
 import json
 import os
 import sys
@@ -80,6 +84,7 @@ def main() -> int:
         "compare_shared": len(compare["evidence"]["shared"]),
         "seconds": round(time.time() - start, 2),
     }
+    make_json_stdout()
     print(json.dumps(metrics, ensure_ascii=False, indent=2))
     print("PASS")
     return 0

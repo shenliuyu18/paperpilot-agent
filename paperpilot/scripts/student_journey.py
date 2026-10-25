@@ -13,6 +13,10 @@ sections.
 """
 from __future__ import annotations
 
+from _console import make_console_safe, make_json_stdout
+
+make_console_safe()
+
 import json
 import os
 import re
@@ -366,6 +370,7 @@ def main() -> int:
               "dossier has no draft sections")
         (work / "journey.json").write_text(
             json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        make_json_stdout()
         print(json.dumps(summary, ensure_ascii=False, indent=2)[:14000])
         print("\nARTIFACTS", work)
         return 0

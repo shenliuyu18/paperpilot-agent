@@ -14,6 +14,10 @@ and must not be reported as a human-annotation result. The provenance field says
 """
 from __future__ import annotations
 
+from _console import make_console_safe
+
+make_console_safe()
+
 import json
 import re
 import sys

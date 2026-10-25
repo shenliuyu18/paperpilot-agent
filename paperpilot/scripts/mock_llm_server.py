@@ -12,6 +12,13 @@ without a real model key.
 
 from __future__ import annotations
 
+try:
+    from _console import make_console_safe  # run as: python scripts/<name>.py
+except ImportError:  # imported as: scripts.<name>
+    from scripts._console import make_console_safe
+
+make_console_safe()
+
 import argparse
 import hashlib
 import json

@@ -138,7 +138,12 @@ class SubscriptionConcurrencyTests(unittest.TestCase):
             self.assertEqual(result["skipped"], "busy")
             self.assertIn(self.item["id"], subscription_service.running())
         finally:
-            child.wait(timeout=15)
+            try:
+                child.wait(timeout=15)
+            finally:
+                for stream in (child.stdout, child.stderr):
+                    if stream is not None:
+                        stream.close()
         self.assertNotIn(self.item["id"], subscription_service.running())
 
     def test_stale_lock_is_reclaimed(self) -> None:

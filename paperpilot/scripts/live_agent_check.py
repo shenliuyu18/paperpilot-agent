@@ -22,6 +22,10 @@ read from the environment, never printed, and the audit log stores no prompts.
 """
 from __future__ import annotations
 
+from _console import make_console_safe
+
+make_console_safe()
+
 import json
 import os
 import re

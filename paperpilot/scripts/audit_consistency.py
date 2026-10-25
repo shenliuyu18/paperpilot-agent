@@ -22,6 +22,10 @@ Usage::
 """
 from __future__ import annotations
 
+from _console import make_console_safe
+
+make_console_safe()
+
 import argparse
 import ast
 import io
@@ -572,6 +576,69 @@ def main() -> int:
             bypass.append(f"{path.relative_to(ROOT)}: {hits}")
     check("F1 模型调用只从统一网关出去（否则审计/预算/超时/降级都不生效）",
           not bypass, f"绕过网关：{bypass}")
+
+    # G. structural invariant: a script that prints runtime text has to survive the
+    #    OS locale codec, or a passing gate dies mid-run and looks like a build failure.
+    unsafe: list[str] = []
+    for path in sorted((ROOT / "scripts").glob("*.py")):
+        if path.name == "_console.py":
+            continue
+        text = path.read_text(encoding="utf-8")
+        tree = ast.parse(text, filename=str(path))
+        first_print = helper = None
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            func = getattr(node.func, "id", None) or getattr(node.func, "attr", None)
+            if func == "print" and (first_print is None or node.lineno < first_print):
+                first_print = node.lineno
+            if func == "make_console_safe" and (helper is None or node.lineno < helper):
+                helper = node.lineno
+        if first_print is None:
+            continue
+        if helper is None or helper > first_print:
+            unsafe.append(f"{path.name}(helper={helper}, first_print={first_print})")
+    check("G1 会打印运行时文本的脚本都在第一次 print 之前声明控制台安全输出（否则 Windows GBK 控制台会在半路抛 UnicodeEncodeError）",
+          not unsafe, f"未接入或接入过晚 _console.make_console_safe：{unsafe}")
+
+    # H. structural invariant: a JSON document on stdout is data, not console text.
+    #    PYTHONIOENCODING outranks PYTHONUTF8, so without an explicit UTF-8 switch a
+    #    redirected `--json` archive report lands in the pipe as GBK bytes.
+    def _json_stdout_print(node: ast.AST) -> list[ast.Call]:
+        found: list[ast.Call] = []
+        for call in ast.walk(node):
+            if not (isinstance(call, ast.Call) and getattr(call.func, "id", None) == "print"):
+                continue
+            for inner in ast.walk(call):
+                if (isinstance(inner, ast.Call) and getattr(inner.func, "attr", None) == "dumps"
+                        and any(kw.arg == "ensure_ascii" and isinstance(kw.value, ast.Constant)
+                                and kw.value.value is False for kw in getattr(inner, "keywords", []))):
+                    found.append(call)
+                    break
+        return found
+
+    def _is_json_guard(stmt: ast.stmt) -> bool:
+        return (isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call)
+                and getattr(stmt.value.func, "id", None) == "make_json_stdout")
+
+    raw_json: list[str] = []
+    for path in sorted((ROOT / "scripts").glob("*.py")):
+        if path.name == "_console.py":
+            continue
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for parent in ast.walk(tree):
+            body = getattr(parent, "body", None)
+            if not isinstance(body, list):
+                continue
+            for index, stmt in enumerate(body):
+                if not (isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call)):
+                    continue
+                if stmt.value not in _json_stdout_print(stmt.value):
+                    continue
+                if index == 0 or not _is_json_guard(body[index - 1]):
+                    raw_json.append(f"{path.name}:{stmt.lineno}")
+    check("H1 写到标准输出的 JSON 都先切到 UTF-8（`--json` 是给管道消费的，不能跟着控制台区域编码走）",
+          not raw_json, f"未包 make_json_stdout() 的 JSON 输出：{raw_json}")
 
     passed = sum(1 for item in RESULTS if item["ok"])
     payload = {"checks": RESULTS, "passed": passed, "total": len(RESULTS), "project_id": pid}

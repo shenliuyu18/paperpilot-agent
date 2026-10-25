@@ -17,6 +17,10 @@ run side by side without touching each other's data.
 """
 from __future__ import annotations
 
+from _console import make_console_safe
+
+make_console_safe()
+
 import json
 import os
 import shutil

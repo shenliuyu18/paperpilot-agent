@@ -13,6 +13,10 @@ Usage::
 """
 from __future__ import annotations
 
+from _console import make_console_safe, make_json_stdout
+
+make_console_safe()
+
 import argparse
 import copy
 import json
@@ -97,6 +101,7 @@ def run_claims(limit: int = 0, out_path: Path | None = None) -> int:
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
                             encoding="utf-8")
+    make_json_stdout()
     print(json.dumps(payload, ensure_ascii=False, indent=2))
     return 0
 
@@ -112,6 +117,7 @@ def run_contradictions(project_id: str, limit: int = 8,
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
                             encoding="utf-8")
+    make_json_stdout()
     print(json.dumps(payload, ensure_ascii=False, indent=2))
     return 0 if not result.get("degraded") else 1
 

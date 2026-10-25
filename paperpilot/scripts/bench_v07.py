@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from _console import make_console_safe, make_json_stdout
+
+make_console_safe()
+
 import json
 import sys
 import time
@@ -85,6 +89,7 @@ def main() -> None:
     output = Path("docs/bench_v07.json")
     output.parent.mkdir(exist_ok=True)
     output.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
+    make_json_stdout()
     print(json.dumps(results, ensure_ascii=False, indent=2))
     print(f"saved -> {output}")
 

@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from app import config
 from app.services import agent_actions, agent_runs, agent_state
 
 
@@ -57,6 +58,55 @@ def _fake_execute(run: dict, plan: dict, action_id: str = "") -> dict:
         path.write_text("# Report\n", encoding="utf-8")
         return {"path": str(path), "chars": 9, "mode": "offline", "evidence_added": 0}
     raise AssertionError(tool)
+
+
+class AgentRuntimeBudgetNoticeTests(unittest.TestCase):
+    """The worker keeps planning when only the model budget runs out, so the run
+    has to say so instead of silently turning every action into offline text."""
+
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.env = patch.dict(
+            os.environ,
+            {
+                "PAPERPILOT_AGENT_FILE": str(self.root / "runs.json"),
+                "PAPERPILOT_AGENT_DIR": str(self.root / "runs"),
+            },
+        )
+        self.env.start()
+        agent_runs._RECOVERED.clear()
+
+    def tearDown(self) -> None:
+        self.env.stop()
+        self.tmp.cleanup()
+
+    @patch.object(config, "LLM_ENABLED", True)
+    def test_llm_budget_exhaustion_is_announced_once(self) -> None:
+        notices = []
+
+        def spend_one_then_fake(run: dict, plan: dict, action_id: str = "") -> dict:
+            agent_state.spend_llm(run, 1)
+            notices.append(plan["tool"])
+            return _fake_execute(run, plan, action_id)
+
+        with patch.object(agent_actions, "execute_action", side_effect=spend_one_then_fake):
+            run = agent_runs.create_run(
+                "目标", mode="auto", autostart=False, max_actions=6, max_llm_calls=2
+            )
+            run = agent_runs.execute_run(run["id"])
+        budget_events = [event for event in run["events"] if event["type"] == "budget"]
+        self.assertEqual(len(budget_events), 1)
+        self.assertIn("模型调用预算已用尽", budget_events[0]["message"])
+        self.assertGreater(len(notices), 2, "后续动作仍应继续（离线结果也有价值）")
+        persisted = agent_runs.get_run(run["id"])
+        self.assertEqual(
+            [event for event in persisted["events"] if event["type"] == "budget"], budget_events
+        )
+        # A charge made inside the action has to survive into the stored run, or
+        # the budget the user sees is still fiction.
+        self.assertEqual(persisted["budget_used"]["llm_calls"], len(notices))
+        self.assertGreater(len(notices), 2)
 
 
 class AgentRuntimeTests(unittest.TestCase):

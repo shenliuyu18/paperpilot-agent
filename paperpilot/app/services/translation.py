@@ -11,8 +11,8 @@ from pathlib import Path
 import requests
 
 from .. import config
-from ..llm import LLMUnavailable, chat_json, extract_json
-from . import glossary_store
+from ..llm import LLMUnavailable, extract_json
+from . import glossary_store, llm_gateway
 
 TARGETS = {
     "zh": {"label": "简体中文", "code": "zh-CN"},
@@ -289,7 +289,19 @@ def _resolved_provider(provider: str, llm_call) -> str:
 
 
 def _default_llm_call(system: str, user: str):
-    return chat_json(system, user, temperature=0.05, max_tokens=4000)
+    """Full-document translation through the audited gateway.
+
+    The gateway never raises for a degraded call, so the failure is turned back
+    into ``LLMUnavailable`` — which the caller maps to a Chinese 400 instead of a
+    raw transport traceback and a 500.
+    """
+    data, meta = llm_gateway.audited_chat_json(
+        system, user, purpose="translation_full", temperature=0.05, max_tokens=4000,
+    )
+    if not isinstance(data, dict):
+        reason = str(meta.get("degrade_reason") or meta.get("error") or "")
+        raise LLMUnavailable("模型未能返回可用译文" + (f"（{reason}）" if reason else "。"))
+    return data
 
 
 def _translate_public(

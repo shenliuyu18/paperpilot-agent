@@ -51,6 +51,9 @@ LLM_BASE_URL = (
 ).strip()
 LLM_MODEL = (os.getenv("PAPERPILOT_LLM_MODEL") or "gpt-4o-mini").strip()
 LLM_TIMEOUT = float(os.getenv("PAPERPILOT_LLM_TIMEOUT", "60"))
+# The shipped default, kept so the gateway can tell "never touched" apart from a
+# deliberate fast-fail timeout below 60 seconds.
+DEFAULT_LLM_TIMEOUT = 60.0
 # Long completions (Agent 简报、全文精读) regularly need more than the default
 # socket timeout; a premature ReadTimeout silently degrades them to offline text.
 LLM_LONG_TIMEOUT = float(os.getenv("PAPERPILOT_LLM_LONG_TIMEOUT", "180"))
@@ -74,7 +77,7 @@ def _parse_routes(raw: str) -> dict[str, str]:
 
 
 LLM_ROUTES = _parse_routes(os.getenv("PAPERPILOT_LLM_ROUTES", ""))
-APP_VERSION = "8.1.2"
+APP_VERSION = "8.1.3"
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 ASSISTANT_MAX_MESSAGES = 60
 ASSISTANT_LLM_MAX_CALLS = 2

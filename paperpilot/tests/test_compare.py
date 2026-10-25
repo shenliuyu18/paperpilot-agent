@@ -218,6 +218,73 @@ class CompareTests(unittest.TestCase):
         self.assertIn("multi-hop", divergence)
         self.assertIn("routing overhead", divergence)
 
+    def test_degraded_compare_is_not_cached_as_final_result(self) -> None:
+        papers = [
+            _browser_paper("cmp-deg-a", "Browser Agents", "We study browser agents and latency."),
+            _browser_paper("cmp-deg-b", "Web Agents", "We evaluate web agents and latency."),
+        ]
+        analysis.clear_read_cache()
+        degraded = (None, {"status": "budget", "degrade_reason": "budget"})
+        modelled = (
+            {
+                "comparability": [],
+                "consensus": ["两篇都评测浏览器智能体的时延。"],
+                "divergence": ["A 关注安全，B 关注导航。"],
+                "cautions": [],
+                "gaps": [],
+            },
+            {"status": "ok"},
+        )
+        compare_responses = [degraded, modelled]
+        compare_calls = []
+
+        def fake_gateway(system, user, purpose="", **kwargs):
+            if purpose != "compare":
+                return None, {"status": "offline"}
+            compare_calls.append(purpose)
+            return compare_responses[min(len(compare_calls) - 1, len(compare_responses) - 1)]
+
+        with patch.object(config, "LLM_ENABLED", True), patch.object(
+            analysis.llm_gateway, "audited_chat_json", side_effect=fake_gateway
+        ):
+            first = analysis.compare(papers)
+            second = analysis.compare(papers)
+        self.assertEqual(len(compare_calls), 2)
+        self.assertNotIn("两篇都评测浏览器智能体的时延。", " ".join(first["consensus"]))
+        self.assertIn("两篇都评测浏览器智能体的时延。", " ".join(second["consensus"]))
+
+    def test_model_backed_compare_is_reused_from_cache(self) -> None:
+        papers = [
+            _browser_paper("cmp-cached-ok-a", "Browser Agents", "We study browser agents and latency."),
+            _browser_paper("cmp-cached-ok-b", "Web Agents", "We evaluate web agents and latency."),
+        ]
+        analysis.clear_read_cache()
+        payload = (
+            {
+                "comparability": [],
+                "consensus": ["两篇都评测浏览器智能体的时延。"],
+                "divergence": [],
+                "cautions": [],
+                "gaps": [],
+            },
+            {"status": "ok"},
+        )
+        compare_calls = []
+
+        def fake_gateway(system, user, purpose="", **kwargs):
+            if purpose == "compare":
+                compare_calls.append(purpose)
+                return payload
+            return None, {"status": "offline"}
+
+        with patch.object(config, "LLM_ENABLED", True), patch.object(
+            analysis.llm_gateway, "audited_chat_json", side_effect=fake_gateway
+        ):
+            analysis.compare(papers)
+            again = analysis.compare(papers)
+        self.assertEqual(len(compare_calls), 1)
+        self.assertIn("两篇都评测浏览器智能体的时延。", " ".join(again["consensus"]))
+
     def test_llm_comparability_and_gaps_are_used(self) -> None:
         papers = [
             _browser_paper("cmp-llm-a", "Browser Security", "We study browser security agents."),
@@ -251,12 +318,22 @@ class CompareTests(unittest.TestCase):
             _browser_paper("cmp-cache-a", "Browser Agents", "We study browser agents and latency."),
             _browser_paper("cmp-cache-b", "Web Agents", "We evaluate web agents and latency."),
         ]
-        with patch.object(
-            analysis, "_offline_compare_sections", wraps=analysis._offline_compare_sections
-        ) as spy:
+        analysis.clear_read_cache()
+        # Only a model-backed comparison may be reused, so the cache assertion runs
+        # with the model contributing; a rule-only assembly is recomputed instead.
+        llm_result = {
+            "consensus": ["两篇都评测浏览器智能体的时延。"],
+            "divergence": None,
+            "warnings": None,
+            "comparability": None,
+            "gaps": None,
+        }
+        with patch.object(config, "LLM_ENABLED", True), patch.object(
+            analysis, "_llm_compare", return_value=llm_result
+        ) as llm_spy:
             first = analysis.compare(papers)
             second = analysis.compare(papers)
-            self.assertEqual(spy.call_count, 1)
+            self.assertEqual(llm_spy.call_count, 1)
         first["warnings"].append("mutated")
         self.assertNotIn("mutated", second["warnings"])
 

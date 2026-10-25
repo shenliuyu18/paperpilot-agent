@@ -616,7 +616,7 @@ class AgentWriteTests(unittest.TestCase):
         self.assertEqual(block["status"], "needs_evidence")
         self.assertEqual(run["budget_used"]["llm_calls"], 1)
 
-    def test_act_write_llm_fallback_keeps_offline_status_without_budget_charge(self) -> None:
+    def test_act_write_llm_failure_keeps_offline_status_but_still_charges(self) -> None:
         run = self._run()
         self._draft()
         with patch("app.config.LLM_ENABLED", True), patch.object(
@@ -630,9 +630,10 @@ class AgentWriteTests(unittest.TestCase):
         block = draft_service.get_draft(self.project["id"])["sections"][0]["blocks"][0]
         self.assertEqual(block["status"], "draft")
         self.assertIn("待结合研究问题改写", block["text"])
-        self.assertEqual(run["budget_used"]["llm_calls"], 0)
+        # v8.1.3: the request went out, so it costs budget even though it failed.
+        self.assertEqual(run["budget_used"]["llm_calls"], 1)
 
-    def test_act_write_llm_mixed_blocks_charge_only_llm_output(self) -> None:
+    def test_act_write_llm_mixed_blocks_charge_the_answer_and_the_failure(self) -> None:
         memory = project_state.read_memory(self.project["id"])
         memory["evidence"].append({
             "id": "pev-2", "paper_id": "P1", "title": "Paper One",
@@ -657,7 +658,7 @@ class AgentWriteTests(unittest.TestCase):
             [block["status"] for block in blocks],
             ["needs_evidence", "draft"],
         )
-        self.assertEqual(run["budget_used"]["llm_calls"], 1)
+        self.assertEqual(run["budget_used"]["llm_calls"], 2)
 
 
 if __name__ == "__main__":

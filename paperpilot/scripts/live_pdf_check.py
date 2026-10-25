@@ -134,10 +134,43 @@ def main() -> int:
               and bool(translate_body.get("translation")),
               f"code={translated.status_code} source={translate_body.get('source')} "
               f"items={len(translate_body.get('translation') or [])}")
+        # v8.1.3: 在线问答与整段翻译都必须留下网关审计，否则调用既看不见也不受预算约束。
+        asked = session.post(base + "/api/ask", json={
+            "question": "这篇工作的能效结果是多少？", "scope": "selected", "paper_ids": ids,
+        }, timeout=300)
+        ask_body = asked.json() if asked.status_code == 200 else {}
+        purposes = {
+            call.get("purpose")
+            for call in session.get(base + "/api/llm/audit?limit=200", timeout=60).json().get("calls", [])
+        }
+        ask_ok = (
+            asked.status_code == 200
+            and bool(ask_body.get("citations"))
+            and (ask_body.get("mode") != "llm" or "ask" in purposes)
+        )
+        check("O2d 在线问答走网关审计", ask_ok,
+              f"code={asked.status_code} mode={ask_body.get('mode')} "
+              f"citations={len(ask_body.get('citations') or [])} ask_in_audit={'ask' in purposes}")
+        section = session.post(base + "/api/translation/section", json={
+            "paper_id": ids[0], "section_index": 1, "target": "zh", "provider": "llm",
+        }, timeout=300)
+        section_body = section.json() if section.status_code == 200 else {}
+        purposes = {
+            call.get("purpose")
+            for call in session.get(base + "/api/llm/audit?limit=200", timeout=60).json().get("calls", [])
+        }
+        check("O2e 整段翻译走网关审计",
+              section.status_code == 200 and section_body.get("provider") == "llm"
+              and "translation_full" in purposes,
+              f"code={section.status_code} provider={section_body.get('provider')} "
+              f"len={len(str(section_body.get('translation') or ''))} "
+              f"translation_full_in_audit={'translation_full' in purposes}")
         run = session.post(base + "/api/agent/runs", json={
             "goal": "比较两篇上传论文的能效与校准开销", "source": "upload",
             "mode": "auto", "project_id": project_id, "max_actions": 6,
-            "max_seconds": 600, "max_llm_calls": 4, "max_papers": 2,
+            # v8.1.3 charges the nested 精读/对比 calls, so the run needs headroom
+            # for two uploads plus the report itself.
+            "max_seconds": 600, "max_llm_calls": 6, "max_papers": 2,
         }, timeout=120).json()["run"]
         run_id = run["id"]
         terminal = {"completed", "failed", "cancelled", "interrupted", "awaiting_approval"}

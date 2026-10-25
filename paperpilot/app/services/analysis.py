@@ -1291,11 +1291,15 @@ def compare(papers: list[dict]) -> dict:
         "comparability": comparability,
         "evidence_note": "每行保留一条原文证据；点击论文标题可查看完整证据链。",
     }
-    with _COMPARE_LOCK:
-        _COMPARE_CACHE[cache_key] = copy.deepcopy(result)
-        _COMPARE_CACHE.move_to_end(cache_key)
-        while len(_COMPARE_CACHE) > _COMPARE_CACHE_MAX:
-            _COMPARE_CACHE.popitem(last=False)
+    if llm_result:
+        # Only a model-backed answer may be reused. Caching the rule-only assembly
+        # would keep serving it after the user raises the budget or the endpoint
+        # recovers, and a cached reply is never charged against the run.
+        with _COMPARE_LOCK:
+            _COMPARE_CACHE[cache_key] = copy.deepcopy(result)
+            _COMPARE_CACHE.move_to_end(cache_key)
+            while len(_COMPARE_CACHE) > _COMPARE_CACHE_MAX:
+                _COMPARE_CACHE.popitem(last=False)
     return result
 
 

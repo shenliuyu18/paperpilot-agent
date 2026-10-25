@@ -268,7 +268,8 @@ def main() -> int:
         # here; the upload-source journey asserts that they are charged.
         run_calls = [call for call in calls if call.get("run_id") == run["id"]]
         charged = sum(1 for call in run_calls if call.get("ok") and not call.get("cached"))
-        nested = [call for call in run_calls if call.get("purpose") in ("read", "translation")]
+        NESTED_PURPOSES = ("read", "translation", "compare", "ask", "translation_full", "transform")
+        nested = [call for call in run_calls if call.get("purpose") in NESTED_PURPOSES]
         used = int(budget.get("llm_calls") or 0)
         check("运行预算与审计逐条一致",
               charged == used,

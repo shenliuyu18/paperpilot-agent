@@ -14,6 +14,7 @@ C. submission    manuscript title/authors in title page and cover letter (not th
                  blinded export removes authors/affiliations/acknowledgments
 D. reviewer      stats internal consistency; mapped comments point at real blocks
 E. search        source labels match the requested source; layers/years are sane
+F. structure     no module calls the model outside llm_gateway (audit/budget/timeout hold)
 
 Usage::
 
@@ -51,6 +52,10 @@ from app.main import app  # noqa: E402
 
 client = TestClient(app)
 RESULTS: list[dict] = []
+# Any of these outside llm_gateway.py means the call skips audit, budget,
+# timeout and degrade handling — the defect v8.1.3 closed.
+GATEWAY_BYPASS_TOKENS = ("llm.chat(", "llm.chat_json(", "import chat
+", "import chat_json", "import chat,")
 
 
 def check(name: str, ok: bool, detail: str = "") -> bool:
@@ -545,6 +550,19 @@ def main() -> int:
           style_status == 200 and "(2026)" in apa_text
           and not (apa_refs[0].startswith("[1]") if apa_refs else True),
           f"code={style_status} stored={applied_style} ref={apa_refs[0][:60] if apa_refs else None}")
+
+    # F. structural invariant: every model call must leave through the gateway, or
+    #    audit / budget / timeout / degrade governance silently stops applying.
+    bypass: list[str] = []
+    for path in sorted((ROOT / "app").rglob("*.py")):
+        if path.name in {"llm.py", "llm_gateway.py"}:
+            continue
+        text = path.read_text(encoding="utf-8")
+        hits = [token for token in GATEWAY_BYPASS_TOKENS if token in text]
+        if hits:
+            bypass.append(f"{path.relative_to(ROOT)}: {hits}")
+    check("F1 模型调用只从统一网关出去（否则审计/预算/超时/降级都不生效）",
+          not bypass, f"绕过网关：{bypass}")
 
     passed = sum(1 for item in RESULTS if item["ok"])
     payload = {"checks": RESULTS, "passed": passed, "total": len(RESULTS), "project_id": pid}

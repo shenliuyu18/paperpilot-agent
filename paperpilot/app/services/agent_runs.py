@@ -5,6 +5,7 @@ import queue
 import shutil
 import threading
 
+from .. import config
 from . import agent_actions, agent_controls, agent_policy, agent_state, agent_stream, project_service, project_state
 
 TOOL_DEFS = agent_state.TOOL_DEFS
@@ -636,6 +637,16 @@ def execute_run(run_id: str) -> dict:
         step["status"] = "done"
         step["finished_at"] = agent_state.now()
         step["artifact"] = artifact
+        if (
+            config.LLM_ENABLED
+            and agent_state.llm_budget_remaining(run) <= 0
+            and not any(event.get("type") == "budget" for event in run.get("events") or [])
+        ):
+            # The action budget still allows more steps, so say why the remaining
+            # ones come back as offline rule results.
+            agent_state.add_event(
+                run, "budget", "模型调用预算已用尽，后续动作只使用离线规则结果。"
+            )
         observation = agent_policy.critique(run, step)
         step["observation"] = observation
         run["updated_at"] = agent_state.now()

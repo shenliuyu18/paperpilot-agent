@@ -148,16 +148,42 @@ class LLMGatewayTests(unittest.TestCase):
         self.assertEqual(chat.call_count, 1)
 
     @patch.object(config, "LLM_ENABLED", True)
-    @patch("app.llm.chat", side_effect=["", "答复"])
-    def test_long_completion_gets_a_longer_timeout(self, chat) -> None:
-        llm_gateway.audited_chat(
-            [{"role": "user", "content": "写简报"}], purpose="agent_report", max_tokens=2600
-        )
-        self.assertGreater(chat.call_args_list[0].kwargs["timeout"], config.LLM_TIMEOUT)
-        llm_gateway.audited_chat(
-            [{"role": "user", "content": "短答案"}], purpose="assistant", max_tokens=1600
-        )
-        self.assertEqual(chat.call_args_list[1].kwargs["timeout"], config.LLM_TIMEOUT)
+    @patch("app.llm.chat", return_value="答复")
+    def test_configured_timeout_is_honoured_for_long_answers(self, chat) -> None:
+        # 120 s is an explicit ceiling; the widening only applies to the untouched
+        # default, so a configured timeout is never exceeded.
+        with patch.object(config, "LLM_TIMEOUT", 120.0), patch.object(config, "LLM_LONG_TIMEOUT", 180.0):
+            llm_gateway.audited_chat([{"role": "user", "content": "x"}], purpose="read",
+                                     max_tokens=16384)
+        self.assertEqual(chat.call_args.kwargs["timeout"], 120.0)
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", side_effect=RuntimeError("连接超时"))
+    def test_failed_call_is_still_charged(self, chat) -> None:
+        # A timeout already sent a real request, so it has to consume budget;
+        # otherwise a flaky endpoint can be retried without limit.
+        run = agent_state.create_run_state("目标", "demo", "auto", {"max_llm_calls": 3})
+        budget = llm_gateway.CallBudget(max_calls=2)
+        with llm_gateway.agent_run_context(run):
+            with self.assertRaises(RuntimeError):
+                llm_gateway.audited_chat([{"role": "user", "content": "x"}], purpose="read",
+                                         budget=budget)
+        self.assertEqual(run["budget_used"]["llm_calls"], 1)
+        self.assertEqual(budget.used, 1)
+        self.assertFalse(llm_gateway.audit_log()[-1]["ok"])
+        with llm_gateway.agent_run_context(run):
+            run["budget"]["max_llm_calls"] = 1
+            with self.assertRaises(llm_gateway.LLMBudgetExceeded):
+                llm_gateway.audited_chat([{"role": "user", "content": "y"}], purpose="read")
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", return_value="答复")
+    def test_short_completion_keeps_the_base_timeout(self, chat) -> None:
+        with patch.object(config, "LLM_TIMEOUT", 60.0), patch.object(config, "LLM_LONG_TIMEOUT", 180.0):
+            llm_gateway.audited_chat(
+                [{"role": "user", "content": "段落"}], purpose="draft_write", max_tokens=400
+            )
+        self.assertEqual(chat.call_args.kwargs["timeout"], 60.0)
 
     @patch.object(config, "LLM_ENABLED", True)
     @patch("app.llm.chat", side_effect=[llm.LLMBadResponse("空回复", reasoning_exhausted=True),
@@ -173,6 +199,82 @@ class LLMGatewayTests(unittest.TestCase):
         self.assertGreater(tokens[1], tokens[0])
         self.assertGreater(timeouts[0], config.LLM_TIMEOUT)
         self.assertGreaterEqual(timeouts[1], timeouts[0])
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", return_value="答复")
+    def test_answer_sized_completions_get_the_longer_timeout(self, chat) -> None:
+        # compare/transform/ask/assistant all ask for 900–1800 tokens and were
+        # measured at 8–51 s, so they must not share the 60 s short-call default.
+        with patch.object(config, "LLM_TIMEOUT", 60.0), patch.object(config, "LLM_LONG_TIMEOUT", 180.0):
+            for tokens in (900, 1600, 1800):
+                chat.reset_mock()
+                llm_gateway.audited_chat([{"role": "user", "content": "x"}], purpose="compare",
+                                         max_tokens=tokens)
+                self.assertEqual(chat.call_args.kwargs["timeout"], 180.0, f"max_tokens={tokens}")
+            chat.reset_mock()
+            llm_gateway.audited_chat([{"role": "user", "content": "x"}], purpose="draft_write",
+                                     max_tokens=400)
+            self.assertEqual(chat.call_args.kwargs["timeout"], 60.0)
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", return_value="答复")
+    def test_explicitly_short_timeout_is_respected(self, chat) -> None:
+        # A timeout below the built-in default means the user asked to fail fast.
+        with patch.object(config, "LLM_TIMEOUT", 15.0), patch.object(config, "LLM_LONG_TIMEOUT", 180.0):
+            llm_gateway.audited_chat([{"role": "user", "content": "x"}], purpose="read",
+                                     max_tokens=16384)
+        self.assertEqual(chat.call_args.kwargs["timeout"], 15.0)
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", return_value="答复")
+    def test_budget_block_on_the_plain_path_is_also_audited(self, chat) -> None:
+        llm_gateway.reset_audit()
+        run = agent_state.create_run_state("目标", "demo", "auto", {"max_llm_calls": 0})
+        with llm_gateway.agent_run_context(run):
+            with self.assertRaises(llm_gateway.LLMBudgetExceeded):
+                llm_gateway.audited_chat([{"role": "user", "content": "写简报"}],
+                                         purpose="agent_report", max_tokens=2600)
+        chat.assert_not_called()
+        entries = llm_gateway.audit_log()
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]["purpose"], "agent_report")
+        self.assertEqual(entries[0]["degrade_reason"], "budget")
+        self.assertEqual(entries[0]["run_id"], run["id"])
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", return_value="答复")
+    def test_budget_block_is_audited_once_with_the_run(self, chat) -> None:
+        llm_gateway.reset_audit()
+        run = agent_state.create_run_state("目标", "demo", "auto", {"max_llm_calls": 0})
+        with llm_gateway.agent_run_context(run):
+            payload, meta = llm_gateway.audited_chat_json(
+                "system", "user", purpose="compare", schema=None
+            )
+        self.assertIsNone(payload)
+        self.assertEqual(meta["status"], "budget")
+        chat.assert_not_called()
+        entries = llm_gateway.audit_log()
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]["degrade_reason"], "budget")
+        self.assertEqual(entries[0]["purpose"], "compare")
+        self.assertEqual(entries[0]["run_id"], run["id"])
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", return_value="答复")
+    def test_exhausted_run_can_still_reuse_a_cached_reply(self, chat) -> None:
+        run = agent_state.create_run_state("目标", "demo", "auto", {"max_llm_calls": 1})
+        messages = [{"role": "user", "content": "同一问题"}]
+        with llm_gateway.agent_run_context(run):
+            first = llm_gateway.audited_chat(messages, purpose="read", use_cache=True)
+            self.assertFalse(first[1]["cached"])
+            self.assertEqual(run["budget_used"]["llm_calls"], 1)
+            # Reuse is not a model call, so an exhausted budget must not hide an
+            # answer the process already has.
+            second = llm_gateway.audited_chat(messages, purpose="read", use_cache=True)
+        self.assertTrue(second[1]["cached"])
+        self.assertEqual(second[0], first[0])
+        self.assertEqual(run["budget_used"]["llm_calls"], 1)
+        chat.assert_called_once()
 
     @patch.object(config, "LLM_ENABLED", True)
     @patch("app.llm.chat", return_value="答复")

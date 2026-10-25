@@ -7,8 +7,7 @@ from collections import Counter, OrderedDict
 from functools import lru_cache
 
 from .. import config
-from ..llm import chat
-from . import analysis, library, retrieval, search
+from . import analysis, library, llm_gateway, retrieval, search
 
 STOP_WORDS = {
     "the", "of", "and", "in", "to", "is", "we", "this", "with", "for", "on",
@@ -759,7 +758,7 @@ def _llm_answer(question: str, citations: list[dict], plan: list[dict] | None = 
     if plan and len(plan) > 1:
         plan_text = "\n问题拆解：" + "；".join(aspect["label"] for aspect in plan)
     try:
-        text = chat(
+        raw, _ = llm_gateway.audited_chat(
             [
                 {"role": "system", "content": ASK_PROMPT},
                 {
@@ -767,10 +766,12 @@ def _llm_answer(question: str, citations: list[dict], plan: list[dict] | None = 
                     "content": f"问题：{question}{plan_text}\n\n证据片段：\n\n" + "\n\n".join(evidence),
                 },
             ],
+            purpose="ask",
             temperature=0.1,
             max_tokens=900,
-        ).strip()
-    except Exception:
+        )
+        text = raw.strip()
+    except Exception:  # noqa: BLE001 - budget/auth/transport keeps the offline answer
         return None
     if not text:
         return None

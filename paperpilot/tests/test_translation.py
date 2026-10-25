@@ -5,7 +5,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from app.services import translation
+from unittest.mock import patch
+
+from app import config
+from app.services import llm_gateway, translation
 
 
 def _paper(text: str = "We propose a fast quantization method for LLM inference.") -> dict:
@@ -125,6 +128,43 @@ class TranslationServiceTests(unittest.TestCase):
         self.assertIn("量化", result["translation"])
         self.assertEqual(result["segments"][0]["translation"], "我们提出一种快速量化方法。")
 
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch(
+        "app.llm.chat",
+        return_value=json.dumps(
+            {"segments": [{"id": 0, "translation": "我们提出一种快速量化方法。"}]},
+            ensure_ascii=False,
+        ),
+    )
+    def test_default_llm_translation_goes_through_the_gateway(self, chat) -> None:
+        llm_gateway.reset_audit()
+        llm_gateway.reset_cache()
+        result = translation.translate_section(
+            _paper("We propose a fast quantization method for LLM inference."),
+            0,
+            provider="llm",
+            cache_dir=self.cache_dir,
+        )
+        self.assertEqual(result["provider"], "llm")
+        self.assertEqual(chat.call_count, 1)
+        self.assertIn("translation_full", llm_gateway.summary()["by_purpose"])
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", side_effect=RuntimeError("连接超时"))
+    def test_default_llm_translation_failure_is_surfaced_and_audited(self, chat) -> None:
+        llm_gateway.reset_audit()
+        llm_gateway.reset_cache()
+        with self.assertRaises(translation.TranslationError):
+            translation.translate_section(
+                _paper("We propose a fast quantization method for LLM inference."),
+                0,
+                provider="llm",
+                cache_dir=self.cache_dir,
+            )
+        entries = llm_gateway.audit_log()
+        self.assertTrue(entries and not entries[-1]["ok"])
+        self.assertTrue(entries[-1]["degrade_reason"])
 
     def test_cache_write_failure_does_not_break_translation(self) -> None:
         def fake_public(text: str, source_lang: str, target_lang: str) -> str:

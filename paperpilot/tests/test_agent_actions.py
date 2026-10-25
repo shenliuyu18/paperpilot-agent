@@ -357,6 +357,50 @@ class AgentActionTests(unittest.TestCase):
 
     @patch.object(config, "LLM_ENABLED", True)
     @patch("app.llm.chat")
+    def test_nested_llm_ask_spends_agent_budget(self, chat) -> None:
+        llm_gateway.reset_cache()
+        llm_gateway.reset_audit()
+        chat.return_value = "低功耗来自并行比较与事件驱动采样 [1]。"
+        self.run["budget"]["max_llm_calls"] = 2
+        self.run["paper_ids"] = [paper["id"] for paper in agent_actions.search.all_papers()[:2]]
+        question = agent_state.upsert_question(self.run, "存算一体为什么需要低功耗 ADC？", kind="evidence", priority="high")
+        artifact = agent_actions.execute_action(
+            self.run,
+            {"tool": "ask", "input": {"question_id": question["id"], "question": question["question"]}},
+            action_id="act-ask-llm",
+        )
+        self.assertTrue(artifact["citations"], "ask 动作应基于运行内的真实论文拿到引用")
+        self.assertEqual(chat.call_count, 1)
+        self.assertEqual(int(self.run["budget_used"]["llm_calls"]), 1)
+        entries = llm_gateway.audit_log()
+        ask_entries = [entry for entry in entries if entry["purpose"] == "ask"]
+        self.assertEqual(len(ask_entries), 1)
+        self.assertEqual(ask_entries[0]["run_id"], self.run["id"])
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat")
+    def test_exhausted_agent_budget_degrades_ask_instead_of_failing(self, chat) -> None:
+        llm_gateway.reset_cache()
+        chat.return_value = "低功耗来自并行比较 [1]。"
+        self.run["budget"]["max_llm_calls"] = 1
+        self.run["paper_ids"] = [paper["id"] for paper in agent_actions.search.all_papers()[:2]]
+        first = agent_state.upsert_question(self.run, "存算一体为什么需要低功耗 ADC？", kind="evidence", priority="high")
+        agent_actions.execute_action(
+            self.run, {"tool": "ask", "input": {"question_id": first["id"], "question": first["question"]}},
+            action_id="act-ask-1",
+        )
+        second = agent_state.upsert_question(self.run, "这些工作的主要局限是什么？", kind="gap", priority="high")
+        artifact = agent_actions.execute_action(
+            self.run,
+            {"tool": "ask", "input": {"question_id": second["id"], "question": second["question"]}},
+            action_id="act-ask-2",
+        )
+        self.assertEqual(self.run["budget_used"]["llm_calls"], 1)
+        self.assertEqual(chat.call_count, 1)
+        self.assertEqual(artifact["mode"], "extractive")
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat")
     def test_nested_llm_compare_spends_agent_budget(self, chat) -> None:
         llm_gateway.reset_cache()
         analysis.clear_read_cache()

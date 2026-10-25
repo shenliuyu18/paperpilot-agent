@@ -144,7 +144,7 @@ def main() -> int:
         run = payload(session.post(base + "/api/agent/runs", json={
             "goal": "比较两篇本地论文的 ADC 读出能耗与数字校准开销，找出可做的课程论文选题",
             "source": "upload", "mode": "auto", "project_id": pid,
-            "max_actions": 8, "max_seconds": 600, "max_llm_calls": 6, "max_papers": 2,
+            "max_actions": 8, "max_seconds": 600, "max_papers": 2, "max_llm_calls": 9,
         }, timeout=120), "create agent run")["run"]
         last = wait_run(session, base, run["id"])
         budget_used = last.get("budget_used") or {}
@@ -163,13 +163,24 @@ def main() -> int:
                               "read llm audit").get("calls") or []
         run_calls = [call for call in audit_calls if call.get("run_id") == last.get("id")]
         charged = sum(1 for call in run_calls if call.get("ok") and not call.get("cached"))
-        nested = [call for call in run_calls if call.get("purpose") in ("read", "translation")]
+        NESTED_PURPOSES = ("read", "translation", "compare", "ask", "translation_full", "transform")
+        nested = [call for call in run_calls if call.get("purpose") in NESTED_PURPOSES]
         check(charged == int(budget_used.get("llm_calls") or 0) and bool(nested),
               f"run budget does not match its model calls: {budget_used} "
               f"charged={charged} nested={len(nested)}")
         report_path = Path(str((last.get("report") or {}).get("path") or ""))
         report = report_path.read_text(encoding="utf-8") if report_path.is_file() else ""
         check(len(report) >= 500, f"agent report is too short: {len(report)} chars")
+        check((last.get("report") or {}).get("mode") == "llm",
+              f"研究简报应由模型撰写，实际 mode={(last.get('report') or {}).get('mode')} "
+              f"budget={budget_used}")
+        # When the model budget really binds, the run has to say so instead of
+        # quietly returning rule-extracted results for every remaining action.
+        used = int(budget_used.get("llm_calls") or 0)
+        cap = int(((last.get("budget") or {}).get("max_llm_calls")) or 0)
+        if cap and used >= cap:
+            check(any(event.get("type") == "budget" for event in last.get("events") or []),
+                  f"预算用尽但没有写明原因：used={used} cap={cap}")
         (work / "report.md").write_text(report, encoding="utf-8")
         summary["report"] = {
             "chars": len(report),

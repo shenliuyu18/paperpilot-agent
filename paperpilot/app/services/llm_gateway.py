@@ -63,6 +63,11 @@ def agent_run_context(run: dict | None):
         _ACTIVE_AGENT_RUN.reset(token)
 
 
+def _effective_run(run: dict | None) -> dict | None:
+    """The explicit run, or the one bound by ``agent_run_context``."""
+    return run if run is not None else _ACTIVE_AGENT_RUN.get()
+
+
 _CACHE: OrderedDict[str, str] = OrderedDict()
 _CACHE_LOCK = threading.RLock()
 _CACHE_MAX = 128
@@ -183,7 +188,8 @@ def _error_detail(exc: BaseException) -> str:
     return ""
 
 
-def _record_degrade(purpose: str, reason: str, detail: str = "") -> None:
+def _record_degrade(purpose: str, reason: str, detail: str = "",
+                    run: dict | None = None) -> None:
     _record({
         "at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "purpose": purpose,
@@ -194,7 +200,7 @@ def _record_degrade(purpose: str, reason: str, detail: str = "") -> None:
         "ok": False,
         "error": detail or reason,
         "degrade_reason": reason,
-        "run_id": "",
+        "run_id": str((_effective_run(run) or {}).get("id") or ""),
         "cached": False,
     })
 
@@ -240,15 +246,25 @@ def _check_run_budget(run: dict | None) -> None:
 
 EMPTY_RETRY_DELAY = 0.6
 REASONING_RETRY_TOKENS = 32768
-LONG_COMPLETION_TOKENS = 2000
+# Any completion asked for 800+ tokens was measured slower than the 60 s default
+# (ask 8–14 s, compare 51 s, assistant 14 s), so those get the long-completion
+# timeout. Short structured calls (draft_write 400, contradiction 600) do not.
+LONG_COMPLETION_TOKENS = 800
 
 
 def _timeout_for(max_tokens: int) -> float:
-    """Request timeout for one completion, widened for long answers."""
+    """Request timeout for one completion, widened for long answers.
+
+    A configured timeout is the user's own ceiling and is honoured verbatim; only
+    the untouched 60 s default is widened, because a 2.6k-token 简报 or a full-text
+    精读 regularly needs longer and a premature ReadTimeout degrades it silently.
+    """
     base = float(config.LLM_TIMEOUT)
-    if int(max_tokens) < LONG_COMPLETION_TOKENS:
+    if base != config.DEFAULT_LLM_TIMEOUT:
         return base
-    return max(base, float(config.LLM_LONG_TIMEOUT))
+    if int(max_tokens) >= LONG_COMPLETION_TOKENS:
+        return max(base, float(config.LLM_LONG_TIMEOUT))
+    return base
 
 
 def _call_with_empty_retry(messages: list[dict[str, str]], temperature: float,
@@ -287,16 +303,14 @@ def audited_chat(
 
     Raises ``LLMBudgetExceeded`` before calling when a budget is exhausted and
     re-raises transport errors after recording an audit entry. A cached reply is
-    a reuse rather than a model call, so it is audited but never charged. The
-    run is the explicit argument or, for nested helpers that cannot carry it,
-    the run bound by ``agent_run_context``.
+    a reuse rather than a model call: it is audited, never charged, and stays
+    available even after a budget is exhausted. The run is the explicit argument
+    or, for nested helpers that cannot carry it, the run bound by
+    ``agent_run_context``.
     """
-    if budget is not None:
-        budget.check()
-    # Nested actions (read/compare/topic/draft) cannot thread the run through
+    # Nested actions (read/compare/ask/translation) cannot thread the run through
     # every helper signature, so fall back to the action-scoped run.
     effective_run = run if run is not None else _ACTIVE_AGENT_RUN.get()
-    _check_run_budget(effective_run)
 
     prompt_chars = sum(len(str(item.get("content") or "")) for item in messages)
     model = _model_for(purpose)
@@ -328,10 +342,26 @@ def audited_chat(
                 "status": "ok",
             }
 
+    # Only a real call has to clear the budgets. The block is audited here so the
+    # non-JSON callers leave the same trace as the JSON ones.
+    try:
+        if budget is not None:
+            budget.check()
+        _check_run_budget(effective_run)
+    except LLMBudgetExceeded as exc:
+        _record_degrade(purpose, "budget", str(exc), run=effective_run)
+        raise
+
     started = time.perf_counter()
     try:
         text = _call_with_empty_retry(messages, temperature, max_tokens, model)
     except Exception as exc:  # noqa: BLE001 - audit then re-raise
+        # The request already left the process, so it is charged: budget is a
+        # cost guard, not a success counter.
+        if budget is not None:
+            budget.spend()
+        if effective_run is not None:
+            agent_state.spend_llm(effective_run, 1)
         _record(
             {
                 "at": time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -476,7 +506,6 @@ def audited_chat_json(
             defer_cache=bool(response_cache_key),
         )
     except LLMBudgetExceeded:
-        _record_degrade(purpose, "budget")
         return None, {"purpose": purpose, "model": _model_for(purpose), "latency_ms": 0,
                       "chars": 0, "cached": False, "status": "budget",
                       "degrade_reason": "budget"}

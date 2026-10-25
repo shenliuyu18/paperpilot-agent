@@ -123,11 +123,16 @@ def main() -> None:
     print("main updated:", commit["sha"])
 
     # GitHub Pages branch: full static showcase at the branch root.
-    pages_files = [
-        ("index.html", ROOT / "showcase" / "index.html"),
-        ("paperpilot_demo.mp4", ROOT / "showcase" / "paperpilot_demo.mp4"),
-        ("cover.jpg", ROOT / "showcase" / "cover.jpg"),
-    ]
+    # Collect every static asset instead of a hand-written list: a new video or
+    # poster used to fall off Pages silently while the page kept referencing it.
+    PAGES_SUFFIXES = {".html", ".css", ".js", ".jpg", ".jpeg", ".png", ".svg", ".webm", ".mp4"}
+    pages_files = sorted(
+        (path.relative_to(ROOT / "showcase").as_posix(), path)
+        for path in (ROOT / "showcase").rglob("*")
+        if path.is_file() and path.suffix.lower() in PAGES_SUFFIXES
+    )
+    if not any(rel == "index.html" for rel, _ in pages_files):
+        raise SystemExit("showcase/index.html is missing; build the showcase first.")
     pages_tree = []
     for rel, path in pages_files:
         data = base64.b64encode(path.read_bytes()).decode("ascii")

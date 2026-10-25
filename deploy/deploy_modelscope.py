@@ -23,8 +23,10 @@ SECRETS = ROOT / ".secrets" / "modelscope.env"
 STAGE = ROOT / f".modelscope_space_build_{int(time.time())}"
 API = "https://modelscope.cn/openapi/v1"
 sys.path.insert(0, str(ROOT / "paperpilot" / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from package_project import collect as collect_package_files  # noqa: E402
+import deploy_tree  # noqa: E402
 GIT_HOST = "www.modelscope.cn"
 
 
@@ -135,7 +137,9 @@ def main() -> None:
     shutil.copy2(ROOT / "modelscope_space" / "README.md", STAGE / "README.md")
     # The Studio is pushed as a fresh Git repo. Copy the delivery allowlist rather
     # than the working tree so caches, uploads and runtime JSON never enter Docker.
-    for path in collect_package_files():
+    package_files = collect_package_files()
+    expected_paths = deploy_tree.expected_stage_paths(ROOT, package_files)
+    for path in package_files:
         relative = path.relative_to(ROOT)
         if relative.parts[0] != "paperpilot":
             continue
@@ -146,6 +150,7 @@ def main() -> None:
         path = STAGE / "paperpilot" / relative
         if path.exists():
             shutil.rmtree(path, ignore_errors=True)
+    print("Studio stage files:", len(expected_paths))
 
     env = os.environ.copy()
     env["GIT_TERMINAL_PROMPT"] = "0"
@@ -165,6 +170,10 @@ def main() -> None:
             print(redact((result.stdout or "") + (result.stderr or ""), token)[-3000:])
         return result
 
+    def git_runner(args: list[str]) -> tuple[int, str]:
+        result = run_git(args)
+        return result.returncode, result.stdout or ""
+
     if not (STAGE / ".git").exists():
         run_git(["init"])
         run_git(["checkout", "-b", "master"])
@@ -182,10 +191,26 @@ def main() -> None:
             run_git(["checkout", "--ours", "."])
             run_git(["add", "-A"])
             run_git(["commit", "-m", "Resolve conflicts, keep local version"])
+    # Merging the platform history back can resurrect files the delivery package
+    # dropped, so the stage is pruned back to the package before it is pushed.
+    stale = deploy_tree.prune_extraneous(STAGE, expected_paths, git_runner)
+    if stale:
+        print("Pruned files outside the delivery package:", stale)
+        run_git(["add", "-A"])
+        run_git(["commit", "-m", "Prune files dropped from the delivery package"])
     pushed = run_git(["push", "-u", "modelscope", "master"])
     if pushed.returncode != 0:
         raise SystemExit("Git push to ModelScope Studio failed; see redacted output above.")
     print("Code pushed to ModelScope Studio.")
+    run_git(["fetch", "modelscope", "master"])
+    remote_paths = deploy_tree.list_tree_paths(git_runner, "modelscope/master")
+    difference = deploy_tree.diff_tree(remote_paths, expected_paths)
+    if difference["missing"] or difference["extra"]:
+        raise SystemExit(
+            "Studio tree differs from the delivery package: "
+            f"missing={difference['missing'][:10]} extra={difference['extra'][:10]}"
+        )
+    print(f"Studio tree verified against the delivery package: {len(remote_paths)} paths.")
 
     try:
         api("POST", f"/studios/{owner}/{name}/deploy")

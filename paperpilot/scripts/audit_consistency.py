@@ -667,6 +667,41 @@ def main() -> int:
     check("I1 由外部 id 拼文件名的模块都在本模块内校验或净化（否则一个 URL 段就能越出数据目录）",
           not joined_files, f"未校验的 id→路径拼接：{joined_files}")
 
+    # J. structural invariant: the Studio is a Git repository the platform also
+    #    writes to, so merging its history back into a deploy can resurrect files
+    #    the delivery package dropped (a deleted script stayed live on the Studio).
+    #    The deploy must prune them before pushing and verify the pushed tree.
+    deploy_script = ROOT.parent / "deploy" / "deploy_modelscope.py"
+    deploy_issues: list[str] = []
+    if not deploy_script.exists():
+        deploy_issues.append("缺少 deploy/deploy_modelscope.py")
+    else:
+        tree = ast.parse(deploy_script.read_text(encoding="utf-8"), filename=str(deploy_script))
+        calls: dict[str, int] = {}
+        push_at: int | None = None
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            name = getattr(node.func, "attr", None) or getattr(node.func, "id", None)
+            if name in {"prune_extraneous", "list_tree_paths", "diff_tree", "expected_stage_paths"}:
+                calls.setdefault(name, node.lineno)
+            if name == "run_git" and node.args:
+                first = node.args[0]
+                if (isinstance(first, ast.List) and first.elts
+                        and isinstance(first.elts[0], ast.Constant) and first.elts[0].value == "push"):
+                    push_at = node.lineno
+        for required in ("expected_stage_paths", "prune_extraneous", "list_tree_paths", "diff_tree"):
+            if required not in calls:
+                deploy_issues.append(f"未调用 {required}")
+        if push_at is None:
+            deploy_issues.append("未找到 push 调用")
+        elif calls.get("prune_extraneous", 10**9) > push_at:
+            deploy_issues.append("清除包外文件发生在 push 之后")
+        if push_at is not None and calls.get("diff_tree", -1) < push_at:
+            deploy_issues.append("推送后没有校验远端树")
+    check("J1 ModelScope 推送前清除包外文件、推送后校验远端树（否则远端会复活已删除的文件）",
+          not deploy_issues, f"部署树守卫缺失：{deploy_issues}")
+
     passed = sum(1 for item in RESULTS if item["ok"])
     payload = {"checks": RESULTS, "passed": passed, "total": len(RESULTS), "project_id": pid}
     if out_path:

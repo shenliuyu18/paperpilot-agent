@@ -6,15 +6,16 @@
   <meta name="description" content="PaperPilot：以研究项目为中心的科学学习智能体，提供项目 Copilot、跨轮项目记忆、可实时干预的自适应研究 Agent、SSE 实时进度、多轮运行对比与带证据锚点的结构化草稿工作台。" />
   <title>PaperPilot · 论文领航员</title>
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
-  <link rel="stylesheet" href="/static/styles.css?v=8.2.0" />
-  <link rel="stylesheet" href="/static/agent.css?v=8.2.0" />
-  <link rel="stylesheet" href="/static/projects.css?v=8.2.0" />
-  <link rel="stylesheet" href="/static/manuscript.css?v=8.2.0" />
-  <link rel="stylesheet" href="/static/tracking.css?v=8.2.0" />
-  <link rel="stylesheet" href="/static/assistant.css?v=8.2.0" />
-  <link rel="stylesheet" href="/static/submission.css?v=8.2.0" />
-  <link rel="stylesheet" href="/static/model.css?v=8.2.0" />
-  <link rel="stylesheet" href="/static/dossier.css?v=8.2.0" />
+  <link rel="stylesheet" href="/static/styles.css?v=8.3.0" />
+  <link rel="stylesheet" href="/static/agent.css?v=8.3.0" />
+  <link rel="stylesheet" href="/static/projects.css?v=8.3.0" />
+  <link rel="stylesheet" href="/static/manuscript.css?v=8.3.0" />
+  <link rel="stylesheet" href="/static/tracking.css?v=8.3.0" />
+  <link rel="stylesheet" href="/static/assistant.css?v=8.3.0" />
+  <link rel="stylesheet" href="/static/submission.css?v=8.3.0" />
+  <link rel="stylesheet" href="/static/model.css?v=8.3.0" />
+  <link rel="stylesheet" href="/static/dossier.css?v=8.3.0" />
+  <link rel="stylesheet" href="/static/demo.css?v=8.3.0" />
 </head>
 <body>
   <div class="ambient ambient-a"></div>
@@ -140,13 +141,29 @@
             <div><strong id="statLibrary">0</strong><span>篇已收藏</span></div>
           </div>
         </div>
-        <div class="hero-panel">
-          <div class="hero-panel-title">当前演示主题</div>
-          <div class="hero-topic">面向存算一体的低功耗 ADC 设计</div>
-          <div class="hero-flow">
-            <span>检索计划</span><i></i><span>精读</span><i></i><span>翻译</span><i></i><span>选题</span><i></i><span>写作</span><i></i><span>论证体检</span><i></i><span>问答</span>
+        <div class="hero-panel start-panel" id="startPanel">
+          <div class="start-head">
+            <span class="eyebrow">三种开始方式</span>
+            <span class="start-mode" id="startMode">离线可用 · 无需密钥</span>
           </div>
-          <div class="hero-note">检索结果按“直接相关 / 方法参考 / 背景脉络”分层；引用体检与论证体检会先暴露问题，再给修改动作。</div>
+          <div class="start-actions">
+            <button class="start-card start-primary" type="button" id="demoStartBtn">
+              <span class="start-kicker">① 一键跑完一次完整研究</span>
+              <strong>检索 → 精读 → 对比 → 选题 → 写作 → 核查</strong>
+              <span class="start-note">用演示语料，约 10 秒；模型预算 0，不消耗任何额度</span>
+            </button>
+            <button class="start-card" type="button" id="demoOpenBtn">
+              <span class="start-kicker">② 看示例产出</span>
+              <strong>打开上一次演示项目</strong>
+              <span class="start-note">研究简报 · 证据账本 · 带证据锚点的草稿</span>
+            </button>
+            <button class="start-card" type="button" id="demoModelBtn">
+              <span class="start-kicker">③ 接入我的模型</span>
+              <strong>用自己的 API Key 解锁增强</strong>
+              <span class="start-note">研究报告 / Copilot / 语义核查；不填也能用</span>
+            </button>
+          </div>
+          <div class="start-topic">演示主题：面向存算一体的低功耗 ADC 设计</div>
         </div>
       </section>
 
@@ -175,15 +192,18 @@
           <div class="empty-orb"></div>
           <h2>从左侧选择一篇论文</h2>
           <p>或者直接输入研究方向，PaperPilot 会给你一条从检索到产出的路径。</p>
+          <p class="muted small">第一次来？右上角的「一键跑完一次完整研究」会用演示语料跑一遍全流程。</p>
         </div>
       </section>
 
       <footer class="page-foot">
-        <span>PaperPilot 8.2.0 · 可交付稿 · 持续研究 · 可信核查</span>
+        <span>PaperPilot 8.3.0 · 可交付稿 · 持续研究 · 可信核查</span>
         <span>接入你自己的大模型，或保持离线规则模式；稿件元数据、投稿包、三种引用样式与检索订阅均可用。</span>
       </footer>
     </main>
   </div>
+
+  <div id="demoTour" class="tour" hidden></div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
@@ -198,16 +218,17 @@
     </div>
   </div>
 
-  <script src="/static/assistant.js?v=8.2.0"></script>
-  <script src="/static/projects.js?v=8.2.0"></script>
-  <script src="/static/manuscript.js?v=8.2.0"></script>
-  <script src="/static/submission.js?v=8.2.0"></script>
-  <script src="/static/tracking.js?v=8.2.0"></script>
-  <script src="/static/draft.js?v=8.2.0"></script>
-  <script src="/static/agent-live.js?v=8.2.0"></script>
-  <script src="/static/model.js?v=8.2.0"></script>
-  <script src="/static/dossier.js?v=8.2.0"></script>
-  <script src="/static/app.js?v=8.2.0"></script>
+  <script src="/static/assistant.js?v=8.3.0"></script>
+  <script src="/static/projects.js?v=8.3.0"></script>
+  <script src="/static/manuscript.js?v=8.3.0"></script>
+  <script src="/static/submission.js?v=8.3.0"></script>
+  <script src="/static/tracking.js?v=8.3.0"></script>
+  <script src="/static/draft.js?v=8.3.0"></script>
+  <script src="/static/agent-live.js?v=8.3.0"></script>
+  <script src="/static/model.js?v=8.3.0"></script>
+  <script src="/static/dossier.js?v=8.3.0"></script>
+  <script src="/static/app.js?v=8.3.0"></script>
+  <script src="/static/demo.js?v=8.3.0"></script>
 </body>
 </html>
 

@@ -4093,6 +4093,10 @@
       history.replaceState(null, "", `#${tab}`);
     }
     $$(".tab", el.tabs).forEach((button) => button.classList.toggle("active", button.dataset.tab === tab));
+    const activeTab = $$(".tab", el.tabs).find((button) => button.dataset.tab === tab);
+    if (activeTab && el.crumb) {
+      el.crumb.textContent = activeTab.textContent.replace(/\d+/g, "").trim() || "工作台";
+    }
     await loadTab(tab);
   }
 

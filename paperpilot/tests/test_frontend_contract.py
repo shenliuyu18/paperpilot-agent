@@ -28,10 +28,10 @@ class FrontendContractTests(unittest.TestCase):
     def test_index_loads_v3_assets_and_project_tab(self) -> None:
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
         self.assertIn('data-tab="projects"', html)
-        self.assertIn("/static/assistant.js?v=8.2.0", html)
-        self.assertIn("/static/assistant.css?v=8.2.0", html)
-        self.assertIn("/static/projects.js?v=8.2.0", html)
-        self.assertIn("/static/agent-live.js?v=8.2.0", html)
+        self.assertIn(f"/static/assistant.js?v={config.APP_VERSION}", html)
+        self.assertIn(f"/static/assistant.css?v={config.APP_VERSION}", html)
+        self.assertIn(f"/static/projects.js?v={config.APP_VERSION}", html)
+        self.assertIn(f"/static/agent-live.js?v={config.APP_VERSION}", html)
         self.assertIn(f"PaperPilot {config.APP_VERSION}", html)
 
     def test_new_frontend_modules_expose_namespaces(self) -> None:
@@ -39,9 +39,28 @@ class FrontendContractTests(unittest.TestCase):
             ("projects.js", "PaperPilotProjects"),
             ("draft.js", "PaperPilotDraft"),
             ("agent-live.js", "PaperPilotLive"),
+            ("demo.js", "PaperPilotDemo"),
         ]:
             content = (ROOT / "static" / filename).read_text(encoding="utf-8")
             self.assertIn(f"window.{namespace}", content)
+
+    def test_one_click_demo_is_wired_and_honest(self) -> None:
+        html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+        for hook in ("demoStartBtn", "demoOpenBtn", "demoModelBtn", "demoTour"):
+            self.assertIn(f'id="{hook}"', html)
+        self.assertIn(f"/static/demo.css?v={config.APP_VERSION}", html)
+        self.assertIn(f"/static/demo.js?v={config.APP_VERSION}", html)
+        content = (ROOT / "static" / "demo.js").read_text(encoding="utf-8")
+        for endpoint in ('"/api/search"', '"/api/projects"', '/papers`', '"/api/agent/runs"'):
+            self.assertIn(endpoint, content)
+        # The tour may only report success after observing a completed run.
+        self.assertIn('run.status === "completed"', content)
+        self.assertIn('"failed", "cancelled", "interrupted"', content)
+        # A demo must never spend model budget.
+        self.assertIn("max_llm_calls: 0", content)
+        # Server text reaches the DOM only through the shared escaper.
+        self.assertIn("esc(", content)
+        self.assertIn("esc(message)", content)
 
     def test_draft_module_has_studio_contract(self) -> None:
         content = (ROOT / "static" / "draft.js").read_text(encoding="utf-8")
@@ -59,10 +78,10 @@ class FrontendContractTests(unittest.TestCase):
         self.assertIn("data-draft-cite", content)
         self.assertIn("data-draft-restore", content)
         index = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("draft.js?v=8.2.0", index)
+        self.assertIn(f"draft.js?v={config.APP_VERSION}", index)
         self.assertLess(
-            index.index("draft.js?v=8.2.0"),
-            index.index("agent-live.js?v=8.2.0"),
+            index.index(f"draft.js?v={config.APP_VERSION}"),
+            index.index(f"agent-live.js?v={config.APP_VERSION}"),
         )
 
     def test_draft_module_wires_revision_conflict_and_draft_api(self) -> None:
@@ -233,10 +252,10 @@ class FrontendContractTests(unittest.TestCase):
 
     def test_index_loads_manuscript_panel(self) -> None:
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("/static/manuscript.js?v=8.2.0", html)
-        self.assertIn("/static/submission.js?v=8.2.0", html)
-        self.assertIn("/static/submission.css?v=8.2.0", html)
-        self.assertIn("/static/manuscript.css?v=8.2.0", html)
+        self.assertIn(f"/static/manuscript.js?v={config.APP_VERSION}", html)
+        self.assertIn(f"/static/submission.js?v={config.APP_VERSION}", html)
+        self.assertIn(f"/static/submission.css?v={config.APP_VERSION}", html)
+        self.assertIn(f"/static/manuscript.css?v={config.APP_VERSION}", html)
 
     def test_manuscript_module_exposes_drawer_contract(self) -> None:
         js = (ROOT / "static" / "manuscript.js").read_text(encoding="utf-8")
@@ -270,8 +289,8 @@ class FrontendContractTests(unittest.TestCase):
 
     def test_model_drawer_is_mounted_in_the_topbar(self) -> None:
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("/static/model.js?v=8.2.0", html)
-        self.assertIn("/static/model.css?v=8.2.0", html)
+        self.assertIn(f"/static/model.js?v={config.APP_VERSION}", html)
+        self.assertIn(f"/static/model.css?v={config.APP_VERSION}", html)
         self.assertIn('id="modelBtn"', html)
         self.assertIn('id="modelCallout"', html)
         self.assertLess(

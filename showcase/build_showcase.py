@@ -56,6 +56,8 @@ SHOTS = {
     "copilot_nav": PROJECT / "paperpilot" / "docs" / "screenshot-copilot-nav.png",
     "assistant_insufficient": PROJECT / "paperpilot" / "docs" / "screenshot-assistant-insufficient.png",
     "draft_semantic": PROJECT / "paperpilot" / "docs" / "screenshot-draft-semantic.png",
+    "demo_hero": PROJECT / "paperpilot" / "docs" / "screenshot-demo-hero.png",
+    "demo_project": PROJECT / "paperpilot" / "docs" / "screenshot-demo-project.png",
 }
 
 
@@ -231,22 +233,28 @@ TEMPLATE = r"""<!DOCTYPE html>
       <div>
         <div class="eyebrow">科研学习智能体</div>
         <h1>从一个方向，<br><span class="grad">到可辩护的研究</span></h1>
-        <p class="lead">PaperPilot 把检索、精读、翻译、选题、写作与核查串成一条可回退的研究流程；v2.0 把它收进<b>研究项目</b>，v3.0 让项目资产会答话，v3.1 再把<b>对比</b>做实：不再套用内置 ADC 语料，而是从你选中的论文里抽取研究问题、方法、结果与局限，再生成共识、分歧与后续空白。<b>项目 Copilot</b> 只基于项目证据、草稿与运行报告回答，每条结论都带可回到原文的引用。</p>
+        <p class="lead">PaperPilot 把「一个研究方向」变成一批<b>可核查、可复用</b>的研究资产：先拆检索概念并标注来源可信度，再精读、翻译、对比；选题阶段给出可行性、论证卡与导师沟通页；写作阶段做逐句证据核查和结构论证体检。<b>每条结论都能回到论文的章节、页码与原文引句</b>，读过的论文自动进入项目引用池，最后交付一份带参考文献的稿子。全程无需 API Key。</p>
         <div class="cta">
-          <a class="btn btn-primary" href="#demo">观看 3 分 8 秒演示</a>
+          <a class="btn btn-primary" href="https://modelscope.cn/studios/shenliuyu/paperpilot/" target="_blank" rel="noopener">打开在线 Agent · 点右上角一键演示</a>
+          <a class="btn" href="#demo">看演示与截图</a>
           <a class="btn" href="{{GITHUB}}" target="_blank" rel="noopener">查看源码</a>
-          <a class="btn" href="https://modelscope.cn/studios/shenliuyu/paperpilot/" target="_blank" rel="noopener">打开在线 Agent</a>
-          <a class="btn" href="#run">运行完整版</a>
+          <a class="btn" href="#run">本地运行</a>
         </div>
         <div class="stats">
-          <div class="stat"><strong>5</strong><span>篇真实 arXiv 论文</span></div>
-          <div class="stat"><strong>10/10</strong><span>真机能力检查</span></div>
-          <div class="stat"><strong>41/41</strong><span>回归用例通过</span></div>
-          <div class="stat"><strong>337/337</strong><span>测试通过</span></div>
-          <div class="stat"><strong>13/13</strong><span>Copilot 评测</span></div>
+          <div class="stat"><strong>722</strong><span>条单元测试</span></div>
+          <div class="stat"><strong>104</strong><span>项端到端验收</span></div>
+          <div class="stat"><strong>47</strong><span>项一致性审计</span></div>
+          <div class="stat"><strong>52</strong><span>个能力位</span></div>
+          <div class="stat"><strong>0</strong><span>必需 API Key</span></div>
         </div>
       </div>
       <aside class="hero-card">
+        <div class="card-label">最快上手</div>
+        <div class="card-title">一键跑完一次完整研究</div>
+        <div style="color:var(--muted);font-size:12.5px;line-height:1.6;margin-bottom:12px">
+          打开应用，点首屏右上角「一键跑完一次完整研究」：新建项目 → 3 篇演示论文入池 → 自适应 Agent 跑完检索、精读、对比、选题、写作、核查与简报，然后自动打开项目。<b>离线约 1.5 秒，模型预算固定为 0。</b>
+        </div>
+        <div class="flow" style="margin-bottom:16px"><span>检索</span><i></i><span>精读</span><i></i><span>对比</span><i></i><span>选题</span><i></i><span>写作</span><i></i><span>核查</span><i></i><span>简报</span></div>
         <div class="card-label">项目运行轨迹</div>
         <div class="card-title">一个项目，多轮运行，一份会累积的记忆</div>
         <div class="trace">
@@ -457,33 +465,37 @@ Orchestrator（意图识别 / 任务规划 / 人工确认）
   <section id="eval">
     <div class="wrap">
       <div class="section-head">
-        <div><div class="eyebrow">评测</div><h2>41 条回归 + 337 条测试 + 13 项 Copilot 专项</h2></div>
-        <p>检索与 Crossref、PDF 抽取、字段抽取、证据数量、对比告警、术语、转化、研究空白、选题、写作、逐句核查、问答支持度、研究库备份、检索计划/分层、引用体检、选题论证卡、论证体检、精读缓存、自定义来源、术语包、检索留痕，v1.0 状态/迁移、Planner/Critic、动态动作、证据账本、三档 worker，v2.0 项目状态/生命周期/API、记忆提升与播种、运行控制、SSE、运行对比、草稿状态/服务/核查/导出、Agent 写作闭环，v3.0 Copilot/引用接地/模型网关/语义核查/前端契约，v5.0 三档判定、跨论文矛盾、引用样式、稿件与 DOCX、投稿前检查、检索订阅与增量索引，v5.1 PDF 导出、矛盾模型复核、订阅并发与金标集工作台，v5.2 跨进程订阅锁、4 主题 × 6 篇金标语料与线上 PDF，v6.0 投稿档案、投稿包、双盲导出、审稿视角与 RIS/EndNote 互操作，v6.1 ORCID/通讯作者、盲审去致谢与审稿意见映射，v6.2 自定义大模型预设、密钥隔离与掩码、运行时生效、地址 SSRF 校验与分用途路由；v6.2.1 真实密钥实测（ModelScope 推理 API · GLM-5.2）Agent/Copilot/语义核查 13/13，v6.3 跨部件一致性审计 42/42；当前 41/41 + 586/586 + 90/90 + 13/13。5 篇真实开放获取 PDF 真机检查 10/10；工作区评测 0.61 秒完成两轮运行、记忆播种、草稿写入、核查、六种导出与运行对比；浏览器 0 console error、390px 横向溢出 0；证据问答引用核验 6/6。</p>
+        <div><div class="eyebrow">评测</div><h2>722 条测试 · 104 项验收 · 47 项一致性审计</h2></div>
+        <p>单元测试覆盖检索与题录、PDF 解析与 OCR、证据定位、三档判定、草稿与稿件、引用样式、投稿包、订阅与锁、模型网关与预算、前端契约。端到端验收走应用自身的 ASGI 接口，在隔离数据目录里真实跑完一条链路。一致性审计更进一步：它在一个演示项目里真的走完「检索 → Agent 运行 → 草稿 → 稿件 → 投稿包 → 审稿 → 换样式」，逐项核对引用编号、证据引句、样式同步与能力位，并用 5 条结构不变量守住架构边界（模型调用只能走网关、外部 id 拼路径必须净化、打印脚本必须先声明控制台安全输出、机器可读 JSON 必须显式 UTF-8、部署前清包外文件且推送后校验远端树）。</p>
       </div>
       <div class="metrics">
-        <div class="metric"><strong>41/41</strong><span>回归用例通过</span></div>
-        <div class="metric"><strong>586/586</strong><span>测试通过</span></div>
-        <div class="metric"><strong>90/90</strong><span>端到端验收</span></div>
-        <div class="metric"><strong>13/13</strong><span>Copilot 专项</span></div>
-        <div class="metric"><strong>10/10</strong><span>真机能力检查</span></div>
-        <div class="metric"><strong>0</strong><span>内置 API Key</span></div>
+        <div class="metric"><strong>722/722</strong><span>单元测试</span></div>
+        <div class="metric"><strong>104/104</strong><span>端到端验收</span></div>
+        <div class="metric"><strong>47/47</strong><span>一致性审计</span></div>
+        <div class="metric"><strong>41/41</strong><span>内容回归</span></div>
+        <div class="metric"><strong>24/24</strong><span>离线 PDF 链路</span></div>
+        <div class="metric"><strong>0</strong><span>必需 API Key</span></div>
       </div>
-      <div class="note">这是流程回归集、专项测试与真机能力检查，不是人工质量评测；它证明链路按预期工作，不能证明模型达到专家水平。同一查询缓存复跑约 2–3 ms；检索计划 0.06 ms、论证体检 4.2 ms、引用体检 0.33 ms。完整人工评测方案见源码中的 <code>docs/评测方案.md</code>。</div>
+      <div class="note">这些数字证明链路按预期工作，<b>不证明模型达到专家水平</b>。人工金标集（4 主题 × 6 篇、≥200 条）尚未签字，真实模型回答也还没有人工评分；构造集上的 1.000 只说明判定器与构造成分一致。所有门禁都能在源码里一条命令复现，命令见仓库 README。</div>
     </div>
   </section>
 
   <section id="demo">
     <div class="wrap">
       <div class="section-head">
-        <div><div class="eyebrow">演示</div><h2>3 分 8 秒看完整流程</h2></div>
-        <p>演示视频为 v0.8 基线：检索计划 → 精读 → 翻译 → 对比 → 创新点 → 成果 → 空白 → 证据问答 → 研究库 → 批量 PDF 解析 → 选题/导师沟通 → 论证体检 → 评测；v1.0 自适应 Agent 与证据账本见上方截图。</p>
+        <div><div class="eyebrow">演示</div><h2>一键跑完，再逐条回查</h2></div>
+        <p>首页右侧三种开始方式：一键跑完一次完整研究、打开上一次演示项目、接入自己的模型。<b>不需要任何密钥</b>，点击后约 1.5 秒，Agent 会用演示语料跑完检索、精读、对比、选题、写作、核查与简报，并自动打开项目。</p>
+      </div>
+      <div class="grid shots" style="margin-bottom:22px">
+        <div class="shot"><img src="{{DEMO_HERO}}" alt="PaperPilot 首屏三种开始方式" loading="lazy"><div class="cap"><b>首屏</b><span>一键演示 · 看示例产出 · 接入模型</span></div></div>
+        <div class="shot"><img src="{{DEMO_PROJECT}}" alt="一键演示跑完后的项目" loading="lazy"><div class="cap"><b>演示完成</b><span>15 动作 · 21 条证据 · 16 个草稿块</span></div></div>
       </div>
       <div class="video-card">
         <video controls preload="metadata" poster="cover.jpg">
           <source src="paperpilot_demo.mp4" type="video/mp4" />
           你的浏览器不支持 HTML5 视频。演示视频文件为 <code>paperpilot_demo.mp4</code>。
         </video>
-        <div class="video-note"><span>演示视频：1600×900 · 中文旁白与字幕</span><span>静态展示页不运行 FastAPI API；完整 Agent 请按下方运行。</span></div>
+        <div class="video-note"><span>演示视频：1600×900 · 中文旁白与字幕（早期版本基线）</span><span>静态展示页不运行 FastAPI API；完整 Agent 请按下方运行。</span></div>
       </div>
     </div>
   </section>
@@ -497,10 +509,11 @@ Orchestrator（意图识别 / 任务规划 / 人工确认）
       <div class="run-grid">
         <div class="run-card">
           <h3>本地启动</h3>
-          <p>Windows 可双击 <code>start.bat</code>；默认地址 <code>http://127.0.0.1:8765</code>。</p>
+          <p>Windows 可双击 <code>start.bat</code>；默认地址 <code>http://127.0.0.1:8765</code>。启动后点首屏「一键跑完一次完整研究」即可看到完整产出。</p>
           <pre>cd paperpilot
-pip install -r requirements.txt
-python run.py</pre>
+python -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python run.py</pre>
         </div>
         <div class="run-card">
           <h3>Docker</h3>
@@ -516,7 +529,7 @@ docker compose up --build</pre>
 
 <footer>
   <div class="wrap" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;width:100%">
-    <span>PaperPilot 8.2.0 · 可交付稿 · 投稿包 · 自配模型 · 可信核查</span>
+    <span>PaperPilot 8.3.0 · 证据优先 · 离线可跑 · 自配模型 · 可交付稿</span>
     <span><a href="{{GITHUB}}" target="_blank" rel="noopener">GitHub 源码</a> · 静态展示页</span>
   </div>
 </footer>

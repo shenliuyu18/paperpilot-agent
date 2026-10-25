@@ -10,6 +10,7 @@
 
 - **门禁脚本不再因控制台编码中断**：`scripts/acceptance.py` 在中文 Windows（区域编码 GBK）下跑到第 82 条时因运行时文本里的 `•`（U+2022，GBK 无此字符）抛出 `UnicodeEncodeError` 退出，返回码 1——一次全部通过的构建看起来像失败。新增 `scripts/_console.py`，所有会打印运行时文本的脚本（28 个）以第一条语句调用 `make_console_safe()`：只把写失败的字符替换成 `?`，保留控制台原有编码（强行改 UTF-8 会让中文在该控制台变成乱码），落盘的 JSON/报告仍是完整 UTF-8。
 - **`--json` 输出不再跟着控制台区域编码走**：档案 CLI 的 `verify/import --json` 把带真实中文标题的 JSON 文档直接写到标准输出，而 `PYTHONIOENCODING` 的优先级高于 `PYTHONUTF8`——在中文 Windows 控制台下重定向出来的是一份 GBK 字节流，管道另一侧按 UTF-8 解析当场失败（`json.loads` 拿到 `None` 或被截断的字节）。现在 14 处 `ensure_ascii=False` 的 JSON 输出前都调用 `_console.make_json_stdout()` 显式切到 UTF-8；给人看的输出仍保持控制台原编码，只有机器可读的数据强制 UTF-8。
+- **部署脚本同样受保护**：`deploy/deploy_github.py`、`deploy/deploy_modelscope.py` 与工作区的 `_sync_cs.py` 会把 API 报错正文、仓库路径等运行时文本打到控制台，一并接入同样的 stdout 保护（`deploy/deploy_cloudflare.py` 早已自行设置）。
 - **全量测试不再有资源泄漏**：订阅并发的跨进程用例只 `wait()` 子进程、没有关闭它的 stdout/stderr 管道，每轮全量测试都会刷出 `ResourceWarning: unclosed file`。现在用例结束时显式关闭，整套测试在 `-W error::ResourceWarning` 下也是全绿。
 
 ### 新增

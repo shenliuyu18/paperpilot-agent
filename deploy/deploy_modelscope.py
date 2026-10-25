@@ -13,6 +13,11 @@ import truststore
 
 truststore.inject_into_ssl()
 
+# A Windows console opened with the locale codec (GBK here) must not abort a deploy while printing
+# runtime text -- API error bodies, repo paths, Chinese titles.
+if getattr(sys.stdout, "errors", "") == "strict":
+    sys.stdout.reconfigure(errors="replace")
+
 ROOT = Path(__file__).resolve().parent.parent
 SECRETS = ROOT / ".secrets" / "modelscope.env"
 STAGE = ROOT / f".modelscope_space_build_{int(time.time())}"

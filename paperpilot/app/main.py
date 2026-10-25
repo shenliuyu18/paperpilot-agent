@@ -1311,6 +1311,15 @@ def api_paper(paper_id: str) -> dict:
     return paper
 
 
+@app.get("/api/paper/{paper_id}/pages")
+def api_paper_pages(paper_id: str) -> dict:
+    """Cheap page-count probe so the UI can open a viewer without a read call."""
+    if not resolve_paper(paper_id):
+        raise HTTPException(status_code=404, detail="论文不存在。")
+    pages = pdf.page_count(paper_id)
+    return {"local_pdf": pages > 0, "pages": pages}
+
+
 @app.get("/api/paper/{paper_id}/pages/{page}")
 def api_paper_page(paper_id: str, page: int) -> Response:
     if not resolve_paper(paper_id):

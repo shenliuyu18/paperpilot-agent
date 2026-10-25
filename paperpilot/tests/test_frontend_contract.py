@@ -61,6 +61,16 @@ class FrontendContractTests(unittest.TestCase):
         # Server text reaches the DOM only through the shared escaper.
         self.assertIn("esc(", content)
         self.assertIn("esc(message)", content)
+        # The demo must state how many blocks really carry evidence.
+        self.assertIn("evidence_ids", content)
+        self.assertIn("data-tour-draft", content)
+        # Draft evidence must be able to jump to the original page.
+        draft = (ROOT / "static" / "draft.js").read_text(encoding="utf-8")
+        self.assertIn("data-draft-page", draft)
+        self.assertIn("openEvidencePage", draft)
+        app = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
+        self.assertIn("async function openEvidencePage", app)
+        self.assertIn("/pages`)", app)
 
     def test_draft_module_has_studio_contract(self) -> None:
         content = (ROOT / "static" / "draft.js").read_text(encoding="utf-8")

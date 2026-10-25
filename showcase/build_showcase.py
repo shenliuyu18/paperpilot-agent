@@ -58,6 +58,8 @@ SHOTS = {
     "draft_semantic": PROJECT / "paperpilot" / "docs" / "screenshot-draft-semantic.png",
     "demo_hero": PROJECT / "paperpilot" / "docs" / "screenshot-demo-hero.png",
     "demo_project": PROJECT / "paperpilot" / "docs" / "screenshot-demo-project.png",
+    "demo_draft": PROJECT / "paperpilot" / "docs" / "screenshot-demo-draft.png",
+    "demo_evidence": PROJECT / "paperpilot" / "docs" / "screenshot-demo-evidence.png",
 }
 
 
@@ -252,7 +254,7 @@ TEMPLATE = r"""<!DOCTYPE html>
         <div class="card-label">最快上手</div>
         <div class="card-title">一键跑完一次完整研究</div>
         <div style="color:var(--muted);font-size:12.5px;line-height:1.6;margin-bottom:12px">
-          打开应用，点首屏右上角「一键跑完一次完整研究」：新建项目 → 3 篇演示论文入池 → 自适应 Agent 跑完检索、精读、对比、选题、写作、核查与简报，然后自动打开项目。<b>离线约 1.5 秒，模型预算固定为 0。</b>
+          打开应用，点首屏右上角「一键跑完一次完整研究」：新建项目 → 3 篇演示论文入池 → 自适应 Agent 跑完检索、精读、对比、选题、写作、核查与简报，然后自动打开项目。点「看带证据的草稿」再点证据旁的「原文 p.N」，这句话会在 PDF 原文页里被高亮出来。<b>离线约 1.5 秒，模型预算固定为 0。</b>
         </div>
         <div class="flow" style="margin-bottom:16px"><span>检索</span><i></i><span>精读</span><i></i><span>对比</span><i></i><span>选题</span><i></i><span>写作</span><i></i><span>核查</span><i></i><span>简报</span></div>
         <div class="card-label">项目运行轨迹</div>
@@ -489,6 +491,8 @@ Orchestrator（意图识别 / 任务规划 / 人工确认）
       <div class="grid shots" style="margin-bottom:22px">
         <div class="shot"><img src="{{DEMO_HERO}}" alt="PaperPilot 首屏三种开始方式" loading="lazy"><div class="cap"><b>首屏</b><span>一键演示 · 看示例产出 · 接入模型</span></div></div>
         <div class="shot"><img src="{{DEMO_PROJECT}}" alt="一键演示跑完后的项目" loading="lazy"><div class="cap"><b>演示完成</b><span>15 动作 · 21 条证据 · 16 个草稿块</span></div></div>
+        <div class="shot"><img src="{{DEMO_DRAFT}}" alt="带证据锚点的草稿" loading="lazy"><div class="cap"><b>带证据的草稿</b><span>3 块绑定证据 · 原文 p.N 直达</span></div></div>
+        <div class="shot"><img src="{{DEMO_EVIDENCE}}" alt="证据在原文页高亮" loading="lazy"><div class="cap"><b>证据回原文</b><span>已定位证据 · 3 处 · 句级高亮</span></div></div>
       </div>
       <div class="video-card">
         <video controls preload="metadata" poster="cover.jpg">

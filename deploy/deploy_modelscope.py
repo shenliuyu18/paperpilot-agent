@@ -146,7 +146,7 @@ def main() -> None:
         target = STAGE / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(path, target)
-    for relative in ("data/uploads", "data/demo_pdfs", "docs"):
+    for relative in ("data/uploads", "docs"):
         path = STAGE / "paperpilot" / relative
         if path.exists():
             shutil.rmtree(path, ignore_errors=True)

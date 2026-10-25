@@ -450,7 +450,10 @@
       .map((evidenceId) => {
         const item = evidenceIndex[evidenceId] || {};
         const label = item.title || item.paper_id || evidenceId;
-        return `<button class="draft-chip" type="button" data-draft-unbind="${esc(evidenceId)}" data-block-ref="${esc(blockId)}" title="移除证据 ${esc(evidenceId)}">${esc(label)} ×</button>`;
+        const pageButton = item.paper_id && item.page
+          ? `<button class="draft-chip draft-chip-page" type="button" data-draft-page="${esc(evidenceId)}" title="打开原文页并高亮这句引文">原文 p.${esc(item.page)}</button>`
+          : "";
+        return `${pageButton}<button class="draft-chip" type="button" data-draft-unbind="${esc(evidenceId)}" data-block-ref="${esc(blockId)}" title="移除证据 ${esc(evidenceId)}">${esc(label)} ×</button>`;
       })
       .join("");
     const citationChips = citationKeys
@@ -1406,6 +1409,17 @@
 
     if (target.closest("[data-draft-retry]")) {
       await mount(container, state.projectId);
+      return;
+    }
+    const pageButton = target.closest("[data-draft-page]");
+    if (pageButton) {
+      const evidenceId = pageButton.getAttribute("data-draft-page") || "";
+      const item = state.evidence.find((entry) => String(entry.id) === evidenceId) || {};
+      if (!item.paper_id) {
+        window.PaperPilot.toast("这条证据没有关联论文，无法打开原文页。", true);
+        return;
+      }
+      await window.PaperPilot.openEvidencePage(item.paper_id, item.page, item.quote);
       return;
     }
     if (target.closest("[data-draft-add-paper]")) {

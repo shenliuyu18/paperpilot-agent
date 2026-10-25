@@ -57,7 +57,27 @@ class DeployTreeTests(unittest.TestCase):
                 path.write_text("x", encoding="utf-8")
                 files.append(path)
             expected = deploy_tree.expected_stage_paths(root, files)
-            self.assertEqual(expected, {"paperpilot/app/main.py", "Dockerfile", "README.md"})
+            self.assertEqual(
+                expected,
+                {
+                    "paperpilot/app/main.py",
+                    "paperpilot/data/demo_pdfs/demo.pdf",
+                    "Dockerfile",
+                    "README.md",
+                },
+            )
+
+    def test_demo_pdfs_ship_so_the_live_demo_can_render_pages(self):
+        # The demo corpus PDFs are what make "evidence -> original page ->
+        # highlight" work on the hosted instance; dropping them from the stage
+        # silently removes the product's strongest proof.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            path = root / "paperpilot" / "data" / "demo_pdfs" / "2606.08947v1.pdf"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("x", encoding="utf-8")
+            expected = deploy_tree.expected_stage_paths(root, [path])
+            self.assertIn("paperpilot/data/demo_pdfs/2606.08947v1.pdf", expected)
 
     def test_extra_paths_keeps_platform_owned_files(self):
         expected = {"paperpilot/app/main.py", "README.md"}

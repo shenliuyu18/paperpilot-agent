@@ -4968,6 +4968,12 @@
           badge.textContent = rects.length ? `已定位证据 · ${rects.length} 处` : "未定位到文本层";
           badge.className = `badge ${rects.length ? "badge-green" : "badge-amber"}`;
           if (!rects.length && data.note) badge.title = data.note;
+          const first = rects.length ? layer.querySelector(".page-highlight") : null;
+          if (first && typeof first.scrollIntoView === "function") {
+            // The first match is often below the fold; bring it into view so
+            // "located" is something the user can actually see.
+            window.setTimeout(() => first.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" }), 60);
+          }
         })
         .catch(() => {
           badge.textContent = "未定位到文本层";
@@ -4976,6 +4982,20 @@
     };
     openModal("原文页", "");
     render();
+  }
+
+  async function openEvidencePage(paperId, page, quote) {
+    if (!paperId) return;
+    try {
+      const info = await api(`/api/paper/${encodeURIComponent(paperId)}/pages`);
+      if (!info.local_pdf || !info.pages) {
+        toast("这篇论文没有本地 PDF，无法打开原文页。", true);
+        return;
+      }
+      openPageViewer(paperId, info.pages, Number(page) || 1, String(quote || ""));
+    } catch (error) {
+      toast(error.message, true);
+    }
   }
 
   function openModal(title, html) {
@@ -5171,6 +5191,8 @@
     stopAgentPolling,
     addPaperToProject,
     pickProject,
+    openPageViewer,
+    openEvidencePage,
     panel: el.panel,
   };
 

@@ -21,10 +21,11 @@ from typing import Callable, Iterable
 # and must survive a prune.
 PLATFORM_OWNED = frozenset({".gitattributes"})
 
-# Runtime state and the operator handbook never enter the Studio image.
+# Runtime state and the operator handbook never enter the Studio image. The
+# demo PDFs do: without them the hosted demo cannot render an original page or
+# highlight an evidence quote.
 STAGE_EXCLUDED_PREFIXES = (
     "paperpilot/data/uploads/",
-    "paperpilot/data/demo_pdfs/",
     "paperpilot/docs/",
 )
 

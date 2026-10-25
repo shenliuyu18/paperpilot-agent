@@ -108,6 +108,14 @@ class PdfPageTests(unittest.TestCase):
         self.assertEqual(self.client.get(f"/api/paper/{self.paper_id}/pages/999").status_code, 404)
         self.assertEqual(self.client.get("/api/paper/not-a-paper/pages/1").status_code, 404)
 
+    def test_page_count_probe_matches_the_document(self) -> None:
+        response = self.client.get(f"/api/paper/{self.paper_id}/pages")
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        self.assertTrue(payload["local_pdf"])
+        self.assertGreaterEqual(payload["pages"], 1)
+        self.assertEqual(self.client.get("/api/paper/not-a-paper/pages").status_code, 404)
+
     def test_demo_paper_without_pdf_is_explicitly_unavailable(self) -> None:
         response = self.client.get("/api/paper/2606.08947v1/pages/1")
         # The bundled demo PDF exists for this paper in the package; if it is

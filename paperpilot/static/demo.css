@@ -210,11 +210,43 @@
 
 .tour-foot.error { color: var(--red); }
 
+.tour-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
 .tour-hint {
   display: block;
   margin-top: 4px;
   font-size: 10.5px;
   color: var(--muted-2);
+}
+
+.tour-hint strong { color: var(--amber); font-weight: 600; }
+
+/* Evidence chip that opens the original page with the quote highlighted. */
+.draft-chip-page {
+  border-color: rgba(255, 202, 107, 0.5);
+  color: var(--amber);
+}
+
+.draft-chip-page:hover {
+  background: rgba(255, 202, 107, 0.14);
+}
+
+/* First evidence-anchored draft block, highlighted for a few seconds after the
+   demo jumps into the draft tab. */
+.draft-block.demo-focus {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  animation: demoPulse 1.1s ease-in-out 2;
+}
+
+@keyframes demoPulse {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: 0 0 0 6px rgba(255, 202, 107, 0.16); }
 }
 
 .tour-result {

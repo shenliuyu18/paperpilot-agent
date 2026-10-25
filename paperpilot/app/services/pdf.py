@@ -850,6 +850,21 @@ def local_pdf_path(paper_id: str) -> Path | None:
     return next((path for path in candidates if path.is_file()), None)
 
 
+def page_count(paper_id: str) -> int:
+    """Page count of the stored PDF, or 0 when there is no readable file."""
+    path = local_pdf_path(paper_id)
+    if path is None:
+        return 0
+    try:
+        doc = pymupdf.open(path)
+    except Exception:  # noqa: BLE001 - a damaged file has no viewable pages
+        return 0
+    try:
+        return int(doc.page_count)
+    finally:
+        doc.close()
+
+
 def render_page(paper_id: str, page: int, dpi: int = 150) -> bytes | None:
     """Render one PDF page to PNG; return None for missing files/pages."""
     path = local_pdf_path(paper_id)

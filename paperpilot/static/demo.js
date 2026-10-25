@@ -179,19 +179,39 @@
       const project = await call(`/api/projects/${encodeURIComponent(projectId)}`);
       const counts = project.project?.counts || {};
       const evidence = (run.evidence || []).length || counts.evidence || 0;
+      let anchored = 0;
+      let blockTotal = Number(counts.draft_blocks || 0);
+      try {
+        const draftDoc = await call(`/api/projects/${encodeURIComponent(projectId)}/draft`);
+        const blocks = ((draftDoc.draft || {}).sections || []).flatMap((section) => section.blocks || []);
+        blockTotal = blocks.length || blockTotal;
+        anchored = blocks.filter((block) => (block.evidence_ids || []).length).length;
+      } catch (error) {
+        anchored = 0;
+      }
       state.title = "演示完成";
       state.foot = `
         <div class="tour-result">
           <div><span>动作</span><strong>${esc(run.action_count || (run.steps || []).length)}</strong></div>
           <div><span>证据</span><strong>${esc(evidence)}</strong></div>
-          <div><span>草稿块</span><strong>${esc(counts.draft_blocks || 0)}</strong></div>
+          <div><span>草稿块</span><strong>${esc(blockTotal)}</strong></div>
           <div><span>引用池</span><strong>${esc(counts.papers || pooled)}</strong></div>
         </div>
-        <button class="btn btn-primary btn-small" type="button" data-tour-open>打开这个项目</button>
-        <span class="tour-hint">简报、证据账本与草稿都在项目里；草稿块可回原文核对。</span>`;
+        <div class="tour-actions">
+          <button class="btn btn-primary btn-small" type="button" data-tour-open>打开这个项目</button>
+          <button class="btn btn-ghost btn-small" type="button" data-tour-draft>看带证据的草稿</button>
+        </div>
+        <span class="tour-hint">${esc(blockTotal)} 个草稿块里 <strong>${esc(anchored)} 块已绑定证据</strong>；其余是骨架段落，需要你补证据或改写——工具不会替你假装有依据。</span>`;
       renderTour(state);
       const openBtn = tourRoot()?.querySelector("[data-tour-open]");
       if (openBtn) openBtn.addEventListener("click", () => openProject(projectId));
+      const draftBtn = tourRoot()?.querySelector("[data-tour-draft]");
+      if (draftBtn) {
+        draftBtn.addEventListener("click", async () => {
+          await openProject(projectId, "draft");
+          focusFirstAnchoredBlock();
+        });
+      }
       await openProject(projectId);
       tourRoot()?.classList.add("compact");
       markLastDemo(projectId);
@@ -238,13 +258,19 @@
     });
   }
 
-  async function openProject(projectId) {
+  async function openProject(projectId, subTab = "") {
     const helper = pp();
     if (!helper) return;
     try {
       await helper.switchTab("projects");
-      if (window.PaperPilotProjects?.open) {
-        await window.PaperPilotProjects.open(projectId);
+      const projects = window.PaperPilotProjects;
+      if (projects?.open) {
+        if (subTab && subTab !== "overview" && projects.state) {
+          projects.state.tab = subTab;
+          await projects.open(projectId, undefined, false);
+        } else {
+          await projects.open(projectId);
+        }
       }
       markLastDemo(projectId);
       const tabs = document.getElementById("tabs");
@@ -254,6 +280,18 @@
     } catch (error) {
       toast(error.message, true);
     }
+  }
+
+  function focusFirstAnchoredBlock(attempt = 0) {
+    const chip = document.querySelector("#panel .draft-chip[data-draft-unbind]");
+    if (!chip) {
+      if (attempt < 10) window.setTimeout(() => focusFirstAnchoredBlock(attempt + 1), 150);
+      return;
+    }
+    const row = chip.closest(".draft-block") || chip;
+    row.scrollIntoView({ behavior: "smooth", block: "center" });
+    row.classList.add("demo-focus");
+    window.setTimeout(() => row.classList.remove("demo-focus"), 3200);
   }
 
   function markLastDemo(projectId) {

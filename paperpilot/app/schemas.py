@@ -156,7 +156,10 @@ class DraftRequest(TopicRequest):
 class DraftSaveRequest(BaseModel):
     revision: int = Field(ge=0)
     title: str = Field(default="", max_length=200)
-    citation_style: Literal["numeric", "author-year", "gb7714", "apa", "ieee"] = "numeric"
+    # None means "leave the style alone"; the manuscript drawer mirrors its
+    # picker into the draft without a revision bump, so a save that omits the
+    # style must not undo that choice.
+    citation_style: Literal["numeric", "author-year", "gb7714", "apa", "ieee"] | None = None
     sections: list[dict] = Field(default_factory=list)
     citations: dict | None = None
 
@@ -164,6 +167,10 @@ class DraftSaveRequest(BaseModel):
 class CitationRequest(BaseModel):
     paper_id: str
     revision: int = Field(ge=0)
+
+
+class PaperPoolRequest(BaseModel):
+    paper_ids: list[str] = Field(default_factory=list, max_length=100)
 
 
 class VersionRequest(BaseModel):

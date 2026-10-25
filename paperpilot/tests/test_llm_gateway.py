@@ -351,6 +351,63 @@ class LLMGatewayTests(unittest.TestCase):
         self.assertEqual(meta["status"], "fallback")
         self.assertEqual(llm_gateway.audit_log()[-1]["ok"], False)
 
+    def test_a_call_that_never_left_the_process_is_not_charged(self) -> None:
+        """Budget is a cost guard: no request, no cost, but the reason stays visible."""
+        run = agent_state.create_run_state("目标", "demo", "auto", {"max_llm_calls": 3})
+        budget = llm_gateway.CallBudget(max_calls=2)
+        with patch.object(config, "LLM_ENABLED", False):
+            with self.assertRaises(llm.LLMUnavailable):
+                llm_gateway.audited_chat(
+                    [{"role": "user", "content": "x"}],
+                    purpose="ask", budget=budget, run=run,
+                )
+        self.assertEqual(budget.used, 0)
+        self.assertEqual(run["budget_used"]["llm_calls"], 0)
+        rows = [row for row in llm_gateway.audit_log() if row["purpose"] == "ask"]
+        self.assertEqual(len(rows), 1, rows)
+        self.assertEqual(rows[0]["degrade_reason"], "config")
+
+    @patch.object(config, "LLM_ENABLED", True)
+    def test_a_blocked_repair_reports_budget_once_and_not_as_schema(self) -> None:
+        """The repair call is a second call: when the budget stops it, say so once.
+
+        The first answer parses as JSON but misses a required field, so a repair is genuinely
+        attempted; the run allows one call, so that repair is blocked. It used to be recorded
+        twice, the second time as a ``schema`` failure that never happened.
+        """
+        run = agent_state.create_run_state("目标", "demo", "auto", {"max_llm_calls": 1})
+        budget = llm_gateway.CallBudget(max_calls=2)
+        with patch("app.llm.chat", return_value='{"other": "不是要的字段"}'):
+            payload, meta = llm_gateway.audited_chat_json(
+                "sys", "user", purpose="draft_write",
+                schema={"type": "object", "required": ["x"]},
+                budget=budget, run=run, temperature=0.1,
+            )
+        self.assertIsNone(payload)
+        self.assertEqual(meta.get("degrade_reason"), "budget", meta)
+        rows = [row for row in llm_gateway.audit_log()
+                if row["purpose"].startswith("draft_write") and not row.get("ok")]
+        self.assertEqual([row.get("degrade_reason") for row in rows], ["budget"], rows)
+
+    @patch.object(config, "LLM_ENABLED", True)
+    def test_the_cache_key_carries_the_routed_model(self) -> None:
+        """Per-purpose routing must not serve one model's answer as another model's."""
+        saved = config.LLM_ROUTES
+        try:
+            with patch("app.llm.chat", return_value="答案一") as chat:
+                config.LLM_ROUTES = {}
+                args = {"purpose": "assistant", "temperature": 0.1, "use_cache": True}
+                llm_gateway.audited_chat([{"role": "user", "content": "q1"}], **args)
+                chat.assert_called_once()
+                llm_gateway.audited_chat([{"role": "user", "content": "q1"}], **args)
+                chat.assert_called_once()  # same model: reuse
+
+                config.LLM_ROUTES = {"assistant": "model-b"}
+                llm_gateway.audited_chat([{"role": "user", "content": "q1"}], **args)
+                self.assertEqual(chat.call_count, 2, "换路由模型后不应命中上一个模型的缓存")
+        finally:
+            config.LLM_ROUTES = saved
+
     def test_reset_audit_clears_log(self) -> None:
         llm_gateway._record({"at": "now", "purpose": "x"})
         self.assertTrue(llm_gateway.audit_log())

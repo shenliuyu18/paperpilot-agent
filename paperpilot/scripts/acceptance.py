@@ -9,7 +9,7 @@ from _console import make_console_safe
 
 make_console_safe()
 
-import io, json, os, sys, tempfile, time, zipfile
+import copy, io, json, os, sys, tempfile, time, zipfile
 from pathlib import Path
 
 tmp = Path(tempfile.mkdtemp(prefix="pp-accept-"))
@@ -710,6 +710,82 @@ check("18.4 档案导入为新项目（不覆盖原项目）",
       and imported_body.get("project", {}).get("id")
       and imported_body.get("project", {}).get("id") != pid,
       f"code={imported.status_code} new={imported_body.get('project', {}).get('id')}")
+
+# ---------- 19. citation pool ----------
+corpus_id = next(iter(search.PAPERS_BY_ID))
+st, added = api("POST", f"/api/projects/{pid}/papers", {"paper_ids": [corpus_id]})
+check("19.1 论文可加入项目引用池（无需先跑一轮运行）",
+      st == 200 and added.get("added") == 1 and not added.get("missing"),
+      f"code={st} added={added.get('added') if isinstance(added, dict) else added}")
+
+st, pool = api("GET", f"/api/projects/{pid}/memory?kind=papers")
+pool_ids = {str(item.get("id")) for item in (pool.get("items") or [])}
+check("19.2 引用池记忆返回已加入的论文",
+      st == 200 and corpus_id in pool_ids,
+      f"code={st} ids={len(pool_ids)}")
+
+st, rejected = api("POST", f"/api/projects/{pid}/papers",
+                    {"paper_ids": ["..\\llm_settings.secrets", "no-such-paper"]})
+check("19.3 非法与不存在的论文标识符只报告不入池",
+      st == 200 and rejected.get("added") == 0 and len(rejected.get("missing") or []) == 2,
+      f"code={st} missing={rejected.get('missing') if isinstance(rejected, dict) else rejected}")
+
+st, draft = api("GET", f"/api/projects/{pid}/draft")
+st, cited = api("POST", f"/api/projects/{pid}/draft/citations",
+                {"paper_id": corpus_id, "revision": (draft.get("draft") or {}).get("revision", 0)})
+check("19.4 引用池里的论文可直接在草稿中插入引用",
+      st == 200 and bool((cited.get("citation") or {}).get("key")),
+      f"code={st} key={(cited.get('citation') or {}).get('key') if isinstance(cited, dict) else cited}")
+
+st, removed = api("DELETE", f"/api/projects/{pid}/papers/{corpus_id}")
+st, pool_after = api("GET", f"/api/projects/{pid}/memory?kind=papers")
+check("19.5 论文可从引用池移除",
+      st == 200 and removed.get("removed") is True
+      and corpus_id not in {str(item.get("id")) for item in (pool_after.get("items") or [])},
+      f"code={st} removed={removed.get('removed') if isinstance(removed, dict) else removed}")
+
+st, candidates = api("GET", "/api/paper-candidates")
+check("19.6 候选论文接口返回内置语料供加入引用池",
+      st == 200 and corpus_id in {str(item.get("id")) for item in (candidates.get("items") or [])},
+      f"code={st} items={len(candidates.get('items') or []) if isinstance(candidates, dict) else 0}")
+
+# ---------- 20. dirty-draft guard ----------
+# The workbench saves pending text before the view is rebuilt. These checks
+# cover the server contract that save relies on.
+guard = draft_state.read_draft(pid)
+guard_rev = int(guard.get("revision") or 0)
+guard_sections = copy.deepcopy(guard.get("sections") or [])
+for section in guard_sections:
+    for block in section.get("blocks") or []:
+        block["text"] = f"{block.get('text') or ''}自动保存守卫。"
+st, autosaved = api("PUT", f"/api/projects/{pid}/draft",
+                    {"revision": guard_rev, "title": guard.get("title") or "草稿",
+                     "sections": guard_sections})
+after = draft_state.read_draft(pid)
+check("20.1 自动保存写入正文并递增 revision",
+      st == 200 and int(after.get("revision") or 0) == guard_rev + 1
+      and any("自动保存守卫" in (b.get("text") or "")
+              for s in after.get("sections") or [] for b in s.get("blocks") or []),
+      f"code={st} rev={guard_rev}->{after.get('revision')}")
+
+st, stale = api("PUT", f"/api/projects/{pid}/draft",
+                {"revision": guard_rev, "title": "冲突", "sections": guard_sections})
+check("20.2 过期 revision 的保存返回 409（前端据此提示而不是覆盖）",
+      st == 409, f"code={st}")
+
+st, styled = api("PUT", f"/api/projects/{pid}/draft",
+                 {"revision": int(after.get("revision") or 0), "title": after.get("title") or "",
+                  "citation_style": "apa", "sections": guard_sections})
+check("20.3 显式保存可以改写引用样式",
+      st == 200 and draft_state.read_draft(pid).get("citation_style") == "apa",
+      f"code={st} style={draft_state.read_draft(pid).get('citation_style')}")
+
+st, kept = api("PUT", f"/api/projects/{pid}/draft",
+               {"revision": int(draft_state.read_draft(pid).get("revision") or 0),
+                "title": after.get("title") or "", "sections": guard_sections})
+check("20.4 未携带 citation_style 的自动保存保留服务器上的样式",
+      st == 200 and draft_state.read_draft(pid).get("citation_style") == "apa",
+      f"code={st} style={draft_state.read_draft(pid).get('citation_style')}")
 
 stub_server.shutdown()
 

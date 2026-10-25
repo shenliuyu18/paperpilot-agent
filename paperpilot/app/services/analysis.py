@@ -20,6 +20,17 @@ _LLM_READ_CACHE: OrderedDict[str, dict] = OrderedDict()
 _LLM_READ_LOCK = threading.Lock()
 _LLM_READ_CACHE_MAX = 64
 
+# The user reads this in the paper card, so it names the reason instead of the exception class.
+READ_DEGRADE_LABELS = {
+    "budget": "该运行的模型调用预算已用尽",
+    "rate": "供应商限流",
+    "timeout": "模型响应超时",
+    "schema": "模型返回无法解析为约定结构",
+    "request": "请求被供应商拒绝",
+    "unavailable": "模型服务不可达",
+    "config": "未配置模型密钥",
+}
+
 
 def _read_cache_key(paper: dict, mode: str) -> str:
     payload = json.dumps(paper, ensure_ascii=False, sort_keys=True, default=str)
@@ -212,6 +223,7 @@ def brief(paper: dict) -> dict:
         "concept_coverage": paper.get("concept_coverage"),
         "credibility": paper.get("credibility"),
         "aggregate": paper.get("aggregate", False),
+        "aggregate_fallback": paper.get("aggregate_fallback", False),
         "aggregate_sources": paper.get("aggregate_sources", []),
     }
 
@@ -312,15 +324,21 @@ def _normalize_read_fields(data: dict | None) -> dict:
     }
 
 
-def _llm_read(paper: dict) -> dict | None:
+def _llm_read(paper: dict) -> tuple[dict | None, str]:
+    """Return ``(fields, degrade_reason)``.
+
+    The reason matters to the caller: a model that was configured and failed this time must not
+    have its rule-based fallback cached under a model-enabled key, because the user could then
+    raise their budget and still be served offline text.
+    """
     if not config.LLM_ENABLED:
-        return None
+        return None, ""
     cache_key = _llm_read_cache_key(paper)
     with _LLM_READ_LOCK:
         cached = _LLM_READ_CACHE.get(cache_key)
         if cached is not None:
             _LLM_READ_CACHE.move_to_end(cache_key)
-            return copy.deepcopy(cached)
+            return copy.deepcopy(cached), ""
     user = (
         "请分析以下论文文本，输出 JSON：\n"
         "{\n"
@@ -333,19 +351,19 @@ def _llm_read(paper: dict) -> dict | None:
         '  "section_notes": [{"title": "章节", "page": 1, "note": "中文解读"}]\n'
         "}\n\n论文文本：\n" + _text_for_llm(paper)
     )
-    data, _ = llm_gateway.audited_chat_json(
+    data, meta = llm_gateway.audited_chat_json(
         ANALYST_PROMPT, user, purpose="read", schema=READ_SCHEMA,
         temperature=0.2, max_tokens=16384, use_cache=True,
     )
     normalized = _normalize_read_fields(data)
     if not any(normalized.get(key) for key in ("tldr", "problem", "method")):
-        return None
+        return None, str(meta.get("degrade_reason") or "schema")
     with _LLM_READ_LOCK:
         _LLM_READ_CACHE[cache_key] = copy.deepcopy(normalized)
         _LLM_READ_CACHE.move_to_end(cache_key)
         while len(_LLM_READ_CACHE) > _LLM_READ_CACHE_MAX:
             _LLM_READ_CACHE.popitem(last=False)
-    return copy.deepcopy(normalized)
+    return copy.deepcopy(normalized), ""
 
 
 def _first_sentences(text: str, count: int = 3) -> str:
@@ -451,7 +469,7 @@ def read_paper(paper: dict, mode: str = "5min") -> dict:
     if cached is not None:
         return copy.deepcopy(cached)
     curated = bool(paper.get("curated"))
-    llm_data = _llm_read(paper) if not curated else None
+    llm_data, read_reason = (None, "") if curated else _llm_read(paper)
     heuristic = _heuristic_fields(paper) if not curated and not llm_data else None
     abstract = abstract_of(paper)
     raw_tldr = _strip_abstract_heading(_coerce_text(paper.get("tldr"), 1200))
@@ -473,6 +491,9 @@ def read_paper(paper: dict, mode: str = "5min") -> dict:
         note = "内置演示语料：展示已解析的原文节选与人工校订的结构化字段。"
     elif extraction_mode == "llm":
         note = "已使用配置的模型进行结构化解读；数值仍以原文证据为准。"
+    elif read_reason:
+        note = (f"已配置模型，但本次结构化解读未完成（{READ_DEGRADE_LABELS.get(read_reason, read_reason)}），"
+                "已回退规则抽取；本次结果未缓存，稍后可重试获得模型解读。")
     else:
         note = "未配置模型：当前使用规则抽取（问题/方法/贡献/局限）展示摘要或全文节选；配置模型后可获得更细的字段与翻译。"
     result = {
@@ -507,11 +528,15 @@ def read_paper(paper: dict, mode: str = "5min") -> dict:
         result[key] = _coerce_text(result.get(key), text_limit)
     for key in ("novelty", "limitations", "reviewer_questions"):
         result[key] = _coerce_list(result.get(key))
-    with _READ_LOCK:
-        _READ_CACHE[cache_key] = copy.deepcopy(result)
-        _READ_CACHE.move_to_end(cache_key)
-        while len(_READ_CACHE) > _READ_CACHE_MAX:
-            _READ_CACHE.popitem(last=False)
+    if not read_reason:
+        # Only cache a result that reflects this key's configuration. Caching a degraded one
+        # would keep serving rule text under a key that says a model was configured, and the
+        # user could raise their budget and still get the offline fields back.
+        with _READ_LOCK:
+            _READ_CACHE[cache_key] = copy.deepcopy(result)
+            _READ_CACHE.move_to_end(cache_key)
+            while len(_READ_CACHE) > _READ_CACHE_MAX:
+                _READ_CACHE.popitem(last=False)
     return result
 
 

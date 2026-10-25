@@ -640,6 +640,33 @@ def main() -> int:
     check("H1 写到标准输出的 JSON 都先切到 UTF-8（`--json` 是给管道消费的，不能跟着控制台区域编码走）",
           not raw_json, f"未包 make_json_stdout() 的 JSON 输出：{raw_json}")
 
+    # I. structural invariant: an id that reaches a file name has to be validated or
+    #    sanitized in the module that joins it, or a URL segment / imported archive can
+    #    walk out of the data directory. Only external-id shaped values are considered,
+    #    so `f"page-{index + 1}.png"` is not mistaken for a risk.
+    sanitizer_tokens = ("require_safe_id", "is_safe_id", "fullmatch", "_safe_name", "_slug", "hexdigest")
+    joined_files: list[str] = []
+    for path in sorted((ROOT / "app").rglob("*.py")):
+        text = path.read_text(encoding="utf-8")
+        risky: list[int] = []
+        for node in ast.walk(ast.parse(text, filename=str(path))):
+            if not (isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div)
+                    and isinstance(node.right, ast.JoinedStr)):
+                continue
+            for part in node.right.values:
+                if not isinstance(part, ast.FormattedValue):
+                    continue
+                expr = part.value
+                names = [expr.id] if isinstance(expr, ast.Name) else [
+                    sub.id for sub in ast.walk(expr) if isinstance(sub, ast.Name)
+                ]
+                if any(name.endswith("_id") or name in {"doi", "key", "name", "source"} for name in names):
+                    risky.append(node.lineno)
+        if risky and not any(token in text for token in sanitizer_tokens):
+            joined_files.append(f"{path.relative_to(ROOT)}:{sorted(set(risky))[:4]}")
+    check("I1 由外部 id 拼文件名的模块都在本模块内校验或净化（否则一个 URL 段就能越出数据目录）",
+          not joined_files, f"未校验的 id→路径拼接：{joined_files}")
+
     passed = sum(1 for item in RESULTS if item["ok"])
     payload = {"checks": RESULTS, "passed": passed, "total": len(RESULTS), "project_id": pid}
     if out_path:

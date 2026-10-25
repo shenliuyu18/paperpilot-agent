@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import json
 
-from . import project_state
+from . import identifiers, project_state
 
 DRAFT_TYPES = {"paragraph", "bullet", "quote", "note"}
 DRAFT_STATUSES = {"draft", "needs_evidence", "checked"}
@@ -240,6 +240,9 @@ def snapshot(draft: dict, version_id: str, label: str, reason: str) -> dict:
     data = copy.deepcopy(draft)
     data.pop("versions", None)
     project_id = str(draft.get("project_id") or "")
+    # Version ids normally come from _next_version_id, but a restored archive supplies
+    # its own; an unvalidated one walks out of the versions directory.
+    version_id = identifiers.require_safe_id(version_id, "版本标识符")
     path = versions_dir(project_id) / f"{version_id}.json"
     with project_state.project_lock():
         temp = path.with_suffix(".json.tmp")

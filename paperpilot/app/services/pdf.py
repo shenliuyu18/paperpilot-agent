@@ -9,7 +9,7 @@ from pathlib import Path
 import pymupdf
 
 from .. import config
-from . import ocr
+from . import identifiers, ocr
 
 HEADING_FULL = re.compile(r"^(?:[IVXLC]+)\.\s+[A-Z][A-Z0-9 ,/&:()\-]{2,90}$")
 HEADING_SUB = re.compile(r"^[A-Z]\.\s+[A-Z][A-Za-z0-9 ,/&:()\-]{2,90}$")
@@ -839,13 +839,9 @@ def parse_pdf_bytes(data: bytes, filename: str) -> dict:
     return paper
 
 
-_SAFE_PAPER_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$")
-
-
 def local_pdf_path(paper_id: str) -> Path | None:
     """Return the stored PDF for an uploaded or bundled paper, if present."""
-    paper_id = str(paper_id or "")
-    if not _SAFE_PAPER_ID.fullmatch(paper_id):
+    if not identifiers.is_safe_id(str(paper_id or "")):
         return None
     candidates = [
         config.UPLOAD_DIR / f"{paper_id}.pdf",

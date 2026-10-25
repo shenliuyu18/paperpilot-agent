@@ -63,6 +63,7 @@
     modeDetail: $("#modeDetail"),
     resultMeta: $("#resultMeta"),
     resultsList: $("#resultsList"),
+    sourceNotice: $("#sourceNotice"),
     resultsHead: $(".results-head"),
     queryInput: $("#queryInput"),
     sourceSelect: $("#sourceSelect"),
@@ -268,6 +269,12 @@
       if (saveButton) {
         event.stopPropagation();
         toggleResultSave(saveButton.dataset.saveId);
+        return;
+      }
+      const addButton = event.target.closest(".result-add");
+      if (addButton) {
+        event.stopPropagation();
+        addPaperToProject(addButton.dataset.addProject);
         return;
       }
       const checkbox = event.target.closest(".result-check");
@@ -497,6 +504,29 @@
     `).join("");
   }
 
+  function renderSourceNotice(status) {
+    if (!el.sourceNotice) return;
+    const sources = (status && status.aggregate && status.sources) || [];
+    if (!sources.length) {
+      el.sourceNotice.innerHTML = "";
+      el.sourceNotice.hidden = true;
+      return;
+    }
+    const rows = sources.map((item) => {
+      const label = item.label || item.source || "来源";
+      const outcome = item.status === "ok"
+        ? `${item.count || 0} 篇`
+        : item.status === "timeout" ? "未返回（超时）" : item.status === "skipped" ? "未参与" : "未返回（失败）";
+      const detail = item.detail ? `：${item.detail}` : "";
+      return `<li>${esc(label)} — ${esc(outcome)}${esc(detail)}</li>`;
+    }).join("");
+    const headline = status.fallback
+      ? "在线来源本轮没有取到结果，下面显示的是内置演示语料，不是实时检索结果。"
+      : "多源聚合检索的各来源本轮状态：";
+    el.sourceNotice.hidden = false;
+    el.sourceNotice.innerHTML = `<div class="warn-box">${esc(headline)}<ul class="source-notice-list">${rows}</ul></div>`;
+  }
+
   async function doSearch() {
     const query = (el.queryInput.value || "").trim();
     if (!query) {
@@ -524,6 +554,7 @@
       const cached = (data.papers || []).some((paper) => paper.cached);
       const layers = data.layers || {};
       el.resultMeta.textContent = `${data.count} 篇 · ${sourceLabelFor(el.sourceSelect.value)}${cached ? " · 缓存结果" : ""}${data.count ? ` · 直接 ${layers["直接相关"] || 0} / 方法 ${layers["方法参考"] || 0} / 背景 ${layers["背景脉络"] || 0}` : ""}`;
+      renderSourceNotice(data.source_status);
       renderLayerFilter();
       renderResults();
       if (state.papers.length) {
@@ -536,6 +567,7 @@
     } catch (error) {
       el.resultsList.innerHTML = `<div class="warn-box">检索失败：${esc(error.message)}</div>`;
       el.resultMeta.textContent = "检索失败";
+      renderSourceNotice(null);
       toast(error.message, true);
     } finally {
       restoreButton(el.searchBtn);
@@ -581,12 +613,14 @@
       const aggregateBadge = paper.aggregate && (paper.aggregate_sources || []).length > 1
         ? badge(`多源 ${paper.aggregate_sources.length}`, "pink")
         : "";
+      const fallbackBadge = paper.aggregate_fallback ? badge("回退演示语料", "amber") : "";
       const highlight = (paper.highlights || []).slice(0, 1).join(" · ");
       const metricLine = (paper.metrics_preview || []).slice(0, 2).map((item) => `${item.key} ${item.value}`).join(" · ");
       const saved = isSaved(paper.id);
       return `
         <article class="result-card ${active} ${selectedClass}" data-id="${esc(paper.id)}">
           <button class="result-save ${saved ? "saved" : ""}" type="button" data-save-id="${esc(paper.id)}" title="${saved ? "已收藏，点击移除" : "收藏到我的库"}" aria-label="${saved ? "已收藏，点击移除" : "收藏到我的库"}">${saved ? "★" : "☆"}</button>
+          <button class="result-add" type="button" data-add-project="${esc(paper.id)}" title="加入项目引用池" aria-label="加入项目引用池">加入项目</button>
           <div class="result-top">
             <input class="result-check" type="checkbox" data-id="${esc(paper.id)}" ${checked} aria-label="选择 ${esc(shortTitle(paper.title, 30))}" />
             <div class="result-index">${String(index + 1).padStart(2, "0")}</div>
@@ -598,7 +632,7 @@
                 <span>${esc(authorsText(paper.authors))}</span>
               </div>
               <p class="result-tldr">${esc(paper.tldr || "摘要待生成。")}</p>
-              <div class="result-badges">${layerBadge}${credBadge}${sourceTypeBadge}${sourceBadge}${textBadge}${cacheBadge}${aggregateBadge}</div>
+              <div class="result-badges">${layerBadge}${credBadge}${sourceTypeBadge}${sourceBadge}${textBadge}${cacheBadge}${aggregateBadge}${fallbackBadge}</div>
               ${paper.layer_reason ? `<div class="result-layer-note">${esc(paper.layer_reason)}</div>` : ""}
               ${highlight || metricLine ? `<div class="result-highlight">${esc(highlight || metricLine)}</div>` : ""}
             </div>
@@ -670,6 +704,44 @@
       if (state.papers.length) renderResults();
       if (state.tab === "library") renderLibrary();
       toast("已从研究库移除");
+      return true;
+    } catch (error) {
+      toast(error.message, true);
+      return false;
+    }
+  }
+
+  async function pickProject() {
+    const data = await api("/api/projects");
+    const projects = data.projects || [];
+    if (!projects.length) {
+      toast("还没有研究项目，请先在“研究项目”里新建一个。", true);
+      return "";
+    }
+    const lines = projects.map((project, index) => `${index + 1}. ${project.title}`).join("\n");
+    const answer = (window.prompt(`加入哪个项目的引用池？\n${lines}\n输入序号：`, "1") || "").trim();
+    const index = Number(answer) - 1;
+    if (!Number.isInteger(index) || index < 0 || index >= projects.length) {
+      toast("未选择项目。", true);
+      return "";
+    }
+    return projects[index].id;
+  }
+
+  async function addPaperToProject(paperId, projectId = "") {
+    try {
+      const pid = projectId || (await pickProject());
+      if (!pid) return false;
+      const data = await api(`/api/projects/${encodeURIComponent(pid)}/papers`, {
+        method: "POST",
+        body: JSON.stringify({ paper_ids: [paperId] }),
+      });
+      const missing = data.missing || [];
+      if (missing.length) {
+        toast(`论文未找到：${missing.join("、")}`, true);
+        return false;
+      }
+      toast("已加入项目引用池");
       return true;
     } catch (error) {
       toast(error.message, true);
@@ -867,6 +939,7 @@
           </div>
           <div class="library-actions">
             <button class="btn btn-small btn-primary" type="button" data-library-open="${esc(item.paper_id)}">打开精读</button>
+            <button class="btn btn-small" type="button" data-library-add-project="${esc(item.paper_id)}">加入项目</button>
             <button class="btn btn-small" type="button" data-library-save="${esc(item.paper_id)}">保存笔记</button>
             <button class="btn btn-small btn-ghost" type="button" data-library-remove="${esc(item.paper_id)}">移除</button>
           </div>
@@ -984,6 +1057,9 @@
     });
     $$("[data-library-remove]", el.panel).forEach((button) => {
       button.addEventListener("click", () => removeFromLibrary(button.dataset.libraryRemove));
+    });
+    $$("[data-library-add-project]", el.panel).forEach((button) => {
+      button.addEventListener("click", () => addPaperToProject(button.dataset.libraryAddProject));
     });
   }
 
@@ -2897,6 +2973,7 @@
     const saved = isSaved(paper.id);
     const actions = [
       `<button class="btn btn-small ${saved ? "btn-pink" : ""}" data-read-action="save" type="button">${saved ? "★ 已收藏" : "☆ 收藏"}</button>`,
+      `<button class="btn btn-small" data-read-action="add-project" type="button">加入项目</button>`,
       `<button class="btn btn-small" data-read-action="translate" type="button">翻译</button>`,
       `<button class="btn btn-small" data-read-action="notes" type="button">导出精读笔记</button>`,
       `<button class="btn btn-small" data-read-action="innovate" type="button">提炼创新点</button>`,
@@ -3063,6 +3140,7 @@
       button.addEventListener("click", () => {
         const action = button.dataset.readAction;
         if (action === "save") saveCurrentPaper();
+        if (action === "add-project") addPaperToProject(paper.id);
         if (action === "translate") switchTab("translate");
         if (action === "notes") downloadMarkdown(readNoteMarkdown(data), "paperpilot-note.md");
         if (action === "innovate") switchTab("innovate");
@@ -4005,6 +4083,9 @@
   }
 
   async function switchTab(tab) {
+    // Leaving the projects view tears down the draft workbench, so unsaved
+    // text has to be flushed before the panel is replaced.
+    if (window.PaperPilotDraft?.isDirty?.() && !(await window.PaperPilotDraft.flush())) return;
     state.tab = tab;
     if (tab !== "agent") stopAgentPolling();
     if (tab !== "agent") window.PaperPilotLive?.disconnect();
@@ -5084,6 +5165,8 @@
     renderAgentRun,
     startAgentPolling,
     stopAgentPolling,
+    addPaperToProject,
+    pickProject,
     panel: el.panel,
   };
 

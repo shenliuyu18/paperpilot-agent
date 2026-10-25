@@ -77,7 +77,7 @@ def _parse_routes(raw: str) -> dict[str, str]:
 
 
 LLM_ROUTES = _parse_routes(os.getenv("PAPERPILOT_LLM_ROUTES", ""))
-APP_VERSION = "8.1.4"
+APP_VERSION = "8.2.0"
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 ASSISTANT_MAX_MESSAGES = 60
 ASSISTANT_LLM_MAX_CALLS = 2
@@ -88,4 +88,16 @@ MAX_CLAIMS_PER_BLOCK = 12
 CLAIM_LENGTH_RATIO = float(os.getenv("PAPERPILOT_CLAIM_LENGTH_RATIO", "1.35"))
 
 LIBRARY_FILE = DATA_DIR / "library.json"
+
+
+def cors_allow_origins() -> list[str]:
+    """Browser origins allowed to call this API. An empty list means same-origin only.
+
+    ``*`` is dropped on purpose: the app has no authentication, so a wildcard lets any page the
+    user visits read their library, projects and stored model key straight from their own machine.
+    Set ``PAPERPILOT_ALLOW_ORIGINS=https://your.front`` to opt a specific front end back in.
+    """
+    raw = os.getenv("PAPERPILOT_ALLOW_ORIGINS", "")
+    return [item for item in (part.strip() for part in raw.split(",")) if item and item != "*"]
+
 CONTACT_EMAIL = (os.getenv("PAPERPILOT_CONTACT_EMAIL") or "paperpilot@example.com").strip()

@@ -100,7 +100,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>PaperPilot · 论文领航员</title>
-<meta name="description" content="PaperPilot v8.1.4：支持证据高亮定位、原文页、OCR 与可复现研究档案的智能体。顶栏即可接入你自己的大模型（OpenAI、DeepSeek、Kimi、通义千问、GLM 或任意 OpenAI 兼容网关），密钥只留在当前实例、接口只回掩码，五类任务可分用途指定模型。保留项目 Copilot、引用接地与语义核查、跨轮项目记忆、实时干预与 SSE、结构化草稿工作台与证据锚点核查、DOCX/PDF 等六种导出、矛盾模型复核、跨进程订阅锁、线上 PDF、投稿包与审稿视角，以及自适应研究 Agent、混合检索与引用核验。" />
+<meta name="description" content="PaperPilot v8.2.0：支持证据高亮定位、原文页、OCR 与可复现研究档案的智能体。本版把边界收紧——标识符统一净化、CORS 默认同源、自建镜像不含用户数据与密钥，多源聚合检索逐源交代状态，读过的论文可进项目引用池并被引用，草稿正文不再被静默丢弃。顶栏即可接入你自己的大模型（OpenAI、DeepSeek、Kimi、通义千问、GLM 或任意 OpenAI 兼容网关），密钥只留在当前实例、接口只回掩码，五类任务可分用途指定模型。保留项目 Copilot、引用接地与语义核查、跨轮项目记忆、实时干预与 SSE、结构化草稿工作台与证据锚点核查、DOCX/PDF 等六种导出、矛盾模型复核、跨进程订阅锁、线上 PDF、投稿包与审稿视角，以及自适应研究 Agent、混合检索与引用核验。" />
 <style>
   :root{
     --bg:#050b16;--bg2:#081525;--panel:rgba(13,29,50,.78);--line:rgba(137,181,230,.16);
@@ -516,7 +516,7 @@ docker compose up --build</pre>
 
 <footer>
   <div class="wrap" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;width:100%">
-    <span>PaperPilot 8.1.4 · 可交付稿 · 投稿包 · 自配模型 · 可信核查</span>
+    <span>PaperPilot 8.2.0 · 可交付稿 · 投稿包 · 自配模型 · 可信核查</span>
     <span><a href="{{GITHUB}}" target="_blank" rel="noopener">GitHub 源码</a> · 静态展示页</span>
   </div>
 </footer>

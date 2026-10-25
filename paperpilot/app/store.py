@@ -6,6 +6,7 @@ import threading
 from pathlib import Path
 
 from . import config
+from .services.identifiers import require_safe_id
 
 UPLOAD_PAPERS: dict[str, dict] = {}
 _LOCK = threading.RLock()
@@ -26,6 +27,9 @@ def register_upload(paper: dict) -> None:
     paper_id = paper.get("id")
     if not paper_id:
         raise ValueError("上传论文缺少 id。")
+    # Ids inside an imported archive are external input; without this check one could
+    # write a `*.paper.json` anywhere the process can reach.
+    paper_id = require_safe_id(paper_id, "论文标识符")
     path = _upload_dir() / f"{paper_id}.paper.json"
     temp = path.with_suffix(".json.tmp")
     with _LOCK:

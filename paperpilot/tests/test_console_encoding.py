@@ -72,6 +72,20 @@ class ConsoleSafeStreamTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr[-400:])
         self.assertEqual(proc.stdout.split(), ["replace", "backslashreplace"])
 
+    def test_a_surrogateescape_console_is_made_safe(self) -> None:
+        """Windows opens a redirected stdout with surrogateescape, which still raises on ``•``."""
+        proc = _run(
+            "from scripts._console import make_console_safe\n"
+            "import sys\n"
+            "make_console_safe()\n"
+            "print(sys.stdout.errors)\n"
+            f"print('PASS check | detail={UNENCODABLE}ok{UNENCODABLE}', flush=True)\n",
+            "gbk:surrogateescape",
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr[-400:])
+        self.assertIn("replace", proc.stdout)
+        self.assertIn("ok", proc.stdout)
+
     def test_the_bug_is_reproducible_without_the_helper(self) -> None:
         """If this stops failing, the two tests above assert nothing."""
         proc = _run(

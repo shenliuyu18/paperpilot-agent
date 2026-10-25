@@ -21,6 +21,25 @@ MAX_PROJECT_QUESTIONS = 80
 MAX_PROJECT_DECISIONS = 120
 MAX_PROJECT_PAPERS = 100
 
+# The fields a citation-pool record must carry. draft_service.add_citation
+# reads these to build the reference entry, so a record that only holds a
+# title would produce an empty reference list.
+PAPER_MERGE_FIELDS = (
+    "title",
+    "authors",
+    "year",
+    "venue",
+    "doi",
+    "url",
+    "source",
+    "entry_type",
+    "volume",
+    "issue",
+    "pages",
+    "publisher",
+    "language",
+)
+
 # Shared by API and worker threads: every project read-modify-write cycle must
 # run inside project_lock() so concurrent saves cannot drop another writer's
 # changes. This is the same reentrant lock as the run store (agent_state.
@@ -267,6 +286,74 @@ def _run_papers(run: dict) -> list[dict]:
     return data if isinstance(data, list) else []
 
 
+def _paper_id_of(paper: dict) -> str:
+    """The id of a paper in any shape the app stores it in.
+
+    Demo corpus and uploaded papers use ``id``; research-library records use
+    ``paper_id``.
+    """
+    return str(paper.get("id") or paper.get("paper_id") or "").strip()
+
+
+def merge_paper_record(current: dict, paper: dict, paper_id: str = "") -> dict:
+    """Merge one paper's bibliographic fields into a citation-pool record.
+
+    Promoted runs and the manual "加入项目" button must produce the same
+    record shape, otherwise a paper added by hand would render a different
+    reference than the same paper picked up by a run.
+    """
+    merged = {**current}
+    for key in PAPER_MERGE_FIELDS:
+        value = paper.get(key)
+        if value not in (None, "", []):
+            merged[key] = copy.deepcopy(value)
+    merged["id"] = paper_id or _paper_id_of(paper)
+    merged["updated_at"] = _now()
+    return merged
+
+
+def remember_papers(project_id: str, papers: list[dict]) -> dict:
+    """Merge papers into a project's citation pool.
+
+    This is the writer behind the UI's "加入项目" button. Before it existed,
+    ``memory["papers"]`` had exactly one writer — promoting an Agent run —
+    so a student who searched, uploaded and read five papers still saw an
+    empty citation pool in the draft workbench.
+    """
+    with _LOCK:
+        memory = read_memory(project_id)
+        pool = memory.get("papers")
+        if not isinstance(pool, dict):
+            pool = {}
+            memory["papers"] = pool
+        changed = False
+        for paper in papers or []:
+            if not isinstance(paper, dict):
+                continue
+            paper_id = _paper_id_of(paper)
+            if not paper_id:
+                continue
+            pool[paper_id] = merge_paper_record(pool.get(paper_id) or {}, paper, paper_id)
+            changed = True
+        if changed:
+            memory = trim_memory(memory)
+            write_memory(project_id, memory)
+        return memory
+
+
+def forget_paper(project_id: str, paper_id: str) -> bool:
+    """Drop one paper from the citation pool. True when it was there."""
+    with _LOCK:
+        memory = read_memory(project_id)
+        pool = memory.get("papers")
+        if not isinstance(pool, dict) or paper_id not in pool:
+            return False
+        pool.pop(paper_id, None)
+        memory["papers"] = pool
+        write_memory(project_id, memory)
+        return True
+
+
 def promote_run(project_id: str, run: dict) -> dict:
     with _LOCK:
         return _promote_run(project_id, run)
@@ -362,16 +449,12 @@ def _promote_run(project_id: str, run: dict) -> dict:
         existing_decisions.add(decision_id)
 
     for paper in _run_papers(run):
-        paper_id = str(paper.get("id") or "")
+        paper_id = _paper_id_of(paper)
         if not paper_id:
             continue
-        current = memory["papers"].get(paper_id) or {}
-        merged = {**current}
-        for key in ("title", "authors", "year", "venue", "doi", "url", "source"):
-            if paper.get(key) not in (None, "", []):
-                merged[key] = copy.deepcopy(paper[key])
-        merged["id"] = paper_id
-        memory["papers"][paper_id] = merged
+        memory["papers"][paper_id] = merge_paper_record(
+            memory["papers"].get(paper_id) or {}, paper, paper_id
+        )
 
     # Stage the watermark in the same atomic write as the promoted data: if the
     # write fails, the run stays absent from reconciled_runs and is retried by
@@ -398,8 +481,17 @@ def trim_memory(memory: dict) -> dict:
     memory["reconciled_runs"] = reconciled_run_ids(memory)
     papers = memory.get("papers") or {}
     if len(papers) > MAX_PROJECT_PAPERS:
-        keep = [item.get("paper_id") for item in memory["evidence"][:MAX_PROJECT_PAPERS]]
-        memory["papers"] = {key: value for key, value in papers.items() if key in keep}
+        # Papers the project has evidence for outrank the rest; among equals
+        # the most recently touched one wins. The old rule kept only papers
+        # that appeared in an evidence item, so a hand-added paper was
+        # dropped without a trace once the pool grew.
+        cited = {str(item.get("paper_id") or "") for item in memory["evidence"]}
+        ordered = sorted(
+            papers.items(),
+            key=lambda pair: (pair[0] in cited, str(pair[1].get("updated_at") or "")),
+            reverse=True,
+        )
+        memory["papers"] = dict(ordered[:MAX_PROJECT_PAPERS])
     return memory
 
 
@@ -454,6 +546,7 @@ def project_counts(project: dict, memory: dict, draft: dict | None = None) -> di
         "runs": len(project.get("run_ids") or []),
         "evidence": len(memory.get("evidence") or []),
         "open_questions": sum(1 for item in memory.get("open_questions") or [] if item.get("status") == "open"),
+        "papers": len(memory.get("papers") or {}),
         "draft_sections": len(sections),
         "draft_blocks": blocks,
     }

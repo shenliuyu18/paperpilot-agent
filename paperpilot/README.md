@@ -6,6 +6,8 @@
 
 更新记录见 [`../CHANGELOG.md`](../CHANGELOG.md)。
 
+> **8.2.0 边界不再骗人**：本地安装曾因 CORS 通配与标识符未校验，让任意网页用简单 GET 读到本机保存的 API key；现在标识符统一净化（`^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$`）、CORS 默认同源，自建镜像不再把上传数据与密钥打进镜像。聚合检索在在线源全败时不再静默换成演示语料，逐源交代状态与原因；写死的假性能基准已删除。读过的论文能进项目引用池并被引用；草稿正文在切标签、重挂载与服务端改写时不再被静默丢弃。**715/715 测试**、104/104 验收、46/46 一致性、41/41 回归。
+>
 > **8.1.4 验证工具在中文 Windows 控制台上可靠**：`acceptance.py` 过去在 GBK 区域编码下跑到第 82 条就因运行时文本里的 `•` 抛 `UnicodeEncodeError` 退出（rc=1，看起来像构建失败）。现在 28 个会打印运行时文本的脚本都以第一条语句声明安全输出（保留控制台原编码、只替换无法显示的字符，落盘仍为 UTF-8），一致性审计新增第 44 项 `G1`（第一次打印前必须声明）与第 45 项 `H1`（写到标准输出的 JSON 必须显式 UTF-8，档案 CLI 的 `--json` 曾按控制台编码写进管道）两条结构不变量；跨进程订阅用例不再泄漏子进程管道。**677/677 测试**（`-W error::ResourceWarning` 下同样全绿）、94/94 验收（强制 GBK 控制台实测 rc=0）、45/45 一致性、13/13 助手评测。
 >
 > **8.1.3 模型治理补齐出口**：在线问答与整段翻译改走统一网关（`purpose=ask`/`translation_full`），审计、预算与失败降级一致，整段翻译失败返回 400 而非 500；对比降级结果不再写入缓存；预算拦截在非 JSON 路径也留审计；缓存命中不再被预算挡住；长补全超时阈值降到 800 tokens，低于默认 60 秒的用户超时不再被抬升。**671/671 测试**、94/94 验收、43/43 一致性、13/13 助手评测。
@@ -305,7 +307,6 @@ paperpilot/
 │  ├─ eval_assistant.py    v3.0 Copilot 与在线路径评测
 │  ├─ mock_llm_server.py   本地 OpenAI-compatible mock 服务
 │  ├─ browser_matrix.py    Chromium/Firefox/WebKit 冒烟
-│  ├─ bench_v07.py         性能基准
 │  ├─ real_world_check.py  真实 PDF 与联网真机检查
 │  ├─ capture_screenshots_v07.py  界面截图与下载验证
 │  ├─ capture_screenshots_v08.py  自定义来源/术语库/留痕验证
@@ -405,7 +406,7 @@ python scripts/eval_workspace.py
 python scripts/eval_agent.py
 ```
 
-它们是流程和技术链路测试，不是人工质量评测；人工评测方案见 [`docs/评测方案.md`](docs/评测方案.md)。性能基准：`python scripts/bench_v07.py`；v0.9 任务/检索复测见 `docs/真机能力报告.md`。
+它们是流程和技术链路测试，不是人工质量评测；人工评测方案见 [`docs/评测方案.md`](docs/评测方案.md)。本项目不再随包发布静态性能数字（毫秒级指标随机器与缓存状态漂移），请在目标机器上实测并记录本次运行结果；历史实测记录见 `docs/真机能力报告.md`。
 
 ## 关键设计
 
@@ -467,8 +468,8 @@ python scripts/eval_agent.py
 - v4.2 真实论文 Agent：auto / checkpoint / step / budget / controls 五种运行全部完成；每轮 11–14 动作、报告 8.9k–13.1k 字符；非 ADC 主题的 Agent、选题、草稿与成果页 0 次 ADC/CIM/存算术语；浏览器真实检索→全自动运行 0 console error、0 横向溢出。
 - v4.1 图谱：3 篇论文 27 节点 / 96 边；聚焦 `CIM` 显示 3 条原文摘句与来源论文，重置聚焦/再次点击取消聚焦生效；1600px 与 390px 横向溢出 0，0 console error；首次构建 2.44 ms，缓存命中 0.59 ms。
 - 浏览器：检索改选、选题确认、追问、报告下载；**0 console error**；390px 横向溢出 0；step 模式每次批准只执行一个动作。
-- 回归测试 **41/41**，当前测试总量 **671/671**（含 v1.0 状态/规划/动作/worker/API、v2.0 项目/控制/SSE/对比/草稿/核查/导出，v3.0 Copilot/接地/网关/语义核查/前端契约，v4.x 概念图谱/缓存边界/安全头/真实论文 Agent 运行质量，v5–v8.0 稿件、档案、OCR、原文页与证据高亮，v8.1 内联引用、在线比较、离线证据回退与结构化字段清洗，v8.1.1 成功缓存、引用编号顺序、`citations` 三态语义、运行账本接地与字段清洗回归，v8.1.2 运行预算逐条记账与精读降级回归）。
-- 复测脚本：`python scripts/real_world_check.py --pdf-dir <包含 5 篇 PDF 的目录>`；v0.7 性能基准 `python scripts/bench_v07.py`；v0.8 截图与下载验证 `python scripts/capture_screenshots_v08.py`；v2.0 工作区截图 `python scripts/capture_screenshots_v20.py`；v3.0 截图 `python scripts/capture_screenshots_v30.py`；Copilot 评测 `python scripts/eval_assistant.py`；浏览器矩阵 `python scripts/browser_matrix.py`。
+- 回归测试 **41/41**，当前测试总量 **715/715**（含 v1.0 状态/规划/动作/worker/API、v2.0 项目/控制/SSE/对比/草稿/核查/导出，v3.0 Copilot/接地/网关/语义核查/前端契约，v4.x 概念图谱/缓存边界/安全头/真实论文 Agent 运行质量，v5–v8.0 稿件、档案、OCR、原文页与证据高亮，v8.1 内联引用、在线比较、离线证据回退与结构化字段清洗，v8.1.1 成功缓存、引用编号顺序、`citations` 三态语义、运行账本接地与字段清洗回归，v8.1.2 运行预算逐条记账与精读降级回归，v8.1.4 控制台编码与 JSON 出口，v8.2 标识符边界、CORS 边界、镜像内容、引用池、聚合检索来源状态、脏稿守卫与模型治理回归）。
+- 复测脚本：`python scripts/real_world_check.py --pdf-dir <包含 5 篇 PDF 的目录>`；v0.8 截图与下载验证 `python scripts/capture_screenshots_v08.py`；v2.0 工作区截图 `python scripts/capture_screenshots_v20.py`；v3.0 截图 `python scripts/capture_screenshots_v30.py`；Copilot 评测 `python scripts/eval_assistant.py`；浏览器矩阵 `python scripts/browser_matrix.py`。
 
 完整数据、优化项与边界见 [`docs/真机能力报告.md`](docs/真机能力报告.md)。
 

@@ -82,6 +82,33 @@ class OnlineReadTranslateTests(unittest.TestCase):
 
     @patch.object(config, "LLM_ENABLED", True)
     @patch.object(llm_gateway, "audited_chat_json")
+    def test_a_degraded_read_is_not_cached_as_if_it_were_final(self, audited) -> None:
+        """The model is configured and failed this time: re-read must try again, not reuse.
+
+        The read cache key already carries the model configuration, so the only way a heuristic
+        answer gets cached under a model-enabled key is a degraded call — and then raising the
+        budget would still return offline text until the process restarted.
+        """
+        audited.return_value = (None, {"status": "fallback", "degrade_reason": "budget"})
+        first = analysis.read_paper(dict(PAPER), "5min")
+        second = analysis.read_paper(dict(PAPER), "5min")
+        self.assertEqual(audited.call_count, 2, "降级结果被缓存了：预算恢复后仍拿不到模型结果")
+        self.assertEqual(first["extraction_mode"], "heuristic")
+        self.assertEqual(second["extraction_mode"], "heuristic")
+        self.assertNotIn("未配置模型", first["note"], "已配置模型时不能说用户没配置")
+        self.assertIn("回退", first["note"])
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch.object(llm_gateway, "audited_chat_json")
+    def test_a_successful_read_is_still_cached(self, audited) -> None:
+        audited.return_value = ({"tldr": "模型摘要", "problem": "读出能耗", "method": "模拟 CIM 读出"},
+                                {"status": "ok"})
+        analysis.read_paper(dict(PAPER), "5min")
+        analysis.read_paper(dict(PAPER), "5min")
+        self.assertEqual(audited.call_count, 1, "成功结果应当复用，不重复扣费")
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch.object(llm_gateway, "audited_chat_json")
     def test_read_coerces_structured_fields_to_plain_text(self, audited) -> None:
         audited.return_value = ({
             "tldr": {"text": "模型摘要", "confidence": "high"},

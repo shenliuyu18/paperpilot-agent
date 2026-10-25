@@ -78,10 +78,13 @@ _AUDIT_MAX = 200
 _AUDIT_FILE = "llm_calls.json"
 
 
-def _cache_key(messages: list[dict[str, str]], temperature: float, max_tokens: int) -> str:
+def _cache_key(messages: list[dict[str, str]], temperature: float, max_tokens: int,
+               model: str = "") -> str:
     payload = json.dumps(
         {
-            "model": config.LLM_MODEL,
+            # The routed model, not just the default: per-purpose routing must not make
+            # one model's answer come back labelled as another model's.
+            "model": model or config.LLM_MODEL,
             "base_url": config.LLM_BASE_URL,
             "messages": messages,
             "temperature": temperature,
@@ -316,7 +319,7 @@ def audited_chat(
     model = _model_for(purpose)
     cache_key = ""
     if use_cache and temperature <= 0.2:
-        cache_key = _cache_key(messages, temperature, max_tokens)
+        cache_key = _cache_key(messages, temperature, max_tokens, model)
         cached = _cache_get(cache_key)
         if cached is not None:
             _record(
@@ -351,6 +354,14 @@ def audited_chat(
     except LLMBudgetExceeded as exc:
         _record_degrade(purpose, "budget", str(exc), run=effective_run)
         raise
+
+    # A missing key means no request ever leaves the process. Block it here, after the budgets so
+    # "预算已用尽" stays the reported reason when both are true, and charge nothing: a budget
+    # guards cost, and there is none.
+    if not config.LLM_ENABLED:
+        _record_degrade(purpose, "config", "未配置模型密钥，当前为离线规则模式。", run=effective_run)
+        raise llm.LLMUnavailable(
+            "未配置模型密钥，当前为离线规则模式；可在“模型设置”中填入自己的密钥。")
 
     started = time.perf_counter()
     try:
@@ -493,7 +504,7 @@ def audited_chat_json(
     # malformed answer is cached and every later request pays another repair call.
     response_cache_key = ""
     if use_cache and temperature <= 0.2:
-        response_cache_key = _cache_key(messages, temperature, max_tokens)
+        response_cache_key = _cache_key(messages, temperature, max_tokens, _model_for(purpose))
     try:
         text, meta = audited_chat(
             messages,
@@ -550,16 +561,29 @@ def audited_chat_json(
             run=run,
             use_cache=False,
         )
+    except LLMBudgetExceeded:
+        # The repair call is a real call and already audited its own block once.
+        # Recording it again here, as "schema", invented a failure that never happened.
+        return None, {**meta, "status": "fallback", "error": "budget",
+                      "degrade_reason": "budget"}
+    except Exception as exc:  # noqa: BLE001 - callers fall back offline
+        # A failed repair *call*: the reason comes from the transport, not from the schema.
+        reason = _degrade_reason(exc) or "schema"
+        _record_degrade(purpose, reason, type(exc).__name__)
+        return None, {**meta, "status": "fallback", "error": type(exc).__name__,
+                      "degrade_reason": reason}
+
+    # A repaired answer that still cannot be parsed or validated is a schema failure,
+    # and only a schema failure — keeping the two apart is what makes the audit readable.
+    try:
         payload = llm.extract_json(repaired)
         error = validate_payload(payload, schema) or ""
-        if error:
-            _record_degrade(purpose, "schema", error)
-            return None, {**repair_meta, "status": "fallback", "error": error,
-                          "degrade_reason": "schema"}
-        if response_cache_key:
-            _cache_put(response_cache_key, repaired)
-        return payload, {**repair_meta, "repaired": True}
-    except Exception as exc:  # noqa: BLE001 - callers fall back offline
-        _record_degrade(purpose, "schema", type(exc).__name__)
-        return None, {**meta, "status": "fallback", "error": type(exc).__name__,
+    except Exception as exc:  # noqa: BLE001 - malformed JSON is a schema failure
+        error = type(exc).__name__
+    if error:
+        _record_degrade(purpose, "schema", error)
+        return None, {**repair_meta, "status": "fallback", "error": error,
                       "degrade_reason": "schema"}
+    if response_cache_key:
+        _cache_put(response_cache_key, repaired)
+    return payload, {**repair_meta, "repaired": True}

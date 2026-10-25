@@ -149,5 +149,55 @@ class AutoSearchTests(unittest.TestCase):
             search._AUTO_COOLDOWN.clear()
 
 
+class AutoSearchReportTests(unittest.TestCase):
+    """The aggregate search has to say which sources actually answered."""
+
+    def setUp(self) -> None:
+        search._AUTO_COOLDOWN.clear()
+
+    def tearDown(self) -> None:
+        search._AUTO_COOLDOWN.clear()
+
+    def test_the_report_names_the_source_that_failed(self) -> None:
+        item = _paper("only", "Low-Power ADC", "ADC design.", "crossref")
+        with patch.object(search, "search_crossref", return_value=[item]), \
+             patch.object(search, "search_arxiv", side_effect=RuntimeError("arxiv down")), \
+             patch.object(search, "search_europepmc", return_value=[]):
+            report = search.search_auto_report("ADC", 4)
+        by_source = {row["source"]: row for row in report["sources"]}
+        self.assertEqual(by_source["crossref"]["status"], "ok")
+        self.assertEqual(by_source["crossref"]["count"], 1)
+        self.assertEqual(by_source["arxiv"]["status"], "failed")
+        self.assertIn("arxiv down", by_source["arxiv"]["detail"])
+        self.assertEqual(by_source["europepmc"]["status"], "ok")
+        self.assertEqual(by_source["europepmc"]["count"], 0)
+        self.assertEqual(by_source["europepmc"]["detail"], "本轮无命中")
+        self.assertFalse(report["fallback"])
+
+    def test_the_report_says_the_whole_aggregate_fell_back(self) -> None:
+        with patch.object(search, "search_crossref", side_effect=RuntimeError("down")), \
+             patch.object(search, "search_arxiv", side_effect=RuntimeError("down")), \
+             patch.object(search, "search_europepmc", side_effect=RuntimeError("down")):
+            report = search.search_auto_report("存算一体", 3)
+        self.assertTrue(report["fallback"])
+        self.assertTrue(all(row["status"] == "failed" for row in report["sources"]))
+        self.assertTrue(all(paper.get("aggregate_fallback") for paper in report["papers"]))
+
+    def test_a_cooling_source_is_reported_as_skipped(self) -> None:
+        search._auto_mark("arxiv", True)
+        with patch.object(search, "search_crossref", return_value=[_paper("one", "Low-Power ADC", "ADC design.")]), \
+             patch.object(search, "search_europepmc", return_value=[]):
+            report = search.search_auto_report("ADC", 4)
+        by_source = {row["source"]: row for row in report["sources"]}
+        self.assertEqual(by_source["arxiv"]["status"], "skipped")
+        self.assertIn("冷却", by_source["arxiv"]["detail"])
+        self.assertFalse(report["fallback"])
+
+    def test_non_aggregate_sources_report_nothing(self) -> None:
+        papers, status = search.search_with_report("存算一体 ADC", 3, "demo")
+        self.assertTrue(papers)
+        self.assertEqual(status, {})
+
+
 if __name__ == "__main__":
     unittest.main()

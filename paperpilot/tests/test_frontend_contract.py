@@ -28,10 +28,10 @@ class FrontendContractTests(unittest.TestCase):
     def test_index_loads_v3_assets_and_project_tab(self) -> None:
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
         self.assertIn('data-tab="projects"', html)
-        self.assertIn("/static/assistant.js?v=8.1.4", html)
-        self.assertIn("/static/assistant.css?v=8.1.4", html)
-        self.assertIn("/static/projects.js?v=8.1.4", html)
-        self.assertIn("/static/agent-live.js?v=8.1.4", html)
+        self.assertIn("/static/assistant.js?v=8.2.0", html)
+        self.assertIn("/static/assistant.css?v=8.2.0", html)
+        self.assertIn("/static/projects.js?v=8.2.0", html)
+        self.assertIn("/static/agent-live.js?v=8.2.0", html)
         self.assertIn(f"PaperPilot {config.APP_VERSION}", html)
 
     def test_new_frontend_modules_expose_namespaces(self) -> None:
@@ -47,7 +47,7 @@ class FrontendContractTests(unittest.TestCase):
         content = (ROOT / "static" / "draft.js").read_text(encoding="utf-8")
         self.assertIn("PaperPilotDraft", content)
         self.assertIn("async function mount(container, projectId)", content)
-        self.assertIn("window.PaperPilotDraft = { mount, focus }", content)
+        self.assertIn("window.PaperPilotDraft = { mount, focus, flush", content)
         self.assertIn("data-draft-save", content)
         self.assertIn("data-draft-export", content)
         self.assertIn("data-draft-audit", content)
@@ -59,10 +59,10 @@ class FrontendContractTests(unittest.TestCase):
         self.assertIn("data-draft-cite", content)
         self.assertIn("data-draft-restore", content)
         index = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("draft.js?v=8.1.4", index)
+        self.assertIn("draft.js?v=8.2.0", index)
         self.assertLess(
-            index.index("draft.js?v=8.1.4"),
-            index.index("agent-live.js?v=8.1.4"),
+            index.index("draft.js?v=8.2.0"),
+            index.index("agent-live.js?v=8.2.0"),
         )
 
     def test_draft_module_wires_revision_conflict_and_draft_api(self) -> None:
@@ -82,6 +82,27 @@ class FrontendContractTests(unittest.TestCase):
         self.assertIn("window.PaperPilot.api", content)
         self.assertIn("window.PaperPilot.esc", content)
         self.assertIn("window.PaperPilot.toast", content)
+
+    def test_dirty_draft_is_flushed_before_the_view_is_rebuilt(self) -> None:
+        draft = (ROOT / "static" / "draft.js").read_text(encoding="utf-8")
+        projects = (ROOT / "static" / "projects.js").read_text(encoding="utf-8")
+        app = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
+        # The workbench exports a flush the project view calls before it
+        # rebuilds itself.
+        self.assertIn("async function flush()", draft)
+        self.assertIn("window.PaperPilotDraft.flush()", projects)
+        self.assertIn("window.PaperPilotDraft.flush()", app)
+        # The remount path saves before it clears the local draft.
+        self.assertIn("if (state.dirty && !(await flush())) return;", draft)
+        # Leaving the page with unsaved text warns instead of dropping it.
+        self.assertIn('window.addEventListener("beforeunload"', draft)
+        # A failed save has to surface; the text must not disappear quietly.
+        self.assertIn("window.confirm", draft)
+        self.assertIn("state.saveError", draft)
+        # A revision conflict keeps the local body instead of reloading the
+        # server copy over it.
+        self.assertIn("bodyFingerprint", draft)
+        self.assertIn("adoptServerRevision", draft)
 
     def test_app_exposes_project_route(self) -> None:
         app = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
@@ -168,7 +189,7 @@ class FrontendContractTests(unittest.TestCase):
         self.assertIn("data-draft-semantic", draft)
         self.assertIn("data-draft-semantic-block", draft)
         self.assertIn("/draft/semantic-audit", draft)
-        self.assertIn("window.PaperPilotDraft = { mount, focus }", draft)
+        self.assertIn("window.PaperPilotDraft = { mount, focus, flush", draft)
 
     def test_leaving_run_detail_tears_down_live_stream(self) -> None:
         app = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
@@ -212,10 +233,10 @@ class FrontendContractTests(unittest.TestCase):
 
     def test_index_loads_manuscript_panel(self) -> None:
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("/static/manuscript.js?v=8.1.4", html)
-        self.assertIn("/static/submission.js?v=8.1.4", html)
-        self.assertIn("/static/submission.css?v=8.1.4", html)
-        self.assertIn("/static/manuscript.css?v=8.1.4", html)
+        self.assertIn("/static/manuscript.js?v=8.2.0", html)
+        self.assertIn("/static/submission.js?v=8.2.0", html)
+        self.assertIn("/static/submission.css?v=8.2.0", html)
+        self.assertIn("/static/manuscript.css?v=8.2.0", html)
 
     def test_manuscript_module_exposes_drawer_contract(self) -> None:
         js = (ROOT / "static" / "manuscript.js").read_text(encoding="utf-8")
@@ -249,8 +270,8 @@ class FrontendContractTests(unittest.TestCase):
 
     def test_model_drawer_is_mounted_in_the_topbar(self) -> None:
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("/static/model.js?v=8.1.4", html)
-        self.assertIn("/static/model.css?v=8.1.4", html)
+        self.assertIn("/static/model.js?v=8.2.0", html)
+        self.assertIn("/static/model.css?v=8.2.0", html)
         self.assertIn('id="modelBtn"', html)
         self.assertIn('id="modelCallout"', html)
         self.assertLess(
@@ -315,6 +336,27 @@ class FrontendContractTests(unittest.TestCase):
         self.assertIn(".page-viewer-toolbar", css)
         self.assertIn(".page-highlight", css)
 
+    def test_citation_pool_can_be_filled_and_pruned(self) -> None:
+        app = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
+        self.assertIn("async function addPaperToProject", app)
+        self.assertIn("data-add-project", app)
+        self.assertIn("data-library-add-project", app)
+        self.assertIn('data-read-action="add-project"', app)
+        self.assertIn("/papers", app)
+        self.assertIn("addPaperToProject,", app)
+
+        projects = (ROOT / "static" / "projects.js").read_text(encoding="utf-8")
+        self.assertIn('["papers", "引用池"]', projects)
+        self.assertIn("data-paper-remove", projects)
+        self.assertIn("kind=papers", projects)
+
+        draft = (ROOT / "static" / "draft.js").read_text(encoding="utf-8")
+        self.assertIn("data-draft-add-paper", draft)
+        self.assertIn('projectPath("/papers")', draft)
+        self.assertIn("/api/paper-candidates", draft)
+        # The old copy promised an "import papers" action that never existed.
+        self.assertNotIn("启动运行或导入论文后即可插入引用", draft)
+
     def test_dossier_tab_and_module_contract(self) -> None:
         html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
         self.assertIn('data-tab="dossier"', html)
@@ -337,6 +379,19 @@ class FrontendContractTests(unittest.TestCase):
         app = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
         self.assertIn('"dossier"', app)
         self.assertIn('"copilot"', app)
+
+
+    def test_aggregate_search_shows_each_source_outcome(self) -> None:
+        """A failed source must be visible, not silently merged away."""
+        html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+        self.assertIn('id="sourceNotice"', html)
+        app = (ROOT / "static" / "app.js").read_text(encoding="utf-8")
+        self.assertIn("function renderSourceNotice(", app)
+        self.assertIn("renderSourceNotice(data.source_status)", app)
+        self.assertIn('badge("回退演示语料"', app)
+        search = (ROOT / "app" / "services" / "search.py").read_text(encoding="utf-8")
+        self.assertIn("def search_auto_report(", search)
+        self.assertIn("def search_with_report(", search)
 
 
 if __name__ == "__main__":

@@ -15,11 +15,16 @@ class ModelRoutingTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.env = patch.dict(os.environ, {"PAPERPILOT_DATA_DIR": self.tmp.name})
         self.env.start()
+        # These tests drive the gateway with a mocked HTTP client, so their premise is a
+        # configured key: the gateway now blocks a call that could never leave the process.
+        self.enabled = patch.object(config, "LLM_ENABLED", True)
+        self.enabled.start()
         llm_gateway.reset_audit()
         llm_gateway.reset_cache()
 
     def tearDown(self) -> None:
         llm_gateway.reset_audit()
+        self.enabled.stop()
         self.env.stop()
         self.tmp.cleanup()
 

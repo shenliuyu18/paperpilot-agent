@@ -58,6 +58,10 @@
     selectedSection: "",
     dirty: false,
     busy: false,
+    styleDirty: false,
+    loadedBody: "",
+    saveError: "",
+    serverChanged: false,
     evidenceFilter: "",
     paperFilter: "",
     mountToken: 0,
@@ -279,8 +283,12 @@
   }
 
   function renderCitationSide() {
+    const head = `
+      <div class="draft-side-actions">
+        <button class="btn btn-ghost btn-small" type="button" data-draft-add-paper>添加论文</button>
+      </div>`;
     if (!state.papers.length) {
-      return `<p class="muted small draft-side-empty">项目记忆中没有论文。启动运行或导入论文后即可插入引用。</p>`;
+      return `${head}<p class="muted small draft-side-empty">引用池还是空的。在检索结果、我的库或精读页点击“加入项目”，或点上面的“添加论文”从候选列表里挑一篇。</p>`;
     }
     const citations = draftOrDefault().citations || {};
     const selected = selectedEntry();
@@ -309,6 +317,7 @@
       })
       .join("");
     return `
+      ${head}
       <input class="draft-filter" type="search" data-draft-filter-papers value="${esc(state.paperFilter)}" placeholder="筛选论文…" aria-label="筛选论文" />
       <div class="draft-side-list">${rows}</div>
       <p class="muted small draft-filter-empty" data-draft-filter-empty="papers" hidden>没有匹配的论文。</p>
@@ -683,6 +692,11 @@
     line.classList.toggle("dirty", state.dirty);
   }
 
+  function syncStyleSelect(container) {
+    const select = container.querySelector("[data-draft-style]");
+    if (select) select.value = draftOrDefault().citation_style || "numeric";
+  }
+
   async function loadVersions() {
     const data = await api(projectPath("/draft/versions"));
     state.versions = Array.isArray(data.versions) ? data.versions : [];
@@ -700,6 +714,8 @@
       container.textContent = "草稿工作台初始化失败：缺少 PaperPilot 运行时。";
       return;
     }
+    // A remount must not drop text that was never saved.
+    if (state.dirty && !(await flush())) return;
     const token = (state.mountToken += 1);
     state.container = container;
     state.projectId = String(projectId || "");
@@ -714,6 +730,9 @@
     state.selectedSection = "";
     state.dirty = false;
     state.busy = false;
+    state.styleDirty = false;
+    state.serverChanged = false;
+    state.loadedBody = "";
     state.evidenceFilter = "";
     state.paperFilter = "";
     resetAudit();
@@ -727,6 +746,7 @@
       ]);
       if (token !== state.mountToken) return;
       state.draft = draftData.draft || null;
+      state.loadedBody = bodyFingerprint(state.draft);
       state.evidence = Array.isArray(evidenceData.items) ? evidenceData.items : [];
       state.papers = Array.isArray(papersData.items) ? papersData.items : [];
       try {
@@ -749,35 +769,126 @@
     }
   }
 
-  async function saveDraft(container) {
+  /**
+   * Fingerprint of the body the server last handed us.
+   *
+   * The workbench keeps editing a local copy, so the revision can move under
+   * it (a reference import, an agent writing a section). Comparing the server
+   * body with this fingerprint tells us whether only the revision moved or the
+   * text itself was rewritten.
+   */
+  function bodyFingerprint(draft) {
+    const source = draft || {};
+    return JSON.stringify({
+      title: String(source.title || ""),
+      sections: source.sections || [],
+    });
+  }
+
+  function putDraft(revision) {
+    const draft = draftOrDefault();
+    const payload = {
+      revision,
+      title: draft.title,
+      sections: draft.sections,
+    };
+    // The manuscript drawer mirrors its style into the draft without bumping
+    // the revision, so sending the picker value we happen to hold would undo
+    // that choice. Only send the style when it was changed here.
+    if (state.styleDirty) payload.citation_style = draft.citation_style;
+    return send(projectPath("/draft"), { method: "PUT", body: JSON.stringify(payload) });
+  }
+
+  /**
+   * Re-align the local draft with a server revision that moved under us.
+   *
+   * The server body may also have been rewritten (an agent wrote a section,
+   * a version was restored). The caller decides what to do with that: an
+   * automatic flush keeps the local text on screen, an explicit save may
+   * overwrite it — but never without saying so.
+   */
+  async function adoptServerRevision() {
+    let server = null;
+    try {
+      const data = await api(projectPath("/draft"));
+      server = (data && data.draft) || null;
+    } catch (error) {
+      state.saveError = error.message;
+      return { adopted: false, rewritten: false };
+    }
+    if (!server) {
+      state.saveError = "无法读取服务器上的草稿。";
+      return { adopted: false, rewritten: false };
+    }
+    const rewritten = bodyFingerprint(server) !== state.loadedBody;
+    const local = draftOrDefault();
+    state.draft = {
+      ...server,
+      title: local.title,
+      sections: local.sections,
+      citations: { ...(server.citations || {}), ...(local.citations || {}) },
+    };
+    state.serverChanged = rewritten;
+    state.loadedBody = bodyFingerprint(server);
+    return { adopted: true, rewritten };
+  }
+
+  async function saveDraft(container, options = {}) {
+    const quiet = Boolean(options.quiet);
+    // An automatic flush never overwrites a body somebody else rewrote; an
+    // explicit save does, and says so.
+    const allowOverwrite = options.allowOverwrite !== undefined
+      ? Boolean(options.allowOverwrite)
+      : !quiet;
     if (!state.draft) return false;
     if (state.busy) {
-      toast("正在处理上一个操作，请稍候。", true);
+      if (!quiet) toast("正在处理上一个操作，请稍候。", true);
       return false;
     }
     state.busy = true;
+    state.saveError = "";
     try {
-      const draft = draftOrDefault();
-      const data = await send(projectPath("/draft"), {
-        method: "PUT",
-        body: JSON.stringify({
-          revision: state.draft.revision,
-          title: draft.title,
-          citation_style: draft.citation_style,
-          sections: draft.sections,
-        }),
-      });
+      let data;
+      let conflictNote = "";
+      try {
+        data = await putDraft(state.draft.revision);
+      } catch (error) {
+        if (error.status !== 409) throw error;
+        const outcome = await adoptServerRevision();
+        if (!outcome.adopted) {
+          toast(`${state.saveError}，本次修改没有保存。`, true);
+          return false;
+        }
+        if (outcome.rewritten && !allowOverwrite) {
+          state.saveError = "服务器上的草稿正文已被改写";
+          toast(
+            `${state.saveError}，你的正文仍留在页面上。保存会覆盖服务器版本，刷新页面则改用服务器版本。`,
+            true
+          );
+          return false;
+        }
+        data = await putDraft(state.draft.revision);
+        conflictNote = outcome.rewritten
+          ? "服务器草稿正文已被改写，已用你的正文保存。"
+          : "服务器草稿已更新，本次修改已合并保存。";
+      }
       state.draft = data.draft;
       state.dirty = false;
+      state.styleDirty = false;
+      state.serverChanged = false;
+      state.loadedBody = bodyFingerprint(data.draft);
       ensureSelection();
-      render(container);
-      toast("草稿已保存");
+      if (quiet) {
+        updateStatus(container);
+        syncStyleSelect(container);
+      } else {
+        render(container);
+      }
+      if (conflictNote) toast(conflictNote);
+      else if (!quiet) toast("草稿已保存");
       return true;
     } catch (error) {
-      if (error.status === 409) {
-        await handleConflict(container);
-        return false;
-      }
+      state.saveError = error.message;
       toast(error.message, true);
       return false;
     } finally {
@@ -785,11 +896,47 @@
     }
   }
 
+  /**
+   * Save whatever the student typed before the workbench is torn down.
+   *
+   * The draft view is rebuilt whenever the project view is re-rendered, so a
+   * tab switch used to drop the text that was never saved. Returns false when
+   * the caller must keep the view (and the text) instead of rebuilding it.
+   */
+  async function flush() {
+    if (!state.dirty || !state.draft) return true;
+    if (state.serverChanged) {
+      const overwrite = window.confirm(
+        "服务器上的草稿正文已被改写，你的正文还没有保存。是否用你的正文覆盖服务器版本？"
+      );
+      if (!overwrite) return false;
+      return await saveDraft(state.container, { quiet: true, allowOverwrite: true });
+    }
+    const saved = await saveDraft(state.container, { quiet: true });
+    if (saved) return true;
+    const reason = state.saveError ? `（${state.saveError}）` : "";
+    return window.confirm(
+      `草稿没有保存成功${reason}，本次修改还留在页面上。离开会丢失这些修改。仍然离开吗？`
+    );
+  }
+
   async function handleConflict(container) {
     try {
       const data = await api(projectPath("/draft"));
-      state.draft = data.draft;
-      state.dirty = false;
+      const server = (data && data.draft) || {};
+      const local = draftOrDefault();
+      const rewritten = bodyFingerprint(server) !== state.loadedBody;
+      // Keep what the student typed. Reloading the server copy here used to
+      // throw away unsaved text without asking.
+      state.draft = {
+        ...server,
+        title: local.title,
+        sections: local.sections,
+        citations: { ...(server.citations || {}), ...(local.citations || {}) },
+      };
+      state.dirty = true;
+      state.serverChanged = rewritten;
+      state.loadedBody = bodyFingerprint(server);
       resetAudit();
       try {
         await loadVersions();
@@ -798,7 +945,12 @@
       }
       ensureSelection();
       render(container);
-      toast("草稿已在别处更新，已载入最新版本，请确认后重新编辑。", true);
+      toast(
+        rewritten
+          ? "服务器上的草稿正文已被改写，你的正文仍留在页面上。保存会覆盖服务器版本。"
+          : "草稿已在别处更新，你的正文已保留，请再次保存。",
+        true
+      );
     } catch (error) {
       toast(error.message, true);
     }
@@ -841,6 +993,7 @@
       state.auditAt = new Date().toLocaleTimeString("zh-CN", { hour12: false });
       const fresh = await api(projectPath("/draft"));
       state.draft = fresh.draft;
+      state.loadedBody = bodyFingerprint(state.draft);
       state.dirty = false;
       ensureSelection();
       render(container);
@@ -958,13 +1111,27 @@
     }
     state.busy = true;
     try {
-      const data = await send(projectPath("/draft/citations"), {
-        method: "POST",
-        body: JSON.stringify({ paper_id: paperId, revision: state.draft.revision }),
-      });
+      let data = null;
+      try {
+        data = await send(projectPath("/draft/citations"), {
+          method: "POST",
+          body: JSON.stringify({ paper_id: paperId, revision: state.draft.revision }),
+        });
+      } catch (error) {
+        if (error.status !== 409) throw error;
+        if (!(await adoptServerRevision())) {
+          await handleConflict(container);
+          return;
+        }
+        data = await send(projectPath("/draft/citations"), {
+          method: "POST",
+          body: JSON.stringify({ paper_id: paperId, revision: state.draft.revision }),
+        });
+      }
+      const target = state.draft.citations || (state.draft.citations = {});
       if (typeof data.revision === "number") state.draft.revision = data.revision;
-      if (data.citation) citations[paperId] = data.citation;
-      else if (!citations[paperId]) citations[paperId] = { key: data.key };
+      if (data.citation) target[paperId] = data.citation;
+      else if (!target[paperId]) target[paperId] = { key: data.key };
       const key = String(data.key || "");
       if (key && !keys.includes(key)) keys.push(key);
       markDirty(container);
@@ -993,6 +1160,7 @@
     try {
       const data = await api(projectPath(`/draft/versions/${encodeURIComponent(versionId)}/restore`), { method: "POST" });
       state.draft = data.draft;
+      state.loadedBody = bodyFingerprint(state.draft);
       state.dirty = false;
       resetAudit();
       await loadVersions();
@@ -1183,7 +1351,52 @@
       state.draft.citation_style = CITATION_STYLES.some(([id]) => id === target.value)
         ? target.value
         : "numeric";
+      state.styleDirty = true;
       markDirty(container);
+    }
+  }
+
+  async function addPaperToPool(container) {
+    let candidates = [];
+    try {
+      const data = await api("/api/paper-candidates?limit=60");
+      candidates = data.items || [];
+    } catch (error) {
+      toast(error.message, true);
+      return;
+    }
+    const inPool = new Set(state.papers.map((paper) => String(paper.id ?? "")));
+    const usable = candidates.filter((item) => !inPool.has(String(item.id)));
+    if (!usable.length) {
+      toast(candidates.length ? "候选论文都已经在引用池里了。" : "还没有可加入的论文，先去检索或上传。", true);
+      return;
+    }
+    const lines = usable
+      .map((item, index) => `${index + 1}. ${item.title || item.id}（${item.year || "—"}）`)
+      .join("\n");
+    const answer = (window.prompt(`加入哪一篇到引用池？\n${lines}\n输入序号：`, "1") || "").trim();
+    const index = Number(answer) - 1;
+    if (!Number.isInteger(index) || index < 0 || index >= usable.length) {
+      toast("未选择论文。", true);
+      return;
+    }
+    const paperId = String(usable[index].id);
+    try {
+      const data = await send(projectPath("/papers"), {
+        method: "POST",
+        body: JSON.stringify({ paper_ids: [paperId] }),
+      });
+      const missing = data.missing || [];
+      if (missing.length) {
+        toast(`论文未找到：${missing.join("、")}`, true);
+        return;
+      }
+      const refreshed = await api(projectPath("/memory") + "?kind=papers&limit=100");
+      state.papers = Array.isArray(refreshed.items) ? refreshed.items : [];
+      render(container);
+      toast("已加入引用池");
+    } catch (error) {
+      toast(error.message, true);
     }
   }
 
@@ -1193,6 +1406,10 @@
 
     if (target.closest("[data-draft-retry]")) {
       await mount(container, state.projectId);
+      return;
+    }
+    if (target.closest("[data-draft-add-paper]")) {
+      await addPaperToPool(container);
       return;
     }
     if (target.closest("[data-draft-save]")) {
@@ -1351,5 +1568,12 @@
     }
   });
 
-  window.PaperPilotDraft = { mount, focus };
+  // Leaving the page with unsaved text would drop it without warning.
+  window.addEventListener("beforeunload", (event) => {
+    if (!state.dirty) return;
+    event.preventDefault();
+    event.returnValue = "";
+  });
+
+  window.PaperPilotDraft = { mount, focus, flush, isDirty: () => Boolean(state.dirty) };
 })();

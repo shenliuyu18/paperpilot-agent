@@ -52,6 +52,7 @@ from .schemas import (
     GraphRequest,
     LibrarySaveRequest,
     LibraryUpdateRequest,
+    PaperPoolRequest,
     OnlineGlossaryRequest,
     PaperRequest,
     ProjectCreateRequest,
@@ -91,6 +92,7 @@ from .services import (
     draft_state,
     glossary_store,
     history,
+    identifiers,
     library,
     llm_gateway,
     llm_settings,
@@ -117,7 +119,7 @@ llm_settings.apply()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=config.cors_allow_origins(),
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -451,6 +453,110 @@ def api_project_memory(
     return {"kind": kind, "total": len(items), "items": items[offset:offset + limit]}
 
 
+def _resolve_pool_paper(paper_id: str) -> dict | None:
+    """Find a paper the user can put into a citation pool.
+
+    Demo corpus, uploaded papers and research-library records all qualify.
+    The library record is returned as-is because ``library.as_paper`` drops
+    the DOI, and a reference without a DOI degrades the citation styles.
+    """
+    paper = search.get_paper(paper_id)
+    if paper:
+        return paper
+    return library.get(paper_id)
+
+
+@app.post("/api/projects/{project_id}/papers")
+def api_project_add_papers(project_id: str, request: PaperPoolRequest) -> dict:
+    """Put papers into the project's citation pool.
+
+    A paper becomes citable only when the project memory holds its record,
+    so this is the bridge between "I read it" and "I can cite it".
+    """
+    _project_or_404(project_id)
+    resolved: list[dict] = []
+    missing: list[str] = []
+    for raw_id in request.paper_ids:
+        paper_id = str(raw_id or "").strip()
+        if not identifiers.is_safe_id(paper_id):
+            missing.append(paper_id or str(raw_id))
+            continue
+        paper = _resolve_pool_paper(paper_id)
+        if not paper:
+            missing.append(paper_id)
+            continue
+        resolved.append(paper)
+    if resolved:
+        project_state.remember_papers(project_id, resolved)
+        project_service.sync_counts(project_id)
+    memory = project_state.read_memory(project_id)
+    pool = memory.get("papers") or {}
+    return {
+        "ok": True,
+        "added": len(resolved),
+        "missing": missing,
+        "papers": [pool[str(paper.get("id") or paper.get("paper_id"))] for paper in resolved
+                   if str(paper.get("id") or paper.get("paper_id")) in pool],
+    }
+
+
+@app.delete("/api/projects/{project_id}/papers/{paper_id}")
+def api_project_remove_paper(project_id: str, paper_id: str) -> dict:
+    _project_or_404(project_id)
+    if not identifiers.is_safe_id(paper_id):
+        raise HTTPException(status_code=400, detail="非法论文标识符。")
+    removed = project_state.forget_paper(project_id, paper_id)
+    if removed:
+        project_service.sync_counts(project_id)
+    return {"ok": True, "removed": removed}
+
+
+def _pool_candidates(query: str = "", limit: int = 60) -> list[dict]:
+    """Every paper the user could put into a citation pool.
+
+    Live search results are not here: they live in the browser session and
+    are added straight from the result card.
+    """
+    items: list[dict] = []
+    seen: set[str] = set()
+    for paper in search.all_papers():
+        paper_id = str(paper.get("id") or "")
+        if not paper_id or paper_id in seen:
+            continue
+        seen.add(paper_id)
+        items.append({
+            "id": paper_id,
+            "title": paper.get("title") or "",
+            "year": paper.get("year"),
+            "venue": paper.get("venue") or "",
+            "source": paper.get("source") or "",
+        })
+    for item in library.list_items():
+        paper_id = str(item.get("paper_id") or "")
+        if not paper_id or paper_id in seen:
+            continue
+        seen.add(paper_id)
+        items.append({
+            "id": paper_id,
+            "title": item.get("title") or "",
+            "year": item.get("year"),
+            "venue": item.get("venue") or "",
+            "source": item.get("source") or "library",
+        })
+    keyword = query.strip().lower()
+    if keyword:
+        items = [
+            item for item in items
+            if keyword in f"{item['title']} {item['venue']} {item['year']} {item['source']}".lower()
+        ]
+    return items[:limit]
+
+
+@app.get("/api/paper-candidates")
+def api_paper_candidates(query: str = "", limit: int = Query(default=60, ge=1, le=100)) -> dict:
+    return {"items": _pool_candidates(query, limit)}
+
+
 @app.get("/api/projects/{project_id}/runs")
 def api_project_runs(project_id: str, limit: int = 20) -> dict:
     project = _project_or_404(project_id)
@@ -567,6 +673,8 @@ def api_draft_save(project_id: str, request: DraftSaveRequest) -> dict:
         payload = request.model_dump()
         if "citations" not in request.model_fields_set:
             payload.pop("citations", None)
+        if "citation_style" not in request.model_fields_set:
+            payload.pop("citation_style", None)
         draft = draft_service.save_draft(project_id, payload)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="研究项目不存在。") from exc
@@ -1161,7 +1269,7 @@ def api_search_plan(request: SearchPlanRequest) -> dict:
 def api_search(request: SearchRequest) -> dict:
     source, source_label = resolve_source(request.source)
     try:
-        papers = search.search(request.query, request.limit, source)
+        papers, source_status = search.search_with_report(request.query, request.limit, source)
     except custom_sources.CustomSourceError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
@@ -1189,6 +1297,7 @@ def api_search(request: SearchRequest) -> dict:
         "papers_full": annotated,
         "plan": planner.build_plan(request.query, source),
         "layers": layers,
+        "source_status": source_status,
     }
 
 
@@ -1515,6 +1624,8 @@ def api_eval() -> dict:
 
 @app.get("/api/paper/{paper_id}/parsed")
 def api_parsed(paper_id: str) -> dict:
+    if not identifiers.is_safe_id(paper_id):
+        raise HTTPException(status_code=400, detail="非法论文标识符。")
     path = config.PARSED_DIR / f"{paper_id}.json"
     if not path.exists():
         raise HTTPException(status_code=404, detail="没有该论文的解析缓存。")

@@ -260,6 +260,27 @@
   line-height: 1.7;
 }
 
+.project-paper-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  min-width: 0;
+}
+
+.project-paper-row:last-child {
+  border-bottom: 0;
+}
+
+.project-paper-row strong {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
 .compare-table {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -490,6 +511,12 @@
   margin: 0;
   font-size: 13px;
   line-height: 1.4;
+}
+
+.draft-side-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
 }
 
 .draft-outline-list,

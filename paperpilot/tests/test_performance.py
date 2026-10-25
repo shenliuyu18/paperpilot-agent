@@ -28,7 +28,7 @@ class ReadCacheTests(unittest.TestCase):
             "full_text": True,
         }
         with patch.object(config, "LLM_ENABLED", False), \
-             patch.object(analysis, "_llm_read", return_value=None), \
+             patch.object(analysis, "_llm_read", return_value=(None, "")), \
              patch.object(analysis, "_heuristic_fields", wraps=analysis._heuristic_fields) as spy:
             first = analysis.read_paper(paper, "5min")
             second = analysis.read_paper(paper, "5min")

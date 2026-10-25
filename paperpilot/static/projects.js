@@ -36,6 +36,7 @@
     ["assistant", "Copilot"],
     ["runs", "运行"],
     ["evidence", "证据"],
+    ["papers", "引用池"],
     ["draft", "草稿"],
     ["compare", "对比"],
   ];
@@ -66,10 +67,16 @@
     return panel || window.PaperPilot.panel;
   }
 
+  async function flushDraft() {
+    if (!window.PaperPilotDraft?.isDirty?.()) return true;
+    return window.PaperPilotDraft.flush();
+  }
+
   async function render(panel, projectId = "") {
     panel = panelOf(panel);
     if (!panel) return;
     if (projectId) return open(panel, projectId);
+    if (!(await flushDraft())) return;
     try {
       const data = await api("/api/projects");
       state.projects = data.projects || [];
@@ -103,6 +110,7 @@
               <div class="project-counts">
                 <span>${project.counts?.runs || 0} 轮</span>
                 <span>${project.counts?.evidence || 0} 证据</span>
+                <span>${project.counts?.papers || 0} 引用池</span>
                 <span>${project.counts?.draft_blocks || 0} 草稿块</span>
               </div>
             </button>
@@ -119,6 +127,7 @@
     }
     panel = panelOf(panel);
     if (!panel || !projectId) return;
+    if (!(await flushDraft())) return;
     try {
       const data = await api(`/api/projects/${encodeURIComponent(projectId)}`);
       state.project = data.project;
@@ -133,10 +142,19 @@
       state.comparePreselect = [];
       state.autoCompare = false;
     }
-    renderDetail(panel);
+    await renderDetail(panel);
   }
 
-  function renderDetail(panel) {
+  /**
+   * Rebuild the project detail view.
+   *
+   * The draft workbench lives inside this view, so it is destroyed on every
+   * re-render. The workbench therefore gets a chance to save pending text
+   * first; when it cannot, the view is left alone instead of dropping the
+   * text. Returns false when the re-render was aborted.
+   */
+  async function renderDetail(panel) {
+    if (!(await flushDraft())) return false;
     const project = state.project;
     if (!project) return render(panel);
     panel.innerHTML = `
@@ -149,6 +167,7 @@
             <div class="project-meta">
               ${badge(`${project.counts?.runs || 0} 轮运行`, "soft")}
               ${badge(`${project.counts?.evidence || 0} 条证据`, "muted")}
+              ${badge(`${project.counts?.papers || 0} 篇引用池`, project.counts?.papers ? "green" : "muted")}
               ${project.active_run_id ? badge("有运行正在进行", "green") : badge("空闲", "muted")}
               ${project.updated_at ? `<span class="muted small">更新 ${esc(project.updated_at)}</span>` : ""}
             </div>
@@ -169,6 +188,7 @@
       </div>
     `;
     renderTab(panel);
+    return true;
   }
 
   async function renderTab(panel) {
@@ -189,6 +209,10 @@
     }
     if (state.tab === "evidence") {
       await renderEvidence(body, project);
+      return;
+    }
+    if (state.tab === "papers") {
+      await renderPapers(body, project);
       return;
     }
     if (state.tab === "draft") {
@@ -249,6 +273,7 @@
         <div class="project-counts">
           <span>${project.counts?.runs || 0} 轮运行</span>
           <span>${project.counts?.evidence || 0} 条证据</span>
+          <span>${project.counts?.papers || 0} 篇引用池</span>
           <span>${project.counts?.open_questions || 0} 个开放问题</span>
           <span>${project.draft_summary?.blocks || 0} 个草稿块</span>
         </div>
@@ -337,6 +362,54 @@
       </section>
     `;
     consumeFocus(body, "evidence");
+  }
+
+  async function renderPapers(body, project) {
+    body.innerHTML = `<section class="card"><div class="loading-line"></div><p class="muted">正在读取引用池…</p></section>`;
+    let items = [];
+    try {
+      const data = await api(`/api/projects/${encodeURIComponent(project.id)}/memory?kind=papers&limit=100`);
+      items = data.items || [];
+    } catch (error) {
+      body.innerHTML = `<div class="warn-box">${esc(error.message)}</div>`;
+      return;
+    }
+    body.innerHTML = `
+      <section class="card">
+        <div class="card-head"><h3>引用池</h3><span class="muted small">${items.length} 篇</span></div>
+        <p class="muted small">引用池里的论文可以直接在草稿里插入引用。检索结果、我的库和精读页都有“加入项目”按钮。</p>
+        ${items.length ? `<div class="project-paper-list">${items.map((paper) => {
+          const id = String(paper.id || "");
+          const authors = Array.isArray(paper.authors) ? paper.authors : [];
+          const meta = [
+            authors.slice(0, 2).join(", ") + (authors.length > 2 ? " 等" : ""),
+            paper.year || "",
+            paper.venue || "",
+          ].filter(Boolean).join(" · ");
+          return `
+            <div class="project-paper-row" data-paper-id="${esc(id)}">
+              <div style="min-width:0">
+                <strong>${esc(paper.title || id || "未命名论文")}</strong>
+                <div class="muted small">${esc(meta || "元数据待补全")}</div>
+              </div>
+              <button class="btn btn-small btn-ghost" type="button" data-paper-remove="${esc(id)}">移除</button>
+            </div>
+          `;
+        }).join("")}</div>` : `<p class="muted">引用池还是空的。在检索结果、我的库或精读页点击“加入项目”，论文就会出现在这里。</p>`}
+      </section>
+    `;
+  }
+
+  async function removePaperFromPool(projectId, paperId) {
+    try {
+      await api(`/api/projects/${encodeURIComponent(projectId)}/papers/${encodeURIComponent(paperId)}`, {
+        method: "DELETE",
+      });
+      toast("已从引用池移除");
+      await open(window.PaperPilot.panel, projectId, false);
+    } catch (error) {
+      toast(error.message, true);
+    }
   }
 
   async function renderDraft(body, project) {
@@ -486,7 +559,7 @@
     state.focus = { tab, id: String(target.id || "") };
     state.tab = tab;
     state.compare = null;
-    renderDetail(panel);
+    await renderDetail(panel);
   }
 
   async function handleAssistantAction(type, payload = {}) {
@@ -524,7 +597,7 @@
       state.autoAudit = type === "run_audit";
       state.tab = "draft";
       state.compare = null;
-      renderDetail(panel);
+      await renderDetail(panel);
       return;
     }
     if (type === "compare_runs") {
@@ -532,12 +605,24 @@
       state.autoCompare = true;
       state.tab = "runs";
       state.compare = null;
-      renderDetail(panel);
+      await renderDetail(panel);
       return;
     }
     if (type === "open_evidence") {
       focusCitation({ tab: "evidence", id: payload.evidence_id });
     }
+  }
+
+  async function switchProjectTab(panel, nextTab) {
+    const previous = state.tab;
+    state.tab = nextTab;
+    const rendered = await renderDetail(panel);
+    if (!rendered) {
+      // The draft workbench could not save; keep the student where they were
+      // instead of moving them away from the text they are writing.
+      state.tab = previous;
+    }
+    return rendered;
   }
 
   function updateCompareHint(panel) {
@@ -578,9 +663,8 @@
     }
     const tabButton = target.closest("[data-project-tab]");
     if (tabButton) {
-      state.tab = tabButton.dataset.projectTab || "overview";
       state.compare = null;
-      renderDetail(panel);
+      await switchProjectTab(panel, tabButton.dataset.projectTab || "overview");
       return;
     }
     const runButton = target.closest("[data-project-run]");
@@ -590,9 +674,7 @@
     }
     const copilotButton = target.closest("[data-project-copilot]");
     if (copilotButton && state.project) {
-      state.tab = "assistant";
-      state.compare = null;
-      renderDetail(panel);
+      await switchProjectTab(panel, "assistant");
       return;
     }
     const openRun = target.closest("[data-open-run]");
@@ -605,6 +687,11 @@
       }
       return;
     }
+    const removePaper = target.closest("[data-paper-remove]");
+    if (removePaper && state.project) {
+      await removePaperFromPool(state.project.id, removePaper.dataset.paperRemove);
+      return;
+    }
     const compareButton = target.closest("[data-project-compare]");
     if (compareButton && state.project) {
       const ids = Array.from(panel.querySelectorAll("[data-compare-run]:checked")).map((item) => item.dataset.compareRun);
@@ -614,8 +701,7 @@
       }
       try {
         state.compare = await api(`/api/projects/${encodeURIComponent(state.project.id)}/compare?run_ids=${ids.join(",")}`);
-        state.tab = "compare";
-        renderDetail(panel);
+        await switchProjectTab(panel, "compare");
       } catch (error) {
         toast(error.message, true);
       }

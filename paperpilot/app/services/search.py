@@ -783,8 +783,32 @@ def _is_transient_failure(exc: BaseException) -> bool:
     )
 
 
-def search_auto(query: str, limit: int = 8) -> list[dict]:
-    """Concurrent multi-source search with rank-fusion, dedupe and bounded latency."""
+AUTO_SOURCE_LABELS = {
+    "crossref": "Crossref 在线",
+    "arxiv": "arXiv 在线",
+    "europepmc": "Europe PMC",
+}
+
+
+def _auto_demo_fallback(query: str, limit: int) -> list[dict]:
+    return [
+        {**paper, "aggregate": True, "aggregate_fallback": True, "aggregate_sources": ["demo"]}
+        for paper in search_demo(query, limit)
+    ]
+
+
+def _short_error(exc: BaseException) -> str:
+    text = str(exc).strip() or exc.__class__.__name__
+    return text if len(text) <= 120 else text[:117] + "…"
+
+
+def search_auto_report(query: str, limit: int = 8) -> dict:
+    """Concurrent multi-source search plus a per-source outcome report.
+
+    The report is what keeps the aggregate honest: a source that timed out or
+    failed has to be visible, otherwise "多源并发聚合" reads as if all three
+    sources answered when only one did.
+    """
     source_order = ("crossref", "arxiv", "europepmc")
     fetchers = {
         "crossref": search_crossref,
@@ -792,13 +816,29 @@ def search_auto(query: str, limit: int = 8) -> list[dict]:
         "europepmc": search_europepmc,
     }
     available = [source for source in source_order if _auto_available(source)]
+    statuses = {
+        source: {
+            "source": source,
+            "label": AUTO_SOURCE_LABELS[source],
+            "status": "pending" if source in available else "skipped",
+            "count": 0,
+            "detail": "" if source in available else f"上一轮失败，{AUTO_COOLDOWN_TTL} 秒冷却中",
+        }
+        for source in source_order
+    }
     if not available:
-        return [
-            {**paper, "aggregate": True, "aggregate_fallback": True, "aggregate_sources": ["demo"]}
-            for paper in search_demo(query, limit)
-        ]
+        for item in statuses.values():
+            item["status"] = "skipped"
+            item["detail"] = f"全部在线来源处于冷却期（{AUTO_COOLDOWN_TTL} 秒）"
+        return {
+            "papers": _auto_demo_fallback(query, limit),
+            "sources": list(statuses.values()),
+            "fallback": True,
+        }
     per_source = max(4, min(limit, 8))
     gathered: dict[str, list[dict]] = {}
+    errors: dict[str, str] = {}
+    timeouts: set[str] = set()
     executor = ThreadPoolExecutor(max_workers=len(available))
     try:
         futures = {
@@ -814,6 +854,7 @@ def search_auto(query: str, limit: int = 8) -> list[dict]:
                     _auto_mark(source, False)
                 except Exception as exc:
                     gathered[source] = []
+                    errors[source] = _short_error(exc)
                     _auto_mark(source, _is_transient_failure(exc))
         except FuturesTimeoutError:
             timed_out = True
@@ -825,9 +866,11 @@ def search_auto(query: str, limit: int = 8) -> list[dict]:
                         _auto_mark(source, False)
                     except Exception as exc:
                         gathered[source] = []
+                        errors[source] = _short_error(exc)
                         _auto_mark(source, _is_transient_failure(exc))
                 else:
                     gathered[source] = []
+                    timeouts.add(source)
                     _auto_mark(source, True)
     finally:
         executor.shutdown(wait=False, cancel_futures=True)
@@ -862,11 +905,27 @@ def search_auto(query: str, limit: int = 8) -> list[dict]:
             str(entry["paper"].get("title") or ""),
         ),
     )
+    for source in source_order:
+        item = statuses[source]
+        if source not in available:
+            continue
+        if source in timeouts:
+            item["status"] = "timeout"
+            item["detail"] = f"超过 {AUTO_DEADLINE:g} 秒未返回"
+        elif source in errors:
+            item["status"] = "failed"
+            item["detail"] = errors[source]
+        else:
+            item["status"] = "ok"
+            item["count"] = len(gathered.get(source, []))
+            if not item["count"]:
+                item["detail"] = "本轮无命中"
     if not ordered:
-        return [
-            {**paper, "aggregate": True, "aggregate_fallback": True, "aggregate_sources": ["demo"]}
-            for paper in search_demo(query, limit)
-        ]
+        return {
+            "papers": _auto_demo_fallback(query, limit),
+            "sources": list(statuses.values()),
+            "fallback": True,
+        }
     results = []
     for entry in ordered[:limit]:
         paper = entry["paper"]
@@ -874,7 +933,16 @@ def search_auto(query: str, limit: int = 8) -> list[dict]:
         paper["aggregate_sources"] = list(entry["sources"])
         paper["aggregate_score"] = round(entry["score"], 4)
         results.append(paper)
-    return results
+    return {
+        "papers": results,
+        "sources": list(statuses.values()),
+        "fallback": False,
+    }
+
+
+def search_auto(query: str, limit: int = 8) -> list[dict]:
+    """Concurrent multi-source search with rank-fusion, dedupe and bounded latency."""
+    return search_auto_report(query, limit)["papers"]
 
 
 def search_upload(query: str, limit: int = 8) -> list[dict]:
@@ -902,6 +970,18 @@ def search_upload(query: str, limit: int = 8) -> list[dict]:
         scored.append((score, paper))
     scored.sort(key=lambda item: (-item[0], str(item[1].get("title") or "")))
     return [dict(paper, relevance=round(score, 2)) for score, paper in scored[:max(1, limit)]]
+
+
+def search_with_report(query: str, limit: int = 8, source: str = "demo") -> tuple[list[dict], dict]:
+    """Search plus a source-status block; only the aggregate source has one."""
+    if source == "auto":
+        report = search_auto_report(query, limit)
+        return report["papers"], {
+            "aggregate": True,
+            "fallback": report["fallback"],
+            "sources": report["sources"],
+        }
+    return search(query, limit, source), {}
 
 
 def search(query: str, limit: int = 8, source: str = "demo") -> list[dict]:

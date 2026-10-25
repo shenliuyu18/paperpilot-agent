@@ -6,7 +6,7 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.services import argument, library
+from app.services import argument, library, search
 
 
 class SearchPlanApiTests(unittest.TestCase):
@@ -62,6 +62,36 @@ class SearchPlanApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["score"], 60)
         self.assertTrue(review.called)
+
+    def test_aggregate_search_reports_every_source(self) -> None:
+        search._AUTO_COOLDOWN.clear()
+        try:
+            with patch.object(search, "search_crossref", return_value=[]), \
+                 patch.object(search, "search_arxiv", side_effect=RuntimeError("arxiv down")), \
+                 patch.object(search, "search_europepmc", return_value=[]):
+                response = self.client.post(
+                    "/api/search",
+                    json={"query": "存算一体 低功耗 ADC", "limit": 4, "source": "auto"},
+                )
+        finally:
+            search._AUTO_COOLDOWN.clear()
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        status = data["source_status"]
+        self.assertTrue(status["aggregate"])
+        self.assertTrue(status["fallback"])
+        by_source = {row["source"]: row for row in status["sources"]}
+        self.assertEqual(by_source["arxiv"]["status"], "failed")
+        self.assertIn("arxiv down", by_source["arxiv"]["detail"])
+        self.assertTrue(all(paper["aggregate_fallback"] for paper in data["papers"]))
+
+    def test_plain_sources_report_no_source_status(self) -> None:
+        response = self.client.post(
+            "/api/search",
+            json={"query": "存算一体 低功耗 ADC", "limit": 3, "source": "demo"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["source_status"], {})
 
     def test_security_headers_are_set(self) -> None:
         response = self.client.get("/api/health")

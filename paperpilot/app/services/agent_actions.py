@@ -897,7 +897,7 @@ def _llm_report(run: dict) -> str | None:
         "保留证据边界与未解决问题；每条结论至少带一个引用标记（如 [P1] 或 [1]）。"
         "输出中文 Markdown，保留离线草稿中的证据账本、未解决问题、预算与动作轨迹。"
     )
-    user = f"任务状态 JSON：\n{payload}\n\n离线简报草稿：\n{draft}"
+    user = f"任务状态（结构化摘要）：\n{payload}\n\n离线简报草稿：\n{draft}"
     for attempt in range(2):
         try:
             text, _ = llm_gateway.audited_chat(

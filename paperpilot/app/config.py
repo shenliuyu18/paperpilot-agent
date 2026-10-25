@@ -77,7 +77,7 @@ def _parse_routes(raw: str) -> dict[str, str]:
 
 
 LLM_ROUTES = _parse_routes(os.getenv("PAPERPILOT_LLM_ROUTES", ""))
-APP_VERSION = "8.3.1"
+APP_VERSION = "8.3.2"
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 ASSISTANT_MAX_MESSAGES = 60
 ASSISTANT_LLM_MAX_CALLS = 2

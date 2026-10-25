@@ -144,5 +144,28 @@ class RelatedWorkTextTests(unittest.TestCase):
         self.assertIn("P1", section["paragraphs"][0])
 
 
+    def test_related_work_strips_connectives_the_template_already_supplies(self) -> None:
+            profile = {
+                "cite": "P1",
+                "cluster": "ADC 近存转换",
+                "paper": {
+                    "id": "paper-1",
+                    "title": "Paper One",
+                    "abstract": "问题",
+                    "results": [{"name": "精度", "value": "97.2%"}],
+                },
+                "read": {
+                    "problem": "针对模拟 CIM 的 ADC 开销问题",
+                    "method": "采用了 twin 9T 位单元与 multi-VDD",
+                },
+                "limitations": ["未测工艺角"],
+            }
+            body = research._related_work("低功耗 ADC", [profile])
+            text = body["sections"][0]["paragraphs"][0]
+            for repeated in ("针对针对", "采用采用", "采用采用了", "报告报告"):
+                self.assertNotIn(repeated, text)
+            self.assertIn("采用 twin 9T 位单元", text)
+
+
 if __name__ == "__main__":
     unittest.main()

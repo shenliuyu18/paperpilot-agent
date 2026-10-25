@@ -84,6 +84,34 @@ def _sentence(value: str, limit: int = 260) -> str:
     return text + "。"
 
 
+_LEAD_PREFIXES = {
+    "problem": ("针对", "面向", "为了解决"),
+    "method": ("采用了", "采用", "提出了", "提出", "使用了", "使用", "基于"),
+    "result": ("报告了", "报告", "实现了", "达到"),
+}
+
+
+def _strip_lead(value: str, kind: str) -> str:
+    """Drop a connective the template already supplies.
+
+    The sentence is built as "针对{problem}，采用{method}，报告{result}"; model
+    output often starts with the same word, which used to produce "采用采用".
+    """
+    text = str(value or "").strip()
+    for prefix in _LEAD_PREFIXES.get(kind, ()):
+        if text.startswith(prefix) and len(text) > len(prefix):
+            return text[len(prefix):].lstrip("，, 、：:")
+    return text
+
+
+def _join_cjk(prefix: str, value: str) -> str:
+    """Keep a space between a Chinese connective and a Latin-starting value."""
+    text = str(value or "")
+    if prefix and text and text[0].isascii() and text[0].isalnum():
+        return f"{prefix} {text}"
+    return f"{prefix}{text}"
+
+
 def _cluster_of(paper: dict, read: dict, hardware: bool) -> str:
     if not hardware:
         return "相关工作"
@@ -845,8 +873,10 @@ def _related_work(topic: str, profiles: list[dict]) -> dict:
             limitation = profile["limitations"][0] if profile["limitations"] else "仍需核对更多测试条件"
             paragraphs.append(
                 _sentence(
-                    f"{profile['cite']} 针对{_inline(problem, 60)}，采用{_inline(method, 70)}，"
-                    f"报告{_inline(result, 45)}；其边界是{_inline(limitation, 70)}。",
+                    f"{profile['cite']} {_join_cjk('针对', _strip_lead(_inline(problem, 60), 'problem'))}，"
+                    f"{_join_cjk('采用', _strip_lead(_inline(method, 70), 'method'))}，"
+                    f"{_join_cjk('报告', _strip_lead(_inline(result, 45), 'result'))}；"
+                    f"其边界是{_inline(limitation, 70)}。",
                     430,
                 )
             )

@@ -78,7 +78,7 @@ export PAPERPILOT_LLM_MODEL=deepseek-chat
 
 | 门禁 | 当前结果 | 复现 |
 |---|---|---|
-| 全量单元测试 | **722/722** | `python -m unittest discover -s tests -p 'test_*.py'` |
+| 全量单元测试 | **729/729** | `python -m unittest discover -s tests -p 'test_*.py'` |
 | 端到端验收 | **104/104** | `python scripts/acceptance.py` |
 | 跨部件一致性审计 | **47/47** | `python scripts/audit_consistency.py` |
 | 内容回归 | **41/41** | `python scripts/evaluate.py` |
@@ -100,7 +100,7 @@ export PAPERPILOT_LLM_MODEL=deepseek-chat
 
 ## 最近版本
 
-当前 **8.3.1**：草稿里的证据可以一键跳回 PDF 原文页并高亮这句话（创空间镜像重新带上演示 PDF，新增不消耗模型的页数探针）；8.3.0 新增首屏「一键跑完一次完整研究」，把 17 个工作区串成一条可演示的路径。
+当前 **9.0.0**：用真实密钥把 Agent 在「离线规则 / 在线模型 × 在线论文 / 本地论文」四格里逐格跑通（4/4），并修掉「模型预算被精读吃光、研究简报退回离线」的问题——现在为简报预留最后一次调用。8.3.1 起草稿里的证据可一键跳回 PDF 原文页并高亮。
 
 - **8.2.0** 边界不再骗人：路径穿越可读本机模型密钥（已修）、CORS 默认同源、镜像不再打包用户数据、聚合检索回退逐源交代、草稿正文不再被静默丢弃、部署树与发布包逐条比对。
 - **8.1.4** 验证工具在 GBK 控制台上可靠（G1/H1 结构不变量）。

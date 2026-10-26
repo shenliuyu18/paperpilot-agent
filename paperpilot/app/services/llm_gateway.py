@@ -239,12 +239,26 @@ def summary(limit: int = 200) -> dict:
     }
 
 
-def _check_run_budget(run: dict | None) -> None:
+REPORT_RESERVE = 1
+
+
+def _check_run_budget(run: dict | None, purpose: str = "") -> None:
+    """Enforce the run's call budget, keeping the last call for the brief.
+
+    The research brief is the headline artifact, but reads and follow-up
+    questions used to consume every call, so a run with a small budget always
+    degraded the brief to the offline draft. One call is now reserved for
+    ``agent_report``; a zero budget still blocks everything.
+    """
     if not run:
         return
     snapshot = agent_state.budget_snapshot(run)
-    if int(snapshot["llm_calls"]["used"]) >= int(snapshot["llm_calls"]["max"]):
+    used = int(snapshot["llm_calls"]["used"])
+    cap = int(snapshot["llm_calls"]["max"])
+    if used >= cap:
         raise LLMBudgetExceeded("运行的模型调用预算已用尽。")
+    if purpose and purpose != "agent_report" and cap >= 2 and cap - used <= REPORT_RESERVE:
+        raise LLMBudgetExceeded("为研究简报预留最后一次模型调用，本次改用离线结果。")
 
 
 EMPTY_RETRY_DELAY = 0.6
@@ -350,7 +364,7 @@ def audited_chat(
     try:
         if budget is not None:
             budget.check()
-        _check_run_budget(effective_run)
+        _check_run_budget(effective_run, purpose)
     except LLMBudgetExceeded as exc:
         _record_degrade(purpose, "budget", str(exc), run=effective_run)
         raise

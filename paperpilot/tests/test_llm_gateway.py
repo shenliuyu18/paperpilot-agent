@@ -417,3 +417,37 @@ class LLMGatewayTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReportReserveTests(unittest.TestCase):
+    """The last call of a small budget belongs to the research brief."""
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", return_value="ok")
+    def test_compare_is_blocked_when_only_one_call_remains(self, chat) -> None:
+        llm_gateway.reset_audit()
+        run = agent_state.create_run_state("目标", "demo", "auto", {"max_llm_calls": 2})
+        run["budget_used"]["llm_calls"] = 1
+        with self.assertRaises(llm_gateway.LLMBudgetExceeded):
+            llm_gateway.audited_chat([{"role": "user", "content": "对比"}], purpose="compare", run=run)
+        chat.assert_not_called()
+        self.assertEqual(llm_gateway.audit_log()[-1]["degrade_reason"], "budget")
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", return_value="简报")
+    def test_report_can_still_use_the_reserved_call(self, chat) -> None:
+        llm_gateway.reset_audit()
+        run = agent_state.create_run_state("目标", "demo", "auto", {"max_llm_calls": 2})
+        run["budget_used"]["llm_calls"] = 1
+        text, meta = llm_gateway.audited_chat([{"role": "user", "content": "写简报"}], purpose="agent_report", run=run)
+        self.assertEqual(text, "简报")
+        self.assertEqual(meta["status"], "ok")
+        self.assertEqual(run["budget_used"]["llm_calls"], 2)
+
+    @patch.object(config, "LLM_ENABLED", True)
+    @patch("app.llm.chat", return_value="ok")
+    def test_zero_budget_still_blocks_the_report(self, chat) -> None:
+        run = agent_state.create_run_state("目标", "demo", "auto", {"max_llm_calls": 0})
+        with self.assertRaises(llm_gateway.LLMBudgetExceeded):
+            llm_gateway.audited_chat([{"role": "user", "content": "写简报"}], purpose="agent_report", run=run)
+        chat.assert_not_called()

@@ -216,7 +216,12 @@ def audit_cell(cell: dict) -> dict:
         check("简报图例覆盖论文", len(cited) >= 2 or not legend, {"legend": cited[:6]})
 
         calls = _audit_calls(base, str(run.get("id")))
-        charged = [c for c in calls if c.get("ok") and not c.get("cached")]
+        # A request that left the process is charged even when it fails, so the
+        # budget covers every non-cached call except the ones the budget itself
+        # blocked (those never left the process); cached replies are audited
+        # but never charged.
+        charged = [c for c in calls
+                   if not c.get("cached") and c.get("degrade_reason") != "budget"]
         budget = (run.get("budget_used") or {}).get("llm_calls")
         if cell["online_model"]:
             check("模型调用已留审计", bool(charged), {"calls": len(calls), "charged": len(charged)})
@@ -239,6 +244,7 @@ def audit_cell(cell: dict) -> dict:
             "report_mode": run.get("report", {}).get("mode"),
             "llm_calls": budget,
             "audit_calls": len(calls),
+            "transport_failures": len([c for c in calls if c.get("degrade_reason") == "transport"]),
             "project_id": run.get("project_id"),
         })
     except Exception as exc:  # noqa: BLE001 - a crashed cell is a finding, not a crash
@@ -276,6 +282,14 @@ def main() -> int:
             continue
         print(f"\n== {cell['label']} ==")
         entry = audit_cell(cell)
+        # A transport hiccup is the network, not the product: retry the cell once
+        # and keep the better attempt, recording that it was retried.
+        if entry.get("transport_failures") and entry["passed"] != entry["total"]:
+            print(f"  (transport failure detected; retrying {cell['key']} once)")
+            retry = audit_cell(cell)
+            retry["retried_after_transport"] = True
+            if retry["passed"] >= entry["passed"]:
+                entry = retry
         results.append(entry)
         for item in entry["checks"]:
             print(f"  {'PASS' if item['ok'] else 'FAIL'} {item['name']} | {item['detail']}")
